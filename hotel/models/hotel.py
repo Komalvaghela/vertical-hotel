@@ -25,7 +25,6 @@ import time
 from openerp import netsvc
 import datetime
 
-
 class hotel_floor(models.Model):
     _name = "hotel.floor"
     _description = "Floor"
@@ -104,23 +103,10 @@ class hotel_room(models.Model):
 
 #    def set_room_status_occupied(self, cr, uid, ids, context=None):
 #        return self.write(cr, uid, ids, {'status': 'occupied'}, context=context)
-#
+
 #    def set_room_status_available(self, cr, uid, ids, context=None):
 #        return self.write(cr, uid, ids, {'status': 'available'}, context=context)
 
-## class room_rent(orm.Model):
-##     _name = 'room.rent'
-##     _columns = {
-##         'rent_id': fields.many2one('hotel.room', 'Room Rent'),
-##         'price': fields.float('Price (Per night)'),
-##         'mon': fields.boolean('Monday'),
-##         'tue': fields.boolean('Tuesday'),
-##         'wed': fields.boolean('Wednesday'),
-##         'thu': fields.boolean('Thursday'),
-##         'fri': fields.boolean('Friday'),
-##         'sat': fields.boolean('Saturday'),
-##         'sun': fields.boolean('Sunday'),
-##     }
 
 class hotel_folio(models.Model):
 
@@ -131,10 +117,10 @@ class hotel_folio(models.Model):
 
 #    def copy(self, cr, uid, id, default=None, context=None):
 #        return self.pool.get('sale.order').copy(cr, uid, id, default=None, context=None)
-#
+
 #    def _invoiced(self, cursor, user, ids, name, arg, context=None):
 #        return self.pool.get('sale.order')._invoiced(cursor, user, ids, name, arg, context=None)
-#
+
 #    def _invoiced_search(self, cursor, user, obj, name, args):
 #        return self.pool.get('sale.order')._invoiced_search(cursor, user, obj, name, args)
 
@@ -160,7 +146,7 @@ class hotel_folio(models.Model):
 #    _sql_constraints = [
 #        ('check_in_out', 'CHECK (checkin_date<=checkout_date)', 'Check in Date Should be less than the Check Out Date!'),
 #    ]
-#
+
 #    def _check_room_vacant(self, cr, uid, ids, context=None):
 #        folio = self.browse(cr, uid, ids[0], context=context)
 #        rooms = []
@@ -169,15 +155,44 @@ class hotel_folio(models.Model):
 #                return False
 #            rooms.append(room.product_id)
 #        return True
-#
+
 #    _constraints = [
 #        (_check_room_vacant, 'You cannot allocate the same room twice!', ['room_lines'])
 #    ]
-#
+
+    @api.onchange('checkin_date','checkout_date')
+    def onchange_dates(self):
+#        This mathod gives the duration between check in checkout if customer will leave only for some hour it would be considers as
+#        a whole day. If customer will checkin checkout for more or equal hours , which configured in company as additional hours than
+#        it would be consider as full day
+        value = {}
+        company_obj = self.env['res.company']
+        configured_addition_hours = 0
+        company_ids = self.env['res.company'].search([])
+        if company_ids:
+            configured_addition_hours = company_obj.browse(company_ids[0].id).additional_hours
+        if not self.duration:
+            duration = 0 
+            if self.checkin_date and self.checkout_date:
+                chkin_dt = datetime.datetime.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')
+                chkout_dt = datetime.datetime.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')
+                dur = chkout_dt - chkin_dt
+                duration = dur.days
+                if configured_addition_hours > 0:
+                    additional_hours = abs((dur.seconds / 60) / 60)
+                    if additional_hours >= configured_addition_hours:
+                        duration += 1
+            self.duration=duration           
+        else:
+            if self.checkin_date:
+                chkin_dt = datetime.datetime.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')
+                chkout_dt = chkin_dt + datetime.timedelta(days=self.duration)
+                checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
+            self.checkout_date = checkout_date    
+
+#completed in v8
 #    def onchange_dates(self, cr, uid, ids, checkin_date=False, checkout_date=False, duration=False):
-#        # This mathod gives the duration between check in checkout if customer will leave only for some hour it would be considers as
-#        # a whole day. If customer will checkin checkout for more or equal hours , which configured in company as additional hours than
-#        # it would be consider as full day
+#        # 
 #        value = {}
 #        company_obj = self.pool.get('res.company')
 #        configured_addition_hours = 0
@@ -204,7 +219,7 @@ class hotel_folio(models.Model):
 #                checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
 #                value.update({'value':{'checkout_date':checkout_date}})
 #        return value
-#
+
 #    def create(self, cr, uid, vals, context=None, check=True):
 #        tmp_room_lines = vals.get('room_lines', [])
 #        vals['order_policy'] = vals.get('hotel_policy', 'manual')
@@ -218,11 +233,29 @@ class hotel_folio(models.Model):
 #        else:
 #            folio_id = super(hotel_folio, self).create(cr, uid, vals, context=context)
 #        return folio_id
-#
+
+
+
 #    def onchange_warehouse_id(self, cr, uid, ids, warehouse_id):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').onchange_warehouse_id(cr, uid, order_ids, warehouse_id)
-#
+
+# test after workflow work.....!!
+#    @api.onchange('partner_id')
+#    def onchange_partner_id(self):       
+#        res = {}
+#        if partner_id:
+#            partner_rec = self.env['res.partner'].browse(self.partner_id)
+#            order_ids = [folio.order_id.id for folio in self.browse(self.ids)]
+#            if not order_ids:
+#                self.partner_invoice_id = partner_rec.id 
+#                self.pricelist_id = partner_rec.property_product_pricelist.id
+#                raise Warning('Not Any Order For  %s ' % (partner_rec.name))
+#            else:
+#                self.partner_invoice_id = partner_rec.id
+#                self.pricelist_id = partner_rec.property_product_pricelist.id
+
+
 #    def onchange_partner_id(self, cr, uid, ids, part, context=None):
 #        res = {}
 #        if part:
@@ -234,11 +267,11 @@ class hotel_folio(models.Model):
 #            else:
 #                res['value'] = {'partner_invoice_id': partner_rec.id, 'pricelist_id':partner_rec.property_product_pricelist.id}
 #        return res
-#
+
 #    def button_dummy(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').button_dummy(cr, uid, order_ids, context={})
-#
+
 #    def action_invoice_create(self, cr, uid, ids, grouped=False, states=['confirmed', 'done']):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        invoice_id = self.pool.get('sale.order').action_invoice_create(cr, uid, order_ids, grouped=False, states=['confirmed', 'done'])
@@ -249,7 +282,7 @@ class hotel_folio(models.Model):
 #            }
 #            line.write(values)
 #        return invoice_id
-#
+
 #    def action_invoice_cancel(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        res = self.pool.get('sale.order').action_invoice_cancel(cr, uid, order_ids, context=context)
@@ -258,7 +291,7 @@ class hotel_folio(models.Model):
 #                line.write({'invoiced': 'invoiced'})
 #        self.write(cr, uid, ids, {'state':'invoice_except'}, context=context)
 #        return res
-#
+
 #    def action_cancel(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids, context=context)]
 #        rv = self.pool.get('sale.order').action_cancel(cr, uid, order_ids, context=context)
@@ -270,7 +303,7 @@ class hotel_folio(models.Model):
 #                wf_service.trg_validate(uid, 'account.invoice', invoice.id, 'invoice_cancel', cr)
 #                sale.write({'state':'cancel'})
 #        return rv
-#
+
 #    def action_wait(self, cr, uid, ids, *args):
 #        sale_order_obj = self.pool.get('sale.order')
 #        res = False
@@ -287,7 +320,7 @@ class hotel_folio(models.Model):
 ##             state = ('progress', 'manual')[int(order.order_policy == 'manual' and not order.invoice_ids)]
 ##             order.write({'state': state})
 ##         return res
-#
+
 #    def test_state(self, cr, uid, ids, mode, *args):
 #        write_done_ids = []
 #        write_cancel_ids = []
@@ -297,26 +330,27 @@ class hotel_folio(models.Model):
 #        if write_cancel_ids:
 #            self.pool.get('sale.order.line').write(cr, uid, write_cancel_ids, {'state': 'cancel'})
 #        # return res
-#
+
 #    def procurement_lines_get(self, cr, uid, ids, *args):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        # return self.pool.get('sale.order').procurement_lines_get(cr, uid, order_ids, *args)
 #        return True
+
 #    def action_ship_create(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').action_ship_create(cr, uid, order_ids, context=None)
-#
+
 #    def action_ship_end(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        # res = self.pool.get('sale.order').action_ship_end(cr, uid, order_ids, context=context)
 #        for order in self.browse(cr, uid, ids, context=context):
 #            order.write ({'shipped':True})
 #        # return res
-#
+
 #    def has_stockable_products(self, cr, uid, ids, *args):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').has_stockable_products(cr, uid, order_ids, *args)
-#
+
 #    def action_cancel_draft(self, cr, uid, ids, *args):
 #        if not len(ids):
 #            return False
@@ -333,23 +367,24 @@ class hotel_folio(models.Model):
 #            message = _("The sales order '%s' has been set in draft state.") % (name,)
 #            self.log(cr, uid, id, message)
 #        return True
-#
+
+
 class hotel_folio_line(models.Model):
 
 #    def copy(self, cr, uid, id, default=None, context=None):
 #        return self.pool.get('sale.order.line').copy(cr, uid, id, default=None, context=context)
-#
+
 #    def _amount_line(self, cr, uid, ids, field_name, arg, context):
 #        return self.pool.get('sale.order.line')._amount_line(cr, uid, ids, field_name, arg, context)
-#
+
 #    def _number_packages(self, cr, uid, ids, field_name, arg, context):
 #        return self.pool.get('sale.order.line')._number_packages(cr, uid, ids, field_name, arg, context)
-#
+
 #    def _get_checkin_date(self, cr, uid, context=None):
 #        if 'checkin_date' in context:
 #            return context['checkin_date']
 #        return time.strftime('%Y-%m-%d %H:%M:%S')
-#
+
 #    def _get_checkout_date(self, cr, uid, context=None):
 #        if 'checkin_date' in context:
 #            return context['checkout_date']
@@ -374,7 +409,7 @@ class hotel_folio_line(models.Model):
 #            folio = self.pool.get("hotel.folio").browse(cr, uid, vals['folio_id'], context=context)
 #            vals.update({'order_id':folio.order_id.id})
 #        return super(osv.Model, self).create(cr, uid, vals, context)
-#
+
 #    def unlink(self, cr, uid, ids, context=None):
 #        sale_line_obj = self.pool.get('sale.order.line')
 #        for line in self.browse(cr, uid, ids, context=context):
@@ -385,7 +420,7 @@ class hotel_folio_line(models.Model):
 #    def uos_change(self, cr, uid, ids, product_uos, product_uos_qty=0, product_id=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return  self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
-#
+
 #    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -393,14 +428,32 @@ class hotel_folio_line(models.Model):
 #        return self.pool.get('sale.order.line').product_id_change(cr, uid, line_ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
-#
+
 #    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
 #        return self.product_id_change(cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
-#
+
+    @api.onchange('checkin_date','checkout_date')
+    def on_change_checkout(self):
+        if not self.checkin_date:
+            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
+        if not self.checkout_date:
+            checkout_date = time.strftime('%Y-%m-%d %H:%M:%S')
+        qty = 1
+        if self.checkout_date < self.checkin_date:
+            raise Warning('Checkout must be greater or equal checkin date')
+        if self.checkin_date:
+            diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
+            qty = diffDate.days
+            if qty == 0:
+                qty == 1
+        self.product_uom_qty = qty        
+
+
+
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=None, checkout_date=None, context=None):
 #        if not checkin_date:
 #            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -415,11 +468,11 @@ class hotel_folio_line(models.Model):
 #            if qty == 0:
 #                qty = 1
 #        return {'value':{'product_uom_qty':qty}}
-#
+
 #    def button_confirm(self, cr, uid, ids, context=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_confirm(cr, uid, line_ids, context=context)
-#
+
 #    def button_done(self, cr, uid, ids, context=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        res = self.pool.get('sale.order.line').button_done(cr, uid, line_ids, context=context)
@@ -428,22 +481,22 @@ class hotel_folio_line(models.Model):
 #        for line in self.browse(cr, uid, ids, context):
 #            wf_service.trg_write(uid, 'sale.order', line.order_line_id.order_id.id, cr)
 #        return res
-#
+
 #    def copy_data(self, cr, uid, id, default=None, context=None):
 #        line_id = self.browse(cr, uid, id).order_line_id.id
 #        return self.pool.get('sale.order.line').copy_data(cr, uid, line_id, default=None, context=context)
-#
+
 
 class hotel_service_line(models.Model):
 
 #    def copy(self, cr, uid, id, default=None, context=None):
 #        line_id = self.browse(cr, uid, id).service_line_id.id
 #        return self.pool.get('sale.order.line').copy(cr, uid, line_id, default=None, context=context)
-#
+
 #    def _amount_line(self, cr, uid, ids, field_name, arg, context):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return  self.pool.get('sale.order.line')._amount_line(cr, uid, line_ids, field_name, arg, context)
-#
+
 #    def _number_packages(self, cr, uid, ids, field_name, arg, context):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line')._number_packages(cr, uid, line_ids, field_name, arg, context)
@@ -460,14 +513,14 @@ class hotel_service_line(models.Model):
 #            folio = self.pool.get("hotel.folio").browse(cr, uid, vals['folio_id'], context=context)
 #            vals.update({'order_id':folio.order_id.id})
 #        return super(osv.Model, self).create(cr, uid, vals, context=context)
-#
+
 #    def unlink(self, cr, uid, ids, context=None):
 #        sale_line_obj = self.pool.get('sale.order.line')
 #        for line in self.browse(cr, uid, ids, context=context):
 #            if line.service_line_id:
 #                sale_line_obj.unlink(cr, uid, [line.service_line_id.id], context=context)
 #        return super(hotel_service_line, self).unlink(cr, uid, ids, context=None)
-#
+
 #    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -475,14 +528,29 @@ class hotel_service_line(models.Model):
 #        return self.pool.get('sale.order.line').product_id_change(cr, uid, line_ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
-#
+
 #    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
 #        return self.product_id_change(cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
-#
+
+#    @api.onchange('checkin_date','checkout_date')
+#    def on_change_checkout(self):
+#        if not self.checkin_date:
+#            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
+#        if not self.checkout_date:
+#            checkout_date = time.strftime('%Y-%m-%d %H:%M:%S')
+#        qty = 1
+#        if self.checkout_date < self.checkin_date:
+#            raise Warning('Checkout must be greater or equal checkin date')
+#        if self.checkin_date:
+#            diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
+#            qty = diffDate.days
+#        self.product_uom_qty = qty
+        
+#completed but testing,,,,,--------need ?????!!!
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=None, checkout_date=None, context=None):
 #        if not checkin_date:
 #            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -495,24 +563,26 @@ class hotel_service_line(models.Model):
 #            diffDate = datetime.datetime(*time.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
 #            qty = diffDate.days
 #        return {'value':{'product_uom_qty':qty}}
-#
+
+
 #    def button_confirm(self, cr, uid, ids, context=None):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_confirm(cr, uid, line_ids, context=context)
-#
+
+
 #    def button_done(self, cr, uid, ids, context=None):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_done(cr, uid, line_ids, context=context)
-#
+
+
 #    def uos_change(self, cr, uid, ids, product_uos, product_uos_qty=0, product_id=None):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
-#
+
 #    def copy_data(self, cr, uid, id, default=None, context=None):
 #        line_id = self.browse(cr, uid, id).service_line_id.id
 #        return self.pool.get('sale.order.line').copy_data(cr, uid, line_id, default=default, context=context)
-#
-#
+
 
 class hotel_service_type(models.Model):
     _name = "hotel.service.type"

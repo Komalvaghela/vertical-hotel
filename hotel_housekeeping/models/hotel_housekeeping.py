@@ -67,25 +67,25 @@ class hotel_housekeeping(models.Model):
 #        for id in ids:
 #            wf_service.trg_create(uid, self._name, id, cr)
 #        return True
-#
+
 #    def room_cancel(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
 #            'state':'cancel'
 #        })
 #        return True
-#
+
 #    def room_done(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
 #            'state':'done'
 #        })
 #        return True
-#
+
 #    def room_inspect(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
 #            'state':'inspect'
 #        })
 #        return True
-#
+
 #    def room_clean(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
 #            'state':'clean'
