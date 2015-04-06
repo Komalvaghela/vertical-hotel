@@ -22,6 +22,7 @@
 
 from openerp import models,fields,api,_
 from openerp import netsvc
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 
 class product_category(models.Model):
     _inherit = "product.category"
@@ -86,12 +87,44 @@ class hotel_restaurant_reservation(models.Model):
             addr = self.cname.address_get(['default'])
             self.partner_address_id = addr['default']
 
+    @api.multi
+    def action_set_to_draft(self):
+        self.write({'state': 'draft'})
+#        wf_service = netsvc.LocalService('workflow')
+#        for id in ids:
+#            wf_service.trg_create(uid, self._name, id, cr)
+        return True        
+
+
 #    def action_set_to_draft(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {'state': 'draft'})
 #        wf_service = netsvc.LocalService('workflow')
 #        for id in ids:
 #            wf_service.trg_create(uid, self._name, id, cr)
 #        return True
+
+#testing...!!
+#    @api.multi
+#    def table_reserved(self):
+#        print "hiii"
+#        for reservation in self:
+#            print "hiii1"
+#            self._cr.execute("select count(*) from hotel_restaurant_reservation as hrr " \
+#                       "inner join reservation_table as rt on rt.reservation_table_id = hrr.id " \
+#                       "where (start_date,end_date)overlaps( timestamp %s , timestamp %s ) " \
+#                       "and hrr.id<> %s " \
+#                       "and rt.name in (select rt.name from hotel_restaurant_reservation as hrr " \
+#                       "inner join reservation_table as rt on rt.reservation_table_id = hrr.id " \
+#                       "where hrr.id= %s) " \
+#                        , (self.start_date, self.end_date, reservation.id, reservation.id))
+#            res = self._cr.fetchone()
+#            roomcount = res and res[0] or 0.0
+#            if roomcount:
+#                raise except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
+#            else:
+#                print "hiii2"
+#                self.write({'state':'confirm'})
+#            return True
 
 #    def table_reserved(self, cr, uid, ids, *args):
 #        for reservation in self.browse(cr, uid, ids):
@@ -106,16 +139,27 @@ class hotel_restaurant_reservation(models.Model):
 #            res = cr.fetchone()
 #            roomcount = res and res[0] or 0.0
 #            if roomcount:
-#                raise orm.except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
+#                raise except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
 #            else:
 #                self.write(cr, uid, ids, {'state':'confirm'})
 #            return True
+
+    @api.multi
+    def table_cancel(self):
+        self.write({'state':'cancel'})
+        return True
 
 #    def table_cancel(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
 #            'state':'cancel'
 #        })
 #        return True
+
+    @api.multi
+    def table_done(self):
+        self.write({'state':'done'})
+        return True
+
 
 #    def table_done(self, cr, uid, ids, *args):
 #        self.write(cr, uid, ids, {
@@ -139,6 +183,12 @@ class hotel_restaurant_reservation(models.Model):
 #        'reservation_id':lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.restaurant.reservation'),
 #    }
 
+    @api.constrains('start_date')
+    def check_dates(self):    
+          if self.start_date >= self.end_date:
+                raise except_orm(_('error!'),_('Start Date Should be less than the End Date'))
+      
+# completed in v8
 #    _sql_constraints = [
 #        ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
 #    ]

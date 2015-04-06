@@ -10,6 +10,7 @@
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
+
 #    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -21,6 +22,7 @@
 ##############################################################################
 
 from openerp import models,fields,api,_
+from openerp.exceptions import except_orm, Warning, RedirectWarning
 import time
 from openerp import netsvc
 import datetime
@@ -130,8 +132,8 @@ class hotel_folio(models.Model):
     _rec_name = 'order_id'
     _order = 'id desc'
 
-    name = fields.Char('Folio Number', size=24, readonly=True)
-    order_id = fields.Many2one(comodel_name='sale.order',string='Order', required=True, ondelete='cascade')
+    name = fields.Char('Folio Number', size=24,) # readonly=True)
+    order_id = fields.Many2one(comodel_name='sale.order',string='Order',  ondelete='cascade') #required=True,
     checkin_date = fields.Datetime('Check In', required=True, readonly=True, states={'draft':[('readonly', False)]})
     checkout_date = fields.Datetime('Check Out', required=True, readonly=True, states={'draft':[('readonly', False)]})
     room_lines = fields.One2many(comodel_name='hotel.folio.line',inverse_name='folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel room reservation detail.")
@@ -142,6 +144,11 @@ class hotel_folio(models.Model):
     _defaults = {
       'name': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.folio'),
     }
+
+    @api.constrains('checkin_date')
+    def check_dates(self):
+        if self.checkin_date >= self.checkout_date:
+                raise except_orm(_('Warning'),_('Check in Date Should be less than the Check Out Date!'))
 
 #    _sql_constraints = [
 #        ('check_in_out', 'CHECK (checkin_date<=checkout_date)', 'Check in Date Should be less than the Check Out Date!'),
@@ -155,6 +162,13 @@ class hotel_folio(models.Model):
 #                return False
 #            rooms.append(room.product_id)
 #        return True
+
+
+    @api.constrains('room_lines')
+    def check_room_lines(self):        
+        if self.room_lines.product_id in self.folio.room_lines:
+                return False
+        self.room_lines.append(self.room_lines.product_id)
 
 #    _constraints = [
 #        (_check_room_vacant, 'You cannot allocate the same room twice!', ['room_lines'])
@@ -444,7 +458,7 @@ class hotel_folio_line(models.Model):
             checkout_date = time.strftime('%Y-%m-%d %H:%M:%S')
         qty = 1
         if self.checkout_date < self.checkin_date:
-            raise Warning('Checkout must be greater or equal checkin date')
+            raise except_orm(_('Warning'),_('Checkout must be greater or equal checkin date'))
         if self.checkin_date:
             diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
             qty = diffDate.days

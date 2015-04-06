@@ -61,36 +61,43 @@ class hotel_housekeeping(models.Model):
     quality = fields.Selection([('bad', 'Bad'), ('good', 'Good'), ('ok', 'Ok')], 'Quality', required=True, help='Inspector inspect the room and mark as Bad, Good or Ok. ')
     state = fields.Selection([('dirty', 'Dirty'), ('clean', 'Clean'), ('inspect', 'Inspect'), ('done', 'Done'), ('cancel', 'Cancelled')], 'State', select=True, required=True, readonly=True,default=lambda *a: 'dirty')
 
-#    def action_set_to_dirty(self, cr, uid, ids, *args):
-#        self.write(cr, uid, ids, {'state': 'dirty'})
+#    @api.multi
+#    def action_set_to_dirty(self):
+#        self.write({'state': 'dirty'})
 #        wf_service = netsvc.LocalService('workflow')
 #        for id in ids:
 #            wf_service.trg_create(uid, self._name, id, cr)
 #        return True
 
-#    def room_cancel(self, cr, uid, ids, *args):
-#        self.write(cr, uid, ids, {
-#            'state':'cancel'
-#        })
-#        return True
+    @api.multi
+    def action_set_to_dirty(self):
+        self.write({'state': 'dirty'})
+#        wf_service = netsvc.LocalService('workflow')
+#        for id in self.ids:
+#            wf_service.trg_create(self._name)
+        return True
 
-#    def room_done(self, cr, uid, ids, *args):
-#        self.write(cr, uid, ids, {
-#            'state':'done'
-#        })
-#        return True
+    @api.multi
+    def room_cancel(self):
+        self.write({'state':'cancel'})
+        return True
 
-#    def room_inspect(self, cr, uid, ids, *args):
-#        self.write(cr, uid, ids, {
-#            'state':'inspect'
-#        })
-#        return True
 
-#    def room_clean(self, cr, uid, ids, *args):
-#        self.write(cr, uid, ids, {
-#            'state':'clean'
-#        })
-#        return True
+    @api.multi
+    def room_done(self):
+        self.write({'state':'done'})
+        return True
+
+    @api.multi    
+    def room_inspect(self):
+        self.write({'state':'inspect'})
+        return True
+
+    @api.multi    
+    def room_clean(self):
+        self.write({'state':'clean'})
+        return True
+
 
 class hotel_housekeeping_activities(models.Model):
     _name = "hotel.housekeeping.activities"
