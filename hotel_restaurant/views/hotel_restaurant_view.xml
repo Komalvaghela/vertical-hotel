@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <menuitem  id="hotel_restaurant_menu" name="Restaurant" parent="hotel.hotel_management_menu" sequence="3"/>
-        <!-- ==============================
+    	<!-- ==============================
         Table Master
         ============================== -->
         <record model="ir.ui.view" id="view_hotel_restaurant_tables_form">
@@ -54,8 +54,8 @@
         id="menu_open_view_hotel_restaurant_tables_form_tree"
         action="open_view_hotel_restaurant_tables_form_tree"
         parent="hotel.hotel_configuration_menu"/>
-
-        <!--
+        
+		<!--
         ==============================
         Table Reservation
         ==============================
@@ -86,7 +86,7 @@
                             <group colspan="4" col="4">
                                 <field name="start_date"/>
                                 <field name="end_date"/>
-                                <field name="cname" on_change="onchange_partner_id(cname)"/>
+                                <field name="cname"/><!-- on_change="onchange_partner_id(cname)"-->
                                 <field name="partner_address_id"/>
                             </group>
                             <group colspan="4">
@@ -124,7 +124,7 @@
         action="open_view_hotel_restaurant_reservation_form_tree"
         parent="hotel_restaurant_menu"/>
 
-        <!--
+		<!--
         ======================
         Orders for Reservation
         ======================
@@ -156,29 +156,29 @@
                             <newline/>
                             <separator colspan='4' string='Order List' />
                             <field name="order_list" colspan="4" nolabel='1'>
-                                <form string="Order List">
+                            <form string="Order List">
                                     <group>
-                                    <field name="name" on_change="on_change_item_name(name)"/>
+                                    <field name="name"/>
                                     <field name="item_qty"/>
-                                    <field name="item_rate"/>
+                                    <field name="item_rate"/>  
                                     </group>
 
                                 </form>
                                 <tree string="Order List">
                                     <field name="name" />
                                     <field name="item_qty"/>
-                                    <field name="item_rate"/>
-                                    <field name="price_subtotal"/>
+                                    <field name="item_rate"/> 
+                                <!--    <field name="price_subtotal"/> -->
                                 </tree>
-                            </field>
+                            </field> 
                             <newline/>
                             <group colspan="2" class="oe_subtotal_footer oe_right">
-                                <field name="amount_subtotal" widget='monetary'/>
+                             <!--   <field name="amount_subtotal" widget='monetary'/> -->
                                 <field name="tax" widget='monetary'/>
                                 <div class="oe_subtotal_footer_separator oe_inline">
-                                    <label for="amount_total" />
+                                <!--    <label for="amount_total" /> -->
                                 </div>
-                                <field name="amount_total" nolabel="1" widget='monetary'/>
+                            <!--   <field name="amount_total" nolabel="1" widget='monetary'/> -->
                             </group>
                         </group>
                     </sheet>
@@ -195,7 +195,7 @@
                     <field name="date1"/>
                     <field name="waitername"/>
                     <field name="table_no"/>
-                    <field name="order_list" />
+               		<field name="order_list" /> 
 
                 </tree>
             </field>
@@ -210,9 +210,9 @@
         <menuitem name="Orders"
         id="menu_open_view_hotel_reservation_order_form_tree"
         action="open_view_hotel_reservation_order_form_tree"
-        parent="hotel_restaurant_menu"/>
-
-        <!--
+        parent="hotel_restaurant_menu"/>	
+			
+		<!--
         ==============================
         Table Order
         ==============================
@@ -243,30 +243,30 @@
                             <field name="table_no" colspan="4" nolabel='1'/>
                             <newline/>
                             <separator colspan='4' string='Order List'/>
-                            <field name="order_list" colspan="4" nolabel='1'>
+                           <!-- <field name="order_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
-                                    <field name="name" on_change="on_change_item_name(name)"/>
+                                    <field name="name"/>on_change="on_change_item_name(name)"
                                     <field name="item_qty"/>
-                                    <field name="item_rate"/>
+                                    <field name="item_rate"/> 
                                     </group>
                                 </form>
                                 <tree string="Order List">
                                     <field name="name" />
                                     <field name="item_qty"/>
-                                    <field name="item_rate"/>
-                                    <field name="price_subtotal"/>
+                                    <field name="item_rate"/> 
+                                    <field name="price_subtotal"/>  
                                 </tree>
-                            </field>
+                            </field>-->
                         </group>
                         <newline/>
                         <group col="2" class="oe_subtotal_footer oe_right">
-                            <field name="amount_subtotal" widget="monetary"/>
+                      <!--      <field name="amount_subtotal" widget="monetary"/> -->
                             <field name="tax" widget='monetary'/>
                             <div class="oe_subtotal_footer_separator oe_inline">
-                                <label for="amount_total" />
+                     <!--         <label for="amount_total" />  -->
                             </div>
-                            <field name="amount_total" nolabel="1" widget='monetary'/>
+                     <!--       <field name="amount_total" nolabel="1" widget='monetary'/> --> 
                         </group>
                         <div class="oe_clear"/>
                     </sheet>
@@ -283,7 +283,7 @@
                     <field name="table_no"/>
                     <field name="room_no"/>
                     <field name="waiter_name"/>
-                    <field name="order_list"/>
+                 <!--   <field name="order_list"/> --> 
 
                 </tree>
             </field>
@@ -327,12 +327,12 @@
                             <field name="tableno" select="1" colspan="4" nolabel='1'/>
                             <newline/>
                             <separator colspan='4' string='Order List'/>
-                            <field name="kot_list" colspan="4" nolabel='1'>
+                           <field name="kot_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
                                         <field name="name" on_change="on_change_item_name(name)"/>
                                         <field name="item_qty"/>
-                                        <field name="item_rate"/>
+                                     <!--   <field name="item_rate"/> -->
                                     </group>    
                                 </form>
                                 <tree string="Order List">
@@ -357,7 +357,7 @@
                     <field name="room_no"/>
                     <field name="w_name"/>
                     <field name="tableno"/>
-                    <!-- <field name="kot_list"/> -->
+                    <field name="kot_list"/>  
                 </tree>
             </field>
         </record>
@@ -593,5 +593,5 @@
         action="action_hotel_menucard_form"
         parent="menu_hotel_food_item"/>
 
-    </data>
+	</data>
 </openerp>
