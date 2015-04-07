@@ -20,20 +20,20 @@
 #
 ##############################################################################
 
-from openerp.osv import orm, fields
+from openerp import models,fields,api,_
 
-class wizard_hotel_restaurant(orm.TransientModel):
+class wizard_hotel_restaurant(models.TransientModel):
     _name = 'wizard.hotel.restaurant'
-    _columns = {
-        'date_start' :fields.datetime('Start Date', required=True),
-        'date_end': fields.datetime('End Date', required=True),
-    }
 
-    def print_report(self, cr, uid, ids, context=None):
+    date_start = fields.Datetime('Start Date', required=True)
+    date_end = fields.Datetime('End Date', required=True)
+
+    @api.multi
+    def print_report(self):
         values = {
-            'ids': ids,
+            'ids': self.ids,
             'model': 'hotel.restaurant.reservation',
-            'form': self.read(cr, uid, ids, context=context)[0]
+            'form': self.read(self.ids)[0]
         }
 #        return {
 #            'type': 'ir.actions.report.xml',
@@ -41,7 +41,7 @@ class wizard_hotel_restaurant(orm.TransientModel):
 #            'datas': values,
 #        }
         
-        return self.pool['report'].get_action(cr, uid, [], 'hotel_restaurant.report_res_table', data=values, context=context)
+        return self.env['report'].get_action(self, 'hotel_restaurant.report_res_table')
     
 wizard_hotel_restaurant()
 

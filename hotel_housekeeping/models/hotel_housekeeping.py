@@ -27,11 +27,11 @@ from openerp import netsvc
 class product_category(models.Model):
     _inherit = "product.category"
     
-    isactivitytype = fields.Boolean('Is Activity Type')
+    isactivitytype = fields.Boolean('Is Activity Type',default=lambda *a: True)
 
-    _defaults = {
-        'isactivitytype': lambda *a: True,
-    }
+#    _defaults = {
+#        'isactivitytype': lambda *a: True,
+#    }
 
 class hotel_housekeeping_activity_type(models.Model):
     _name = 'hotel.housekeeping.activity.type'
@@ -52,7 +52,7 @@ class hotel_housekeeping(models.Model):
     _name = "hotel.housekeeping"
     _description = "Reservation"
                 
-    current_date = fields.Date("Today's Date", required=True,default=lambda *a: time.strftime('%Y-%m-%d'))
+    current_date = fields.Date("Today's Date", required=True,default=lambda *a: time.strftime('%Y-%m-%d')) #here in v8 default value is written in field declaration so no more need of _defaults dictionary.. 
     clean_type = fields.Selection([('daily', 'Daily'), ('checkin', 'Check-In'), ('checkout', 'Check-Out')], 'Clean Type', required=True)
     room_no = fields.Many2one(comodel_name='hotel.room',string='Room No',required=True)
     activity_lines =fields.One2many(comodel_name='hotel.housekeeping.activities',inverse_name='a_list',string='Activities',help='Details of housekeeping activities.')
@@ -72,9 +72,10 @@ class hotel_housekeeping(models.Model):
     @api.multi
     def action_set_to_dirty(self):
         self.write({'state': 'dirty'})
-#        wf_service = netsvc.LocalService('workflow')
-#        for id in self.ids:
-#            wf_service.trg_create(self._name)
+        wf_service = netsvc.LocalService('workflow')
+        for id in self.ids:
+            wf_service.trg_create(self._uid, self._name, self.id, self._cr)
+            
         return True
 
     @api.multi
@@ -113,6 +114,26 @@ class hotel_housekeeping_activities(models.Model):
     dirty = fields.Boolean('Dirty', help='Checked if the housekeeping activity results as Dirty.')
     clean = fields.Boolean('Clean', help='Checked if the housekeeping activity results as Clean.')
 
+    @api.model
+    def default_get(self,fields):
+        """ To get default values for the object.
+        @param self: The object pointer.
+        @param cr: A database cursor
+        @param uid: ID of the user currently logged in
+        @param fields: List of fields for which we want default values 
+        @param context: A standard dictionary 
+        @return: A dictionary which of fields with values. 
+        """ 
+        if self._context is None:
+            self._context = {}
+        res = super(hotel_housekeeping_activities, self).default_get(fields)
+        if self._context.get('room_id', False):
+            res.update({'room_id':self._context['room_id']})
+        if self._context.get('today_date', False):
+            res.update({'today_date':self._context['today_date']})
+        return res
+
+#completed in v8
 #    def default_get(self, cr, uid, fields, context=None):
 #        """ To get default values for the object.
 #        @param self: The object pointer.

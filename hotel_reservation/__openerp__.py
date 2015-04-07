@@ -35,12 +35,12 @@
     "depends" : ["hotel", "stock", "report_extended"],
     "data" : [
 #        "security/ir.model.access.csv",
-#        "wizard/hotel_reservation_wizard.xml",
+        "wizard/hotel_reservation_wizard.xml",
 #        "report/hotel_reservation_report.xml",
 #        "views/hotel_reservation_sequence.xml",
-#         "views/hotel_reservation_workflow.xml",
-         "views/hotel_reservation_view.xml"
-#        "views/hotel_scheduler.xml",
+         "views/hotel_reservation_workflow.xml",
+         "views/hotel_reservation_view.xml",
+         "views/hotel_scheduler.xml",
 #        "views/report_checkin.xml",
 #        "views/report_checkout.xml",
 #        "views/max_room.xml",

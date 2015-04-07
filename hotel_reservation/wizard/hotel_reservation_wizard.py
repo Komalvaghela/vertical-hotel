@@ -20,58 +20,63 @@
 #
 ##############################################################################
 
-from openerp.osv import osv, fields
+from openerp import models,fields,api,_
+#from openerp.osv import osv, fields
 
-class hotel_reservation_wizard(osv.TransientModel):
+class hotel_reservation_wizard(models.TransientModel):
     _name = 'hotel.reservation.wizard'
-    _columns = {
-        'date_start': fields.datetime('Start Date', required=True),
-        'date_end': fields.datetime('End Date', required=True),
-    }
-
-    def report_reservation_detail(self, cr, uid, ids, context=None):
-        values = {
-            'ids': ids,
-            'model': 'hotel.reservation',
-            'form': self.read(cr, uid, ids, context=context)[0]
-        }
-        return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_roomres_qweb', data=values, context=context)
-
-    def report_checkin_detail(self, cr, uid, ids, context=None):
-        values = {
-            'ids': ids,
-            'model': 'hotel.reservation',
-            'form': self.read(cr, uid, ids, context=context)[0],
-        }
-        return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_checkin_qweb', data=values, context=context)
-
-    def report_checkout_detail(self, cr, uid, ids, context=None):
-        values = {
-            'ids': ids,
-            'model': 'hotel.reservation',
-            'form': self.read(cr, uid, ids, context=context)[0]
-        }
-        return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_checkout_qweb', data=values, context=context)
     
-    def report_maxroom_detail(self, cr, uid, ids, context=None):
+    date_start = fields.Datetime('Start Date', required=True)
+    date_end = fields.Datetime('End Date', required=True)
+
+    @api.multi
+    def report_reservation_detail(self):
         values = {
-            'ids': ids,
+            'ids': self.ids,
             'model': 'hotel.reservation',
-            'form': self.read(cr, uid, ids, context=context)[0]
+            'form': self.read(self.ids)[0]
         }
-        return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_maxroom_qweb', data=values, context=context)
+        return self.env['report'].get_action(self, 'hotel_reservation.report_roomres_qweb')
+
+    @api.multi
+    def report_checkin_detail(self):
+        values = {
+            'ids': self.ids,
+            'model': 'hotel.reservation',
+            'form': self.read(self.ids)[0],
+        }
+        return self.env['report'].get_action(self, 'hotel_reservation.report_checkin_qweb')
+
+    @api.multi
+    def report_checkout_detail(self):
+        values = {
+            'ids': self.ids,
+            'model': 'hotel.reservation',
+            'form': self.read(self.ids)[0]
+        }
+        return self.env['report'].get_action(self, 'hotel_reservation.report_checkout_qweb')
+    
+    @api.multi
+    def report_maxroom_detail(self):
+        values = {
+            'ids': self.ids,
+            'model': 'hotel.reservation',
+            'form': self.read(self.ids)[0]
+        }
+        return self.pool['report'].get_action(self,'hotel_reservation.report_maxroom_qweb')
+       # return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_maxroom_qweb', data=values, context=context)
 
 
-class make_folio_wizard(osv.TransientModel):
+class make_folio_wizard(models.TransientModel):
     _name = 'wizard.make.folio'
-    _columns = {
-        'grouped': fields.boolean('Group the Folios'),
-    }
 
-    def makeFolios(self, cr, uid, data, context=None):
-        order_obj = self.pool.get('hotel.reservation')
+    grouped = fields.Boolean('Group the Folios'),
+
+    @api.model
+    def makeFolios(self):
+        order_obj = self.env['hotel.reservation']
         newinv = []
-        for order in order_obj.browse(cr, uid, context['active_ids'], context=context):
+        for order in order_obj.browse(self.context['active_ids']):
             for folio in order.folio_id:
                 newinv.append(folio.id)
         return {
