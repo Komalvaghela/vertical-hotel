@@ -29,23 +29,18 @@ class product_category(models.Model):
     
     isactivitytype = fields.Boolean('Is Activity Type',default=lambda *a: True)
 
-#    _defaults = {
-#        'isactivitytype': lambda *a: True,
-#    }
-
 class hotel_housekeeping_activity_type(models.Model):
     _name = 'hotel.housekeeping.activity.type'
     _description = 'Activity Type'
-    _inherits = {'product.category':'activity_id'}
     
-    activity_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, ondelete='cascade')
+    activity_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, delegate=True, ondelete='cascade')
 
 class hotel_activity(models.Model):
     _name = 'hotel.activity'
-    _inherits = {'product.product': 'h_id'}
     _description = 'Housekeeping Activity'
+    _inherits = {'product.product': 'h_id'}
 
-    h_id = fields.Many2one(comodel_name='product.product',string='Product',required=True, ondelete='cascade')
+    h_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
 
 class hotel_housekeeping(models.Model):
 
@@ -54,9 +49,9 @@ class hotel_housekeeping(models.Model):
                 
     current_date = fields.Date("Today's Date", required=True,default=lambda *a: time.strftime('%Y-%m-%d')) #here in v8 default value is written in field declaration so no more need of _defaults dictionary.. 
     clean_type = fields.Selection([('daily', 'Daily'), ('checkin', 'Check-In'), ('checkout', 'Check-Out')], 'Clean Type', required=True)
-    room_no = fields.Many2one(comodel_name='hotel.room',string='Room No',required=True)
-    activity_lines =fields.One2many(comodel_name='hotel.housekeeping.activities',inverse_name='a_list',string='Activities',help='Details of housekeeping activities.')
-    inspector = fields.Many2one(comodel_name='res.users',string='Inspector' ,required=True)
+    room_no = fields.Many2one('hotel.room','Room No',required=True)
+    activity_lines =fields.One2many('hotel.housekeeping.activities','a_list','Activities',help='Details of housekeeping activities.')
+    inspector = fields.Many2one('res.users','Inspector' ,required=True)
     inspect_date_time =fields.Datetime('Inspect Date Time', required=True)
     quality = fields.Selection([('bad', 'Bad'), ('good', 'Good'), ('ok', 'Ok')], 'Quality', required=True, help='Inspector inspect the room and mark as Bad, Good or Ok. ')
     state = fields.Selection([('dirty', 'Dirty'), ('clean', 'Clean'), ('inspect', 'Inspect'), ('done', 'Done'), ('cancel', 'Cancelled')], 'State', select=True, required=True, readonly=True,default=lambda *a: 'dirty')
@@ -75,14 +70,12 @@ class hotel_housekeeping(models.Model):
         wf_service = netsvc.LocalService('workflow')
         for id in self.ids:
             wf_service.trg_create(self._uid, self._name, self.id, self._cr)
-            
         return True
 
     @api.multi
     def room_cancel(self):
         self.write({'state':'cancel'})
         return True
-
 
     @api.multi
     def room_done(self):
@@ -98,7 +91,6 @@ class hotel_housekeeping(models.Model):
     def room_clean(self):
         self.write({'state':'clean'})
         return True
-
 
 class hotel_housekeeping_activities(models.Model):
     _name = "hotel.housekeeping.activities"

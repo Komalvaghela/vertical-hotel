@@ -37,7 +37,7 @@
             <field name="arch" type="xml">
                 <form string="Create Folio" version='7.0'>
                     <separator colspan="4" string="Do you really want to create the Folio ?" />
-                    <field name="grouped" />
+                  <!--  <field name="grouped" /> -->
                     <newline/>
                     <footer>
                         <button name="makeFolios" string="Create Folio" type="object" class="oe_highlight"/>

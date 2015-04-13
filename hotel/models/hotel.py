@@ -44,10 +44,9 @@ class product_category(models.Model):
 
 class hotel_room_type(models.Model):
     _name = "hotel.room.type"
-    _inherits = {'product.category': 'cat_id'}
     _description = "Room Type"
     
-    cat_id = fields.Many2one(comodel_name='product.category',string='category', required=True, select=True, ondelete='cascade')
+    cat_id = fields.Many2one(comodel_name='product.category',string='category', required=True, delegate=True, select=True, ondelete='cascade')
 
     _defaults = {
         'isroomtype': 1,
@@ -63,9 +62,8 @@ class product_product(models.Model):
 class hotel_room_amenities_type(models.Model):
     _name = 'hotel.room.amenities.type'
     _description = 'amenities Type'
-    _inherits = {'product.category':'cat_id'}
     
-    cat_id = fields.Many2one(comodel_name='product.category',string='category', required=True, ondelete='cascade')
+    cat_id = fields.Many2one('product.category','category', required=True, delegate=True, ondelete='cascade')
 
     _defaults = {
         'isamenitytype': 1,
@@ -74,10 +72,9 @@ class hotel_room_amenities_type(models.Model):
 class hotel_room_amenities(models.Model):
     _name = 'hotel.room.amenities'
     _description = 'Room amenities'
-    _inherits = {'product.product':'room_categ_id'}
 
-    room_categ_id = fields.Many2one(comodel_name='product.product',string='Product Category' ,required=True, ondelete='cascade')
-    rcateg_id = fields.Many2one(comodel_name='hotel.room.amenities.type',string='Amenity Catagory')
+    room_categ_id = fields.Many2one('product.product','Product Category' ,required=True, delegate=True, ondelete='cascade')
+    rcateg_id = fields.Many2one('hotel.room.amenities.type','Amenity Catagory')
 
     _defaults = {
         'iscategid': 1,
@@ -86,16 +83,17 @@ class hotel_room_amenities(models.Model):
 
 class hotel_room(models.Model):
     _name = 'hotel.room'
-    _inherits = {'product.product': 'product_id'}
     _description = 'Hotel Room'
 
-    product_id = fields.Many2one(comodel_name='product.product',string='Product_id' ,required=True, ondelete='cascade')
+    _inherits = {'product.product': 'product_id'}
+
+    product_id = fields.Many2one(comodel_name='product.product',string='Product_id' ,required=True, delegate=True, ondelete='cascade')
     floor_id = fields.Many2one(comodel_name='hotel.floor',string='Floor No',help='At which floor the room is located.')
     max_adult = fields.Integer('Max Adult')
     max_child = fields.Integer('Max Child')
     room_amenities = fields.Many2many(comodel_name='hotel.room.amenities',relation='temp_tab',column1='room_amenities',column2='rcateg_id',string='Room Amenities',help='List of room amenities. ')
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
-#   'room_rent_ids':fields.one2many('room.rent', 'rent_id', 'Room Rent'),
+#    room_rent_ids = fields.One2many('room.rent', 'rent_id', 'Room Rent')
 
 
     _defaults = {
@@ -114,26 +112,39 @@ class hotel_folio(models.Model):
 
     @api.multi
     def copy(self,default=None):
+        print "copy hotel.folio------------------"
         res = self.pool.get('sale.order').copy(default=None)
         return super(hotel_folio,self).copy(default=default)
 
 #    def copy(self, cr, uid, id, default=None, context=None):
 #        return self.pool.get('sale.order').copy(cr, uid, id, default=None, context=None)
 
+
+    @api.multi 
+    def _invoiced(self,name, arg):
+        print "_invoiced hotel folio--------------"
+        return self.env['sale.order']._invoiced()
+
+#in sale.py
 #    def _invoiced(self, cursor, user, ids, name, arg, context=None):
 #        return self.pool.get('sale.order')._invoiced(cursor, user, ids, name, arg, context=None)
 
+    @api.multi
+    def _invoiced_search(self,name, args,obj):
+        print "_invoiced_search hotel folio--------------"
+        return self.env['sale.order']._invoiced_search()
+
+#in sale.py    
 #    def _invoiced_search(self, cursor, user, obj, name, args):
 #        return self.pool.get('sale.order')._invoiced_search(cursor, user, obj, name, args)
 
     _name = 'hotel.folio'
     _description = 'hotel folio new'
-    _inherits = {'sale.order': 'order_id'}
     _rec_name = 'order_id'
     _order = 'id desc'
 
-    name = fields.Char('Folio Number', size=24,) # readonly=True)
-    order_id = fields.Many2one(comodel_name='sale.order',string='Order',  ondelete='cascade') #required=True,
+    name = fields.Char('Folio Number', size=24,default=lambda obj: obj.env['ir.sequence'].get('hotel.folio')) # readonly=True)
+    order_id = fields.Many2one(comodel_name='sale.order',string='Order',  delegate=True, required=True, ondelete='cascade') #required=True,
     checkin_date = fields.Datetime('Check In', required=True, readonly=True, states={'draft':[('readonly', False)]})
     checkout_date = fields.Datetime('Check Out', required=True, readonly=True, states={'draft':[('readonly', False)]})
     room_lines = fields.One2many(comodel_name='hotel.folio.line',inverse_name='folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel room reservation detail.")
@@ -141,9 +152,6 @@ class hotel_folio(models.Model):
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
     duration = fields.Float('Duration in Days', readonly=True, help="Number of days which will automatically count from the check-in and check-out date. ")
 
-    _defaults = {
-      'name': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.folio'),
-    }
 
     @api.constrains('checkin_date')
     def check_dates(self):
@@ -176,15 +184,17 @@ class hotel_folio(models.Model):
 
     @api.onchange('checkin_date','checkout_date')
     def onchange_dates(self):
-#        This mathod gives the duration between check in checkout if customer will leave only for some hour it would be considers as
-#        a whole day. If customer will checkin checkout for more or equal hours , which configured in company as additional hours than
-#        it would be consider as full day
+#    This mathod gives the duration between check in checkout if customer will leave only for some
+#    hour it would be considers as a whole day. If customer will checkin checkout for more or equal
+#    hours , which configured in company as additional hours than it would be consider as full days
+
         value = {}
         company_obj = self.env['res.company']
         configured_addition_hours = 0
         company_ids = self.env['res.company'].search([])
         if company_ids:
             configured_addition_hours = company_obj.browse(company_ids[0].id).additional_hours
+
         if not self.duration:
             duration = 0 
             if self.checkin_date and self.checkout_date:
@@ -197,12 +207,17 @@ class hotel_folio(models.Model):
                     if additional_hours >= configured_addition_hours:
                         duration += 1
             self.duration=duration           
+            value.update({'value':{'duration':duration}})
         else:
             if self.checkin_date:
                 chkin_dt = datetime.datetime.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')
                 chkout_dt = chkin_dt + datetime.timedelta(days=self.duration)
                 checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
             self.checkout_date = checkout_date    
+            value.update({'value':{'checkout_date':checkout_date}})
+        print "value------------------------------------------------------",value
+        return value     
+    #    return True 
 
 #completed in v8
 #    def onchange_dates(self, cr, uid, ids, checkin_date=False, checkout_date=False, duration=False):
@@ -234,6 +249,23 @@ class hotel_folio(models.Model):
 #                value.update({'value':{'checkout_date':checkout_date}})
 #        return value
 
+    @api.model
+    def create(self, vals,check=True):
+        tmp_room_lines = vals.get('room_lines', [])
+        vals['order_policy'] = vals.get('hotel_policy', 'manual')
+        if not 'service_lines' and 'folio_id' in vals:
+                vals.update({'room_lines':[]})
+                folio_id = super(hotel_folio, self).create(vals)
+                for line in (tmp_room_lines):
+                    line[2].update({'folio_id':folio_id})
+                vals.update({'room_lines':tmp_room_lines})
+                super(hotel_folio, self).write(vals)
+        else:
+            folio_id = super(hotel_folio, self).create(vals)
+        print "create hotel folio---------------------"    
+        return folio_id       
+
+#completed in v8
 #    def create(self, cr, uid, vals, context=None, check=True):
 #        tmp_room_lines = vals.get('room_lines', [])
 #        vals['order_policy'] = vals.get('hotel_policy', 'manual')
@@ -248,13 +280,18 @@ class hotel_folio(models.Model):
 #            folio_id = super(hotel_folio, self).create(cr, uid, vals, context=context)
 #        return folio_id
 
+    @api.onchange('warehouse_id')
+    def onchange_warehouse_id(self):
+        order_ids = [folio.order_id.id for folio in self.browse(self.ids)]
+        x = self.env['sale.order'].onchange_warehouse_id(order_ids)
+        return x
 
-
+# tested but no effect.....................!!
 #    def onchange_warehouse_id(self, cr, uid, ids, warehouse_id):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').onchange_warehouse_id(cr, uid, order_ids, warehouse_id)
 
-# test after workflow work.....!!
+
 #    @api.onchange('partner_id')
 #    def onchange_partner_id(self):       
 #        res = {}
@@ -269,7 +306,7 @@ class hotel_folio(models.Model):
 #                self.partner_invoice_id = partner_rec.id
 #                self.pricelist_id = partner_rec.property_product_pricelist.id
 
-
+# partner id is not editable thn how onchange will work.....!!
 #    def onchange_partner_id(self, cr, uid, ids, part, context=None):
 #        res = {}
 #        if part:
@@ -282,10 +319,32 @@ class hotel_folio(models.Model):
 #                res['value'] = {'partner_invoice_id': partner_rec.id, 'pricelist_id':partner_rec.property_product_pricelist.id}
 #        return res
 
+    @api.multi   
+    def button_dummy(self):
+        order_ids = [folio.order_id.id for folio in self]
+        print "hotel folio-------------button_dummy"
+        return self.env['sale.order'].button_dummy()
+
+#testing.........!!
 #    def button_dummy(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').button_dummy(cr, uid, order_ids, context={})
 
+
+    @api.multi
+    def action_invoice_create(self,grouped=False, states=['confirmed', 'done']):
+        order_ids = [folio.order_id.id for folio in self]
+        invoice_id = self.env['sale.order'].action_invoice_create(order_ids, states=['confirmed', 'done'])
+        for line in self:
+            values = {
+                'invoiced': True,
+                'state': 'progress' if grouped else 'progress',
+            }
+            line.write(values)
+        print "action_invoice_create hotel folio-------------------"    
+        return invoice_id        
+
+#completed in v8.........!!
 #    def action_invoice_create(self, cr, uid, ids, grouped=False, states=['confirmed', 'done']):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        invoice_id = self.pool.get('sale.order').action_invoice_create(cr, uid, order_ids, grouped=False, states=['confirmed', 'done'])
@@ -297,6 +356,18 @@ class hotel_folio(models.Model):
 #            line.write(values)
 #        return invoice_id
 
+    @api.multi
+    def action_invoice_cancel(self):
+        order_ids = [folio.order_id.id for folio in self]
+        res = self.env['sale.order'].action_invoice_cancel()
+        for sale in self:
+            for line in sale.order_line:
+                line.write({'invoiced': 'invoiced'})
+        self.write({'state':'invoice_except'})
+        print "hotel folio------------------------action_invoice_cancel"
+        return res       
+
+#testing.........!!
 #    def action_invoice_cancel(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        res = self.pool.get('sale.order').action_invoice_cancel(cr, uid, order_ids, context=context)
@@ -306,6 +377,22 @@ class hotel_folio(models.Model):
 #        self.write(cr, uid, ids, {'state':'invoice_except'}, context=context)
 #        return res
 
+    @api.multi
+    def action_cancel(self):
+        order_ids = [folio.order_id.id for folio in self]
+        rv = self.env['sale.order'].action_cancel()
+        wf_service = netsvc.LocalService("workflow")
+        for sale in self:
+            for pick in sale.picking_ids:
+               # (uid, res_type, res_id, signal, cr)--res_type=model name,res_id=the model instance id the workflow belongs to,signal=the signal name to be fired
+                wf_service.trg_validate('stock.picking', pick.id, 'button_cancel')
+            for invoice in sale.invoice_ids:
+                wf_service.trg_validate('account.invoice', invoice.id, 'invoice_cancel')
+            sale.write({'state':'cancel'})
+        print "action_cancel hotel folio-----------------"        
+        return rv        
+
+#issue.........!!
 #    def action_cancel(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids, context=context)]
 #        rv = self.pool.get('sale.order').action_cancel(cr, uid, order_ids, context=context)
@@ -318,6 +405,20 @@ class hotel_folio(models.Model):
 #                sale.write({'state':'cancel'})
 #        return rv
 
+    @api.multi
+    def action_wait(self):
+        sale_order_obj = self.env['sale.order']
+        res = False
+        for o in self.browse(self._ids):
+            res = sale_order_obj.action_wait()
+            if (o.order_policy == 'manual') and (not o.invoice_ids):
+                self.write({'state': 'manual'})
+            else:
+                self.write({'state': 'progress'})
+        print "action wait hotel folio  ---------------------"        
+        return res
+
+#completed in v8........!!
 #    def action_wait(self, cr, uid, ids, *args):
 #        sale_order_obj = self.pool.get('sale.order')
 #        res = False
@@ -335,6 +436,17 @@ class hotel_folio(models.Model):
 ##             order.write({'state': state})
 ##         return res
 
+    @api.multi
+    def test_state(self,mode):
+        write_done_ids = []
+        write_cancel_ids = []
+        print "tesr_state hotel folio------------"
+        if write_done_ids:
+            self.env['sale.order.line'].write({'state': 'done'})
+        if write_cancel_ids:
+            self.env['sale.order.line'].write({'state': 'cancel'})
+
+#completed in v8..!!
 #    def test_state(self, cr, uid, ids, mode, *args):
 #        write_done_ids = []
 #        write_cancel_ids = []
@@ -345,15 +457,37 @@ class hotel_folio(models.Model):
 #            self.pool.get('sale.order.line').write(cr, uid, write_cancel_ids, {'state': 'cancel'})
 #        # return res
 
+#    @api.multi
+#    def procurement_lines_get(self):
+#        order_ids = [folio.order_id.id for folio in self]
+#        return True
+
+# comment in workflow so how to do testin....!!
 #    def procurement_lines_get(self, cr, uid, ids, *args):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        # return self.pool.get('sale.order').procurement_lines_get(cr, uid, order_ids, *args)
 #        return True
 
+    @api.multi
+    def action_ship_create(self):
+        order_ids = [folio.order_id.id for folio in self]
+        print "action_ship_create-----------------hotel folio"
+        return self.env['sale.order'].action_ship_create()
+
+#complted in v8..!!(wrkflow)
 #    def action_ship_create(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').action_ship_create(cr, uid, order_ids, context=None)
 
+    
+    #api.multi
+    def action_ship_end(self):
+        order_ids = [folio.order_id.id for folio in self]
+        for order in self:
+            order.write ({'shipped':True})
+        # return res
+
+#testig...............workflow 
 #    def action_ship_end(self, cr, uid, ids, context=None):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        # res = self.pool.get('sale.order').action_ship_end(cr, uid, order_ids, context=context)
@@ -361,10 +495,34 @@ class hotel_folio(models.Model):
 #            order.write ({'shipped':True})
 #        # return res
 
+# unused method..!! :-( sale_stock.py
 #    def has_stockable_products(self, cr, uid, ids, *args):
 #        order_ids = [folio.order_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order').has_stockable_products(cr, uid, order_ids, *args)
 
+    @api.multi     
+    def action_cancel_draft(self):
+        if not len(self._ids):
+            return False
+        ids1=self._ids
+        query = "select id from sale_order_line where order_id IN %s and state=%s"
+        self._cr.execute(query, (tuple(ids1), 'cancel'))
+        cr = self._cr
+        line_ids = map(lambda x: x[0],cr.fetchall())
+        self.write({'state': 'draft', 'invoice_ids': [], 'shipped': 0})
+        self.env['sale.order.line'].write({'invoiced': False, 'state': 'draft', 'invoice_lines': [(6, 0, [])]})
+        wf_service = netsvc.LocalService("workflow")
+        for inv_id in self._ids:
+            # Deleting the existing instance of workflow for SO
+            wf_service.trg_delete(self._uid,'sale.order', inv_id,self._cr)
+            wf_service.trg_create(self._uid,'sale.order', inv_id,self._cr)
+        for (id, name) in self.name_get():
+            message = _("The sales order '%s' has been set in draft state.") % (name,)
+            self.log(message)
+        print "action_cancel_draft===============================hotel.folio"    
+        return True
+
+#testing.......workflow
 #    def action_cancel_draft(self, cr, uid, ids, *args):
 #        if not len(ids):
 #            return False
@@ -388,53 +546,94 @@ class hotel_folio_line(models.Model):
 #    def copy(self, cr, uid, id, default=None, context=None):
 #        return self.pool.get('sale.order.line').copy(cr, uid, id, default=None, context=context)
 
+# unused method..!! :-(sale.py
 #    def _amount_line(self, cr, uid, ids, field_name, arg, context):
 #        return self.pool.get('sale.order.line')._amount_line(cr, uid, ids, field_name, arg, context)
 
+# unused method..!! :-( sale_stock.py
 #    def _number_packages(self, cr, uid, ids, field_name, arg, context):
 #        return self.pool.get('sale.order.line')._number_packages(cr, uid, ids, field_name, arg, context)
 
-#    def _get_checkin_date(self, cr, uid, context=None):
-#        if 'checkin_date' in context:
-#            return context['checkin_date']
-#        return time.strftime('%Y-%m-%d %H:%M:%S')
+    @api.model
+    def _get_checkin_date(self):
+        if self.checkin_date in self._context:
+            return self._context['checkin_date']
+        return time.strftime('%Y-%m-%d %H:%M:%S')
 
-#    def _get_checkout_date(self, cr, uid, context=None):
-#        if 'checkin_date' in context:
-#            return context['checkout_date']
-#        return time.strftime('%Y-%m-%d %H:%M:%S')
-#
+    @api.model
+    def _get_checkout_date(self):
+        if self.checkin_date in self._context:
+            return self._context['checkout_date']
+        return time.strftime('%Y-%m-%d %H:%M:%S')
+
     _name = 'hotel.folio.line'
     _description = 'hotel folio1 room line'
-    _inherits = {'sale.order.line':'order_line_id'}
     
-    order_line_id = fields.Many2one(comodel_name='sale.order.line',string='Order Line' ,required=True, ondelete='cascade')
+    order_line_id = fields.Many2one(comodel_name='sale.order.line',string='Order Line' ,required=True, delegate=True, ondelete='cascade')
     folio_id = fields.Many2one(comodel_name='hotel.folio',string='Folio', ondelete='cascade')
     checkin_date = fields.Datetime('Check In', required=True)
     checkout_date = fields.Datetime('Check Out', required=True)
 
-#    _defaults = {
-#        'checkin_date':_get_checkin_date,
-#        'checkout_date':_get_checkout_date,
-#    }
+    _defaults = {
+        'checkin_date':_get_checkin_date,
+        'checkout_date':_get_checkout_date,
+    }
 
+    @api.model
+    def create(self,vals,check=True):
+        if 'folio_id' in vals:
+            folio = self.env["hotel.folio"].browse(vals['folio_id'])
+            vals.update({'order_id':folio.order_id.id})
+        print "create--------------------------------------------hotel.folio line"    
+        return super(hotel_folio_line, self).create(vals)
+
+
+#testing
 #    def create(self, cr, uid, vals, context=None, check=True):
 #        if 'folio_id' in vals:
 #            folio = self.pool.get("hotel.folio").browse(cr, uid, vals['folio_id'], context=context)
 #            vals.update({'order_id':folio.order_id.id})
 #        return super(osv.Model, self).create(cr, uid, vals, context)
 
+    @api.multi
+    def unlink(self):
+        sale_line_obj = self.env['sale.order.line']
+        for line in self:
+            if line.order_line_id:
+                sale_line_obj.unlink([line.order_line_id.id])
+        print "unlink-============================================hotel.folio.line"
+        return super(hotel_folio_line, self).unlink()
+
+#testing......!!
 #    def unlink(self, cr, uid, ids, context=None):
 #        sale_line_obj = self.pool.get('sale.order.line')
 #        for line in self.browse(cr, uid, ids, context=context):
 #            if line.order_line_id:
 #                sale_line_obj.unlink(cr, uid, [line.order_line_id.id], context=context)
 #        return super(hotel_folio_line, self).unlink(cr, uid, ids, context=None)
-#
+
+    @api.multi   
+    def uos_change(self, product_uos, product_uos_qty=0, product_id=None):
+        line_ids = [folio.order_line_id.id for folio in self]
+        print "uos_change----------------------------hotl.folio.line"
+        return  self.env['sale.order.line'].uos_change(line_ids, product_uos, product_uos_qty=0, product_id=None)
+
+#testing......!!
 #    def uos_change(self, cr, uid, ids, product_uos, product_uos_qty=0, product_id=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return  self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
 
+    @api.multi
+    def product_id_change(self,pricelist, product, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            lang=False, update_tax=True, date_order=False):
+        line_ids = [folio.order_line_id.id for folio in self.browse(self._ids)]
+        print "product_id_change=======================hotel.folio.line"
+        return self.env['sale.order.line'].product_id_change(line_ids, pricelist, product, 
+            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
+            lang=False, update_tax=True, date_order=False)
+
+#testing.......!!
 #    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -443,6 +642,16 @@ class hotel_folio_line(models.Model):
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
+    @api.multi
+    def product_uom_change(self, pricelist, product, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            lang=False, update_tax=True, date_order=False):
+        print "hello product_uom_change ---------------hotel folio line------------------"
+        return self.product_id_change(pricelist, product,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
+            lang=False, update_tax=True, date_order=False)
+
+#tstng..!!
 #    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -465,9 +674,9 @@ class hotel_folio_line(models.Model):
             if qty == 0:
                 qty == 1
         self.product_uom_qty = qty        
+        return {'value':{'product_uom_qty':qty}}
 
-
-
+#completed in v8
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=None, checkout_date=None, context=None):
 #        if not checkin_date:
 #            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
@@ -483,10 +692,27 @@ class hotel_folio_line(models.Model):
 #                qty = 1
 #        return {'value':{'product_uom_qty':qty}}
 
+#    @api.multi
+#    def button_confirm(self):
+#        line_ids = [folio.order_line_id.id for folio in self]
+#        return self.env['sale.order.line'].button_confirm(line_ids)
+
+#unused..............!!
 #    def button_confirm(self, cr, uid, ids, context=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_confirm(cr, uid, line_ids, context=context)
 
+#    @api.multi   
+#    def button_done(self):
+#        line_ids = [folio.order_line_id.id for folio in self]
+#        res = self.env['sale.order.line'].button_done(line_ids)
+#        wf_service = netsvc.LocalService("workflow")
+#        res = self.write({'state':'done'})
+#        for line in self:
+#            wf_service.trg_write('sale.order', line.order_line_id.order_id.id, cr)
+#        return res
+
+#unused..............!!
 #    def button_done(self, cr, uid, ids, context=None):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        res = self.pool.get('sale.order.line').button_done(cr, uid, line_ids, context=context)
@@ -496,6 +722,13 @@ class hotel_folio_line(models.Model):
 #            wf_service.trg_write(uid, 'sale.order', line.order_line_id.order_id.id, cr)
 #        return res
 
+#    @api.one
+#    def copy_data(self,default=None):
+#        line_id = self.browse(id).order_line_id.id
+#        return self.env['sale.order.line'].copy_data(line_id, default=None)
+
+
+#testing..!!
 #    def copy_data(self, cr, uid, id, default=None, context=None):
 #        line_id = self.browse(cr, uid, id).order_line_id.id
 #        return self.pool.get('sale.order.line').copy_data(cr, uid, line_id, default=None, context=context)
@@ -517,9 +750,8 @@ class hotel_service_line(models.Model):
 #
     _name = 'hotel.service.line'
     _description = 'hotel Service line'
-    _inherits = {'sale.order.line':'service_line_id'}
     
-    service_line_id = fields.Many2one(comodel_name='sale.order.line',string='Service Line', required=True, ondelete='cascade')
+    service_line_id = fields.Many2one(comodel_name='sale.order.line',string='Service Line', required=True, delegate=True, ondelete='cascade')
     folio_id = fields.Many2one(comodel_name='hotel.folio',string='Folio',ondelete='cascade')
 
 #    def create(self, cr, uid, vals, context=None, check=True):
@@ -535,6 +767,17 @@ class hotel_service_line(models.Model):
 #                sale_line_obj.unlink(cr, uid, [line.service_line_id.id], context=context)
 #        return super(hotel_service_line, self).unlink(cr, uid, ids, context=None)
 
+    @api.multi
+    def product_id_change(self,pricelist, product, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            lang=False, update_tax=True, date_order=False):
+        line_ids = [folio.service_line_id.id for folio in self]
+        print "product_id_change-------------------service line"
+        return self.env['sale.order.line'].product_id_change(line_ids, pricelist, product, 
+            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
+            lang=False, update_tax=True, date_order=False)  
+
+
 #    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -543,9 +786,21 @@ class hotel_service_line(models.Model):
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
+    @api.multi
+    def product_uom_change(self, pricelist, product, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+            lang=False, update_tax=True, date_order=False):
+        print "hello product_uom_change service line------------------"
+        return self.product_id_change(pricelist, product, qty=0,
+            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
+            lang=False, update_tax=True, date_order=False)
+
+
+
 #    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
+#        print "hello service"
 #        return self.product_id_change(cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
@@ -553,9 +808,9 @@ class hotel_service_line(models.Model):
 #    @api.onchange('checkin_date','checkout_date')
 #    def on_change_checkout(self):
 #        if not self.checkin_date:
-#            checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
+#            self.checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
 #        if not self.checkout_date:
-#            checkout_date = time.strftime('%Y-%m-%d %H:%M:%S')
+#            self.checkout_date = time.strftime('%Y-%m-%d %H:%M:%S')
 #        qty = 1
 #        if self.checkout_date < self.checkin_date:
 #            raise Warning('Checkout must be greater or equal checkin date')
@@ -563,7 +818,8 @@ class hotel_service_line(models.Model):
 #            diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
 #            qty = diffDate.days
 #        self.product_uom_qty = qty
-        
+#        
+
 #completed but testing,,,,,--------need ?????!!!
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=None, checkout_date=None, context=None):
 #        if not checkin_date:
@@ -578,12 +834,25 @@ class hotel_service_line(models.Model):
 #            qty = diffDate.days
 #        return {'value':{'product_uom_qty':qty}}
 
+#    @api.multi 
+#    def button_confirm(self):
+#        line_ids = [folio.service_line_id.id for folio in self]
+#        print "button confirm service line------- "
+#        return self.env['sale.order.line'].button_confirm(line_ids)
 
+#unused..............!!  
 #    def button_confirm(self, cr, uid, ids, context=None):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_confirm(cr, uid, line_ids, context=context)
 
+    #string not found.............
+#    @api.multi
+#    def button_done(self):
+#        line_ids = [folio.service_line_id.id for folio in self]
+#        print "button done service done"
+#        return self.env['sale.order.line'].button_done(line_ids)
 
+#unused..............!!
 #    def button_done(self, cr, uid, ids, context=None):
 #        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return self.pool.get('sale.order.line').button_done(cr, uid, line_ids, context=context)
@@ -600,10 +869,9 @@ class hotel_service_line(models.Model):
 
 class hotel_service_type(models.Model):
     _name = "hotel.service.type"
-    _inherits = {'product.category':'ser_id'}
     _description = "Service Type"
     
-    ser_id = fields.Many2one(comodel_name='product.category',string='category' ,required=True, select=True, ondelete='cascade')
+    ser_id = fields.Many2one(comodel_name='product.category',string='category', required=True, delegate=True, select=True, ondelete='cascade')
 
     _defaults = {
         'isservicetype': 1,
@@ -612,9 +880,8 @@ class hotel_service_type(models.Model):
 class hotel_services(models.Model):
     _name = 'hotel.services'
     _description = 'Hotel Services and its charges'
-    _inherits = {'product.product':'service_id'}
     
-    service_id = fields.Many2one(comodel_name='product.product',string='Service_id',required=True, ondelete='cascade')
+    service_id = fields.Many2one(comodel_name='product.product',string='Service_id',required=True, ondelete='cascade', delegate=True)
 
     _defaults = {
         'isservice': 1,

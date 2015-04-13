@@ -37,9 +37,8 @@ class product_product(models.Model):
 class hotel_menucard_type(models.Model):
     _name = 'hotel.menucard.type'
     _description = 'Amenities Type'
-    _inherits = {'product.category':'menu_id'}
     
-    menu_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, ondelete='cascade')
+    menu_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, delegate=True, ondelete='cascade')
     
     _defaults = {
         'ismenutype': 1,
@@ -47,10 +46,9 @@ class hotel_menucard_type(models.Model):
 
 class hotel_menucard(models.Model):
     _name = 'hotel.menucard'
-    _inherits = {'product.product':'product_id'}
     _description = 'Hotel Menucard'
 
-    product_id = fields.Many2one(comodel_name='product.product',string='Product',required=True, ondelete='cascade')
+    product_id = fields.Many2one(comodel_name='product.product',string='Product',required=True, delegate=True, ondelete='cascade')
     image = fields.Binary("Image", help="This field holds the image used as image for the product, limited to 1024x1024px.")
     
     _defaults = {
@@ -72,13 +70,14 @@ class hotel_restaurant_reservation(models.Model):
     @api.multi
     def create_order(self):
         proxy = self.env['hotel.reservation.order']
-        for record in self:
-            table_ids = [tableno.id for tableno in record.tableno]
+        for record in self:   
+            table_ids = [tableno.id for tableno in self.tableno]
             values = {
                 'reservationno':record.reservation_id,
                 'date1':record.start_date,
                 'table_no':[(6, 0, table_ids)],
             }
+            print "values------------",values
             proxy.create(values)
         return True
 
@@ -95,7 +94,7 @@ class hotel_restaurant_reservation(models.Model):
 #            proxy.create(cr, uid, values, context=context)
 #        return True
 
-#When Customer name is changed respective adress will display in Adress field
+    #When Customer name is changed respective adress will display in Adress field
     @api.onchange('cname')
     def onchange_partner_id(self):
         if not self.cname:
@@ -112,7 +111,7 @@ class hotel_restaurant_reservation(models.Model):
             wf_service.trg_create(self._uid, self._name, self.id, self._cr)
         return True        
 
-#when CONFIRM BUTTON is clicked this method is called (table booking)...!!
+    #when CONFIRM BUTTON is clicked this method is called (table booking)...!!
     @api.multi
     def table_reserved(self):
         for reservation in self:
@@ -164,18 +163,14 @@ class hotel_restaurant_reservation(models.Model):
     _name = "hotel.restaurant.reservation"
     _description = "Includes Hotel Restaurant Reservation"
                                                                                 
-    reservation_id = fields.Char('Reservation No', size=64, required=True)#,default=lambda obj: obj.env['ir.sequence'].get('hotel.restaurant.reservation'))
-    room_no = fields.Many2one(comodel_name='hotel.room',string='Room No',size=64)
+    reservation_id = fields.Char('Reservation No', size=64, required=True, default=lambda obj: obj.env['ir.sequence'].get('hotel.restaurant.reservation'))
+    room_no = fields.Many2one(comodel_name='hotel.room', string='Room No', size=64)
     start_date = fields.Datetime('Start Time', required=True)
     end_date = fields.Datetime('End Time', required=True)
-    cname = fields.Many2one(comodel_name='res.partner',string='Customer Name',size=64, required=True)
-    partner_address_id = fields.Many2one(comodel_name='res.partner',string='Address')
+    cname = fields.Many2one(comodel_name='res.partner', string='Customer Name', size=64, required=True)
+    partner_address_id = fields.Many2one(comodel_name='res.partner', string='Address')
     tableno = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled')], 'state', select=True, required=True, readonly=True,default=lambda * a: 'draft')
-
-#    _defaults = {
-#        'reservation_id':lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.restaurant.reservation'),
-#    }
 
     @api.constrains('start_date')
     def check_dates(self):    
@@ -196,42 +191,67 @@ class hotel_restaurant_kitchen_order_tickets(models.Model):
     kot_date = fields.Datetime('Date')
     room_no = fields.Char('Room No', size=64, readonly=True)
     w_name = fields.Char('Waiter Name', size=64, readonly=True)
-    tableno = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='temp_table3',column1='table_no',column2='name',string='Table Number' ,size=64, help="Table reservation detail.")
-    kot_list = fields.One2many(comodel_name='hotel.restaurant.order.list',inverse_name='kot_order_list',string='Order List' ,help="Kitchen order list")
-
+    tableno = fields.Many2many('hotel.restaurant.tables','temp_table3','table_no','name','Table Number' ,size=64, help="Table reservation detail.")
+    kot_list = fields.One2many('hotel.restaurant.order.list','kot_order_list','Order List' ,help="Kitchen order list")
 
 class hotel_restaurant_order(models.Model):
 
-#    @api.multi
-#    def _sub_total(self):
-#        res = {}
-#        for sale in self:
-#            res[sale.id] = sum(line.price_subtotal for line in sale.order_list)
-#            print "res= sub==========",res
-#        return res
+    @api.multi
+    @api.depends('order_list')
+    def _sub_total(self):
+        res = {}
+        for sale in self:
+            res[sale.id] = 0.00
+            res[sale.id] = sum(line.price_subtotal for line in sale.order_list)
+        self.amount_subtotal = res[sale.id]
+        return res
 
-#completed but how can i test...isse--->order listt...
+#completed v8
 #    def _sub_total(self, cr, uid, ids, field_name, arg, context=None):
 #        res = {}
 #        for sale in self.browse(cr, uid, ids, context=context):
 #            res[sale.id] = sum(line.price_subtotal for line in sale.order_list)
 #        return res
 
-#    @api.multi  
-#    def _total(self):
-#        res = {}
-#        for line in self:
-#            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
-#            print "res=total==========",res
-#        return res  
+    @api.multi 
+    @api.depends('amount_subtotal') 
+    def _total(self):
+        res = {}
+        for line in self:
+            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
+        self.amount_total = res[line.id]
+        return res  
     
-#completed but how can i test...isse--->order listt...
+#completed in v8
 #    def _total(self, cr, uid, ids, field_name, arg, context=None):
 #        res = {}
 #        for line in self.browse(cr, uid, ids, context=context):
 #            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
 #        return res
 
+    @api.multi
+    def generate_kot(self):
+        order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
+        restaurant_order_list_obj = self.env['hotel.restaurant.order.list']
+        for order in self:
+            table_ids = [x.id for x in self.table_no]
+            kot_data = order_tickets_obj.create({
+                'orderno':order.order_no,
+                'kot_date':order.o_date,
+                'room_no':order.room_no.name,
+                'w_name':order.waiter_name.name,
+                'tableno':[(6, 0, table_ids)],
+            })
+            for order_line in self.order_list:
+                o_line = {
+                         'kot_order_list':kot_data.id,
+                         'name':order_line.name.id,
+                         'item_qty':order_line.item_qty,
+                }
+                restaurant_order_list_obj.create(o_line)
+        return True
+
+#completed in v8
 #    def generate_kot(self, cr, uid, ids, part):
 #        order_tickets_obj = self.pool.get('hotel.restaurant.kitchen.order.tickets')
 #        restaurant_order_list_obj = self.pool.get('hotel.restaurant.order.list')
@@ -255,23 +275,23 @@ class hotel_restaurant_order(models.Model):
 
     _name = "hotel.restaurant.order"
     _description = "Includes Hotel Restaurant Order"
-
-    order_no = fields.Char('Order Number', size=64, required=True)
+    
+    _rec_name="order_no"
+    
+    order_no = fields.Char('Order Number', size=64, required=True,default=lambda obj: obj.env['ir.sequence'].get('hotel.restaurant.order'))
     o_date = fields.Datetime('Date', required=True)
-    room_no = fields.Many2one(comodel_name='hotel.room',string='Room No')
-    waiter_name = fields.Many2one(comodel_name='res.partner',string='Waiter Name')
-    table_no = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='temp_table2',column1='table_no',column2='name',string='Table Number')
-#    order_list = fields.One2many(comodel_name='hotel.restaurant.order.list',reverse_name = 'o_list',string='Order List')
+    room_no = fields.Many2one('hotel.room','Room No')
+    waiter_name = fields.Many2one('res.partner','Waiter Name')
+    table_no = fields.Many2many('hotel.restaurant.tables','temp_table2','table_no','name','Table Number')
+    order_list = fields.One2many('hotel.restaurant.order.list','o_list','Order List')
     tax = fields.Float('Tax (%) ')
-#    amount_subtotal = fields.Float(compute=_sub_total, method=True, string='Subtotal')
-#    amount_total = fields.Float(compute=_total, method=True, string='Total')
+    amount_subtotal = fields.Float(compute=_sub_total, method=True, string='Subtotal')
+    amount_total = fields.Float(compute=_total, method=True, string='Total')
 
-    _defaults = {
-     'order_no': lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.restaurant.order'),
-     }
 
 class hotel_reservation_order(models.Model):
 
+#completed in v8
 #    def _sub_total(self, cr, uid, ids, field_name, arg, context):
 #        res = {}
 #        for sale in self.browse(cr, uid, ids):
@@ -280,66 +300,57 @@ class hotel_reservation_order(models.Model):
 #                res[sale.id] += line.price_subtotal
 #        return res
 
-#    @api.multi
-#    @api.depends('order_list')
-#    def _sub_total(self):
-#       res = {}
-#       for sale in self:
-#            res[sale.id] = 0.00
-#            for line in sale.order_list:
-#                res[sale.id] += line.price_subtotal
-#       return res
+    @api.multi
+    @api.depends('order_list')
+    def _sub_total(self):
+       res = {}
+       for sale in self:
+            res[sale.id] = 0.00
+            for line in sale.order_list:
+                res[sale.id] += line.price_subtotal
+       self.amount_subtotal = res[sale.id]   
+       return res
 
+    @api.multi
+    @api.depends('amount_subtotal')
+    def _total(self):
+        res = {}
+        for line in self:
+            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
+        self.amount_total = res[line.id]
+        return res    
 
-
-#    @api.multi
-#    @api.depends('order_list')
-#    def _sub_total(self):
-#       print "hiiiiiiiiiiiiiii----------------------------" 
-#       self.sale.id = 0.00
-#       self.amount_subtotal=self.sale.id + self.order_list.price_subtotal
-#       print "-------",self.amount_subtotal
-
-#    @api.multi
-#    @api.depends('amount_subtotal')
-#    def _total(self):
-#        print "hiiii1"
-#        res = {}
-#        for line in self:
-#            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
-#        return res    
-
-
+#completed in v8
 #    def _total(self, cr, uid, ids, field_name, arg, context):
 #        res = {}
 #        for line in self.browse(cr, uid, ids):
 #            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
 #        return res
 
-#    @api.multi
-#    def reservation_generate_kot(self):
-#        order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
-#        rest_order_list_obj = self.env['hotel.restaurant.order.list']
-#        for order in self:
-#            table_ids = [x.id for x in order.table_no]
-#            kot_data = order_tickets_obj.create({
-#                'orderno':order.order_number,
-#                'resno':order.reservationno,
-#                'kot_date':order.date1,
-#                'w_name':order.waitername.name,
-#                'tableno':[(6, 0, table_ids)],
-#            })
-#            print "------------",kot_data
-#            for order_line in order.order_list:
-#                o_line = {
-#                    'kot_order_list':kot_data,
-#                    'name':order_line.name.id,
-#                    'item_qty':order_line.item_qty,
-#                }
-#                print "o line---------",o_line
-#                rest_order_list_obj.create(o_line)
-#            return True
+    @api.multi
+    def reservation_generate_kot(self):
+        order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
+        rest_order_list_obj = self.env['hotel.restaurant.order.list']
+        for order in self:
+            table_ids = [x.id for x in order.table_no]
+            kot_data = order_tickets_obj.create({
+                'orderno':order.order_number,
+                'resno':order.reservationno,
+                'kot_date':order.date1,
+                'w_name':order.waitername.name,
+                'tableno':[(6, 0, table_ids)],
+            })
+            for order_line in self.order_list:
+                o_line = {
+                    'kot_order_list':kot_data.id,
+                    'name':order_line.name.id,
+                    'item_qty':order_line.item_qty,
+                }
+                rest_order_list_obj.create(o_line)
+            return True
 
+
+#completed in v8..............................1
 #    def reservation_generate_kot(self, cr, uid, ids, part):
 #        order_tickets_obj = self.pool.get('hotel.restaurant.kitchen.order.tickets')
 #        rest_order_list_obj = self.pool.get('hotel.restaurant.order.list')
@@ -364,19 +375,18 @@ class hotel_reservation_order(models.Model):
     _name = "hotel.reservation.order"
     _description = "Reservation Order"
 
+    _rec_name="order_number"
+
     order_number = fields.Char('Order No', size=64,default=lambda obj: obj.env['ir.sequence'].get('hotel.reservation.order'))
     reservationno = fields.Char('Reservation No', size=64)
     date1 = fields.Datetime('Date', required=True)
-    waitername = fields.Many2one(comodel_name='res.partner',string='Waiter Name',size=64)
-    table_no = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='temp_table4',column1='table_no',column2='name',string='Table Number',size=64)
+    waitername = fields.Many2one(comodel_name='res.partner',string='Waiter Name')#,size=64)
+    table_no = fields.Many2many('hotel.restaurant.tables','temp_table4','table_no','name','Table Number')#,size=64)
     order_list = fields.One2many('hotel.restaurant.order.list','o_l','Order List')
     tax = fields.Float('Tax (%) ', size=64)
-#    amount_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal')
-#    amount_total = fields.Float(compute='_total', method=True, string='Total')
+    amount_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal')
+    amount_total = fields.Float(compute='_total', method=True, string='Total')
 
-#    _defaults = {
-#        'order_number':lambda obj, cr, uid, context: obj.pool.get('ir.sequence').get(cr, uid, 'hotel.reservation.order'),
-#    }
 
 class hotel_restaurant_order_list(models.Model):
 

@@ -30,18 +30,18 @@ class wizard_hotel_restaurant(models.TransientModel):
 
     @api.multi
     def print_report(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.restaurant.reservation',
-            'form': self.read(self.ids)[0]
+            'form': self.read(['date_start', 'date_end'])[0]
         }
 #        return {
 #            'type': 'ir.actions.report.xml',
 #            'report_name': 'hotel.table.res',
 #            'datas': values,
 #        }
-        
-        return self.env['report'].get_action(self, 'hotel_restaurant.report_res_table')
+        print "data rest-----------------------",data
+        return self.env['report'].get_action(self, 'hotel_restaurant.report_res_table',datas=data)
     
 wizard_hotel_restaurant()
 

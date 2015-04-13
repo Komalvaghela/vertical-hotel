@@ -32,17 +32,12 @@ class hotel_housekeeping_wizard(models.TransientModel):
 
     @api.multi    
     def print_report(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.housekeeping',
-            'form': self.read(self.ids)[0]
+            'form': self.read(['date_start', 'date_end', 'room_no'])[0]
         }
-        print "valuessssss-------------------------",values
-#        return {
-#            'type': 'ir.actions.report.xml',
-#            'report_name': 'hotel_housekeeping.report_housekeeping',
-#            'datas': values,
-#        }
-        return self.env['report'].get_action(self,'hotel_housekeeping.report_housekeeping')
+        print "data=====",data
+        return self.env['report'].get_action(self,'hotel_housekeeping.report_housekeeping', data=data)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -31,40 +31,40 @@ class hotel_reservation_wizard(models.TransientModel):
 
     @api.multi
     def report_reservation_detail(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.reservation',
-            'form': self.read(self.ids)[0]
+            'form': self.read(['date_start','date_end'])[0]
         }
-        return self.env['report'].get_action(self, 'hotel_reservation.report_roomres_qweb')
+        print "data----------",data
+        return self.env['report'].get_action(self, 'hotel_reservation.report_roomres_qweb',data=data)
 
     @api.multi
     def report_checkin_detail(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.reservation',
-            'form': self.read(self.ids)[0],
+            'form': self.read(['date_start','date_end'])[0],
         }
-        return self.env['report'].get_action(self, 'hotel_reservation.report_checkin_qweb')
+        return self.env['report'].get_action(self, 'hotel_reservation.report_checkin_qweb',data=data)
 
     @api.multi
     def report_checkout_detail(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.reservation',
-            'form': self.read(self.ids)[0]
+            'form': self.read(['date_start','date_end'])[0]
         }
-        return self.env['report'].get_action(self, 'hotel_reservation.report_checkout_qweb')
+        return self.env['report'].get_action(self, 'hotel_reservation.report_checkout_qweb',data=data)
     
     @api.multi
     def report_maxroom_detail(self):
-        values = {
+        data = {
             'ids': self.ids,
             'model': 'hotel.reservation',
-            'form': self.read(self.ids)[0]
+            'form': self.read(['date_start','date_end'])[0]
         }
-        return self.pool['report'].get_action(self,'hotel_reservation.report_maxroom_qweb')
-       # return self.pool['report'].get_action(cr, uid, [], 'hotel_reservation.report_maxroom_qweb', data=values, context=context)
+        return self.env['report'].get_action(self,'hotel_reservation.report_maxroom_qweb',data=data)
 
 
 class make_folio_wizard(models.TransientModel):

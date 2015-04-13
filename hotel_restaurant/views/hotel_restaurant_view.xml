@@ -168,17 +168,17 @@
                                     <field name="name" />
                                     <field name="item_qty"/>
                                     <field name="item_rate"/> 
-                                <!--    <field name="price_subtotal"/> -->
+                                	<field name="price_subtotal"/> 
                                 </tree>
                             </field> 
                             <newline/>
                             <group colspan="2" class="oe_subtotal_footer oe_right">
-                             <!--   <field name="amount_subtotal" widget='monetary'/> -->
+                                <field name="amount_subtotal" widget='monetary'/> 
                                 <field name="tax" widget='monetary'/>
                                 <div class="oe_subtotal_footer_separator oe_inline">
-                                <!--    <label for="amount_total" /> -->
+                                    <label for="amount_total" /> 
                                 </div>
-                            <!--   <field name="amount_total" nolabel="1" widget='monetary'/> -->
+                               <field name="amount_total" nolabel="1" widget='monetary'/> 
                             </group>
                         </group>
                     </sheet>
@@ -243,10 +243,10 @@
                             <field name="table_no" colspan="4" nolabel='1'/>
                             <newline/>
                             <separator colspan='4' string='Order List'/>
-                           <!-- <field name="order_list" colspan="4" nolabel='1'>
+                           <field name="order_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
-                                    <field name="name"/>on_change="on_change_item_name(name)"
+                                    <field name="name"/> <!--on_change="on_change_item_name(name)"-->
                                     <field name="item_qty"/>
                                     <field name="item_rate"/> 
                                     </group>
@@ -257,16 +257,16 @@
                                     <field name="item_rate"/> 
                                     <field name="price_subtotal"/>  
                                 </tree>
-                            </field>-->
+                            </field>
                         </group>
                         <newline/>
                         <group col="2" class="oe_subtotal_footer oe_right">
-                      <!--      <field name="amount_subtotal" widget="monetary"/> -->
+                            <field name="amount_subtotal" widget="monetary"/> 
                             <field name="tax" widget='monetary'/>
                             <div class="oe_subtotal_footer_separator oe_inline">
-                     <!--         <label for="amount_total" />  -->
+                              <label for="amount_total" />  
                             </div>
-                     <!--       <field name="amount_total" nolabel="1" widget='monetary'/> --> 
+                            <field name="amount_total" nolabel="1" widget='monetary'/>  
                         </group>
                         <div class="oe_clear"/>
                     </sheet>
@@ -283,7 +283,7 @@
                     <field name="table_no"/>
                     <field name="room_no"/>
                     <field name="waiter_name"/>
-                 <!--   <field name="order_list"/> --> 
+                    <field name="order_list"/> 
 
                 </tree>
             </field>
@@ -330,9 +330,9 @@
                            <field name="kot_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
-                                        <field name="name" on_change="on_change_item_name(name)"/>
+                                        <field name="name"/><!-- on_change="on_change_item_name(name)"-->
                                         <field name="item_qty"/>
-                                     <!--   <field name="item_rate"/> -->
+                                        <field name="item_rate"/> 
                                     </group>    
                                 </form>
                                 <tree string="Order List">
