@@ -124,7 +124,9 @@ class hotel_restaurant_reservation(models.Model):
                        "where hrr.id= %s) " \
                         , (self.start_date, self.end_date, reservation.id, reservation.id))
             res = self._cr.fetchone()
+            print "res1-----------------------",res
             roomcount = res and res[0] or 0.0
+            print "roomcount---------------",roomcount
             if roomcount:
                 raise except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
             else:
@@ -172,15 +174,15 @@ class hotel_restaurant_reservation(models.Model):
     tableno = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled')], 'state', select=True, required=True, readonly=True,default=lambda * a: 'draft')
 
-    @api.constrains('start_date')
-    def check_dates(self):    
-          if self.start_date >= self.end_date:
-                raise except_orm(_('error!'),_('Start Date Should be less than the End Date'))
+#    @api.constrains('start_date')
+#    def check_dates(self):    
+#          if self.start_date >= self.end_date:
+#                raise except_orm(_('error!'),_('Start Date Should be less than the End Date'))
 
 # completed in v8
-#    _sql_constraints = [
-#        ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
-#    ]
+    _sql_constraints = [
+        ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
+    ]
 
 class hotel_restaurant_kitchen_order_tickets(models.Model):
     _name = "hotel.restaurant.kitchen.order.tickets"

@@ -623,7 +623,7 @@ class hotel_folio_line(models.Model):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return  self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
 
-    @api.multi
+    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
     def product_id_change(self,pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
@@ -642,7 +642,7 @@ class hotel_folio_line(models.Model):
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
-    @api.multi
+    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')  #,'parent.partner_id', False, False, 'parent.date_order','parent.pricelist_id',
     def product_uom_change(self, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
@@ -767,7 +767,8 @@ class hotel_service_line(models.Model):
 #                sale_line_obj.unlink(cr, uid, [line.service_line_id.id], context=context)
 #        return super(hotel_service_line, self).unlink(cr, uid, ids, context=None)
 
-    @api.multi
+   # @api.multi
+    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
     def product_id_change(self,pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
@@ -777,7 +778,6 @@ class hotel_service_line(models.Model):
             uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
             lang=False, update_tax=True, date_order=False)  
 
-
 #    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
@@ -786,7 +786,8 @@ class hotel_service_line(models.Model):
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
-    @api.multi
+    #@api.multi
+    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#'parent.pricelist_id','parent.partner_id','False', 'False', 'parent.date_order')
     def product_uom_change(self, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
@@ -794,8 +795,6 @@ class hotel_service_line(models.Model):
         return self.product_id_change(pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
             lang=False, update_tax=True, date_order=False)
-
-
 
 #    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
@@ -818,8 +817,7 @@ class hotel_service_line(models.Model):
 #            diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
 #            qty = diffDate.days
 #        self.product_uom_qty = qty
-#        
-
+        
 #completed but testing,,,,,--------need ?????!!!
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=None, checkout_date=None, context=None):
 #        if not checkin_date:

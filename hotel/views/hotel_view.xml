@@ -476,7 +476,7 @@
                         <page string="Folio">
                          <group colspan="4" col="4">
                             <field name="partner_id"  string="Guest Name"/><!--required="1" on_change="onchange_partner_id(partner_id)"-->
-                            <field name="partner_invoice_id"/> <!-- domain="[('parent_id','=',partner_id)]"-->
+                            <field name="partner_invoice_id"  domain="[('parent_id','=',partner_id)]"/>
                             <field name="pricelist_id"  domain="[('type','=','sale')]" />
                             <field name="project_id"/>
                             <field name="partner_shipping_id" domain="[('parent_id','=',partner_id)]" invisible="1" />
@@ -496,17 +496,17 @@
                                             <field name="checkin_date"/>
                                             <field name="checkout_date"/> <!--on_change="on_change_checkout(checkin_date,checkout_date)" -->
                                             <separator string="Automatic Declaration" colspan="4"/>
-                                            <field name="product_uom_qty"
-                                                on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
-                                                context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
+                                            <field name="product_uom_qty" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
                                                 invisible="1"/>
-                                            <field name="product_uom"
-                                                on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
-                                                string="Rent(UOM)"/>
-                                            <field name="product_id"
-                                                on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"
-                                                context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
+                                              <!--  on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"-->
+                                                
+                                            <field name="product_uom" string="Rent(UOM)"/>
+                                              <!-- on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"-->
+                                                
+                                            <field name="product_id" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
                                                 colspan="4" select="1" domain="[('isroom','=',True)]" string="Room No"/>
+                                               <!-- on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"-->
+                                                
                                             </group>
                                             <separator string="Manual Description"
                                                 colspan="4" />
@@ -552,17 +552,17 @@
                                         <page string="Service Line">
                                             <separator string="Automatic Declaration" colspan="4"/>
                                             <group>
-                                            <field name="product_uom_qty"
-                                                on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
-                                                context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}"
-                                                select="1"/>
-                                            <field name="product_uom"
-                                                on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
-                                                />
-                                            <field name="product_id"
-                                                on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"
-                                                context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}"
-                                                select="1" domain="[('isservice','=',True)]" />
+                                            <field name="product_uom_qty" select="1" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}"/>
+                                             <!--   on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
+                                                -->
+                                                
+                                            <field name="product_uom"/>
+                                               <!-- on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"-->
+                                                
+                                            <field name="product_id" select="1" domain="[('isservice','=',True)]" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}" />
+                                              <!-- on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"
+                                                -->
+                                                
                                             </group>
                                             <separator string="Manual Description"
                                                 colspan="4"/>

@@ -40,19 +40,19 @@
     "demo" : ["views/hotel_data.xml"
     ],
     "data": [
-#        "security/hotel_security.xml",
-#        "security/ir.model.access.csv",
+        "security/hotel_security.xml",
+        "security/ir.model.access.csv",
         "views/hotel_sequence.xml",
         "views/hotel_folio_workflow.xml",
 ##        "hotel_scheduler.xml",
-  #      "report/hotel_report.xml",
+#        "report/hotel_report.xml",
        "views/hotel_view.xml",
         "views/hotel_data.xml",
         "wizard/hotel_wizard.xml",
         "views/hotel_report.xml",
         "views/report_hotel_management.xml",
     ],
-#    'css': ["static/src/css/room_kanban.css"],
+    'css': ["static/src/css/room_kanban.css"],
     "auto_install": False,
     "installable": True
 }

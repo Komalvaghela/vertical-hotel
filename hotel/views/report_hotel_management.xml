@@ -29,7 +29,7 @@
 						</tr>
 						<tr t-foreach="get_data(data['form']['date_start'],data['form']['date_end'])" t-as="info">
 						    <td><span t-field="info.name"/></td>
-						    <td><span t-field="info.partner_id.name"/></td>
+						 	<td><span t-field="info.partner_id.name"/></td> 
 						    <td><span t-field="info.checkin_date"/></td>
 						    <td><span t-field="info.checkout_date"/></td>
 						    <td><span t-esc="formatLang(get_total(info.amount_total))"/></td>

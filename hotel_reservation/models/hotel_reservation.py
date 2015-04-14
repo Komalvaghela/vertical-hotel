@@ -51,11 +51,15 @@ class hotel_reservation(models.Model):
     checkout = fields.Datetime('Expected-Date-Departure', required=True, readonly=True, states={'draft':[('readonly', False)]})
     adults = fields.Integer('Adults', size=64, readonly=True, states={'draft':[('readonly', False)]}, help='List of adults there in guest list. ')
     children = fields.Integer('Children', size=64, readonly=True, states={'draft':[('readonly', False)]}, help='Number of children there in guest list. ')
-    reservation_line = fields.One2many(comodel_name='hotel_reservation.line',inverse_name='line_id',string='Reservation Line',help='Hotel room reservation details. ')
+    reservation_line = fields.One2many('hotel_reservation.line','line_id','Reservation Line',help='Hotel room reservation details. ')
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirm'), ('cancel', 'Cancel'), ('done', 'Done')], 'State', readonly=True,default=lambda *a: 'draft')
     folio_id = fields.Many2many(comodel_name='hotel.folio',relation='hotel_folio_reservation_rel',column1='order_id',column2='invoice_id',string='Folio')
     dummy = fields.Datetime('Dummy')
 
+    _sql_constraints = [
+        ('number_reserve', 'unique(checkin, checkout,reservation_line.reserve)',
+            'Already Reserved!'),
+    ]
     
     #Checkin date should be greater than the date ordered.
     @api.onchange('date_order','checkin')
@@ -120,7 +124,7 @@ class hotel_reservation(models.Model):
     @api.multi
     def confirmed_reservation(self):
         reservation_line_obj = self.env['hotel.room.reservation.line']
-        for reservation in self.browse(self._ids):
+        for reservation in self:
             self._cr.execute("select count(*) from hotel_reservation as hr " \
                         "inner join hotel_reservation_line as hrl on hrl.line_id = hr.id " \
                         "inner join hotel_reservation_line_room_rel as hrlrr on hrlrr.room_id = hrl.id " \
@@ -138,6 +142,7 @@ class hotel_reservation(models.Model):
             print "str(reservation.id)-------------------------",str(reservation.id)
             print "str(reservation.id)----------------------",str(reservation.id)
             res = self._cr.fetchone()
+            print "res--------------------",res
             roomcount = res and res[0] or 0.0
             print "room count-------------------------",roomcount
             if roomcount:
@@ -291,7 +296,7 @@ class hotel_reservation_line(models.Model):
     reserve = fields.Many2many(comodel_name='hotel.room',relation='hotel_reservation_line_room_rel',column1='room_id',column2='hotel_reservation_line_id', domain="[('isroom','=',True),('categ_id','=',categ_id)]")
     categ_id =  fields.Many2one(comodel_name='product.category',string='Room Type' ,domain="[('isroomtype','=',True)]", change_default=True)
 
-    @api.onchange('categ_id')
+    @api.onchange('categ_id')#,'parent.checkin', 'parent.checkout')
     def on_change_categ(self):
         print "categ_id called............"
         hotel_room_obj = self.env['hotel.room']
@@ -304,15 +309,19 @@ class hotel_reservation_line(models.Model):
             assigned = False
             for line in room.room_reservation_line_ids:
                 if line.check_in == self.line_id.checkin and line.check_out == self.line_id.checkout:
+                    print line.check_in,"line.check_in--------------------"
+                    print self.line_id.checkin,"self.line_id.checkin---------------------"
                     assigned = True
             if not assigned:
                 room_ids.append(room.id)
                 print "room.id------------------------",room.ids
-        self.reserve = [('id', 'in', room_ids)]
 
-
-
-
+        domain = {'reserve': [('id', 'in', room_ids)]}
+        print "Domain--------------------",domain
+        return {'domain': domain}
+        
+        #self.reserve = [('id', 'in', room_ids)]
+            
 #completed in v8
 #    def on_change_categ(self, cr, uid, ids, categ_ids, checkin, checkout, context=None):
 #        hotel_room_obj = self.pool.get('hotel.room')

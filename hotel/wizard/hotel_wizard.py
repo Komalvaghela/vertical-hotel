@@ -29,6 +29,7 @@ class folio_report_wizard(models.TransientModel):
     date_start = fields.Datetime('Start Date')
     date_end = fields.Datetime('End Date')
 
+    @api.multi 
     def print_report(self):
         data = {
             'ids': self.ids,

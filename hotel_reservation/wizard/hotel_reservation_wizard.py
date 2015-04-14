@@ -70,13 +70,13 @@ class hotel_reservation_wizard(models.TransientModel):
 class make_folio_wizard(models.TransientModel):
     _name = 'wizard.make.folio'
 
-    grouped = fields.Boolean('Group the Folios'),
+    grouped = fields.Boolean('Group the Folios')
 
-    @api.model
+    @api.multi
     def makeFolios(self):
         order_obj = self.env['hotel.reservation']
         newinv = []
-        for order in order_obj.browse(self.context['active_ids']):
+        for order in order_obj.browse(self._context['active_ids']):
             for folio in order.folio_id:
                 newinv.append(folio.id)
         return {
@@ -89,6 +89,5 @@ class make_folio_wizard(models.TransientModel):
             'type': 'ir.actions.act_window'
         }
 
-make_folio_wizard()
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
