@@ -41,19 +41,19 @@ class hotel_reservation(models.Model):
 
     reservation_no = fields.Char('Reservation No', size=64,readonly=True, default=lambda obj: obj.env['ir.sequence'].get('hotel.reservation'))
     date_order = fields.Datetime('Date Ordered', required=True, readonly=True, states={'draft':[('readonly', False)]},default=lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'))
-    warehouse_id = fields.Many2one(comodel_name='stock.warehouse',string='Hotel', readonly=True, required=True, states={'draft':[('readonly', False)]})
-    partner_id = fields.Many2one(comodel_name='res.partner',string='Guest Name' ,readonly=True, required=True, states={'draft':[('readonly', False)]})
-    pricelist_id = fields.Many2one(comodel_name='product.pricelist',string='Price List' ,required=True, readonly=True, states={'draft':[('readonly', False)]}, help="Pricelist for current reservation. ")
-    partner_invoice_id = fields.Many2one(comodel_name='res.partner',string='Invoice Address' ,readonly=True, states={'draft':[('readonly', False)]}, help="Invoice address for current reservation. ")
-    partner_order_id = fields.Many2one(comodel_name='res.partner',string='Ordering Contact',readonly=True, states={'draft':[('readonly', False)]}, help="The name and address of the contact that requested the order or quotation.")
-    partner_shipping_id = fields.Many2one(comodel_name='res.partner',string='Delivery Address' ,readonly=True, states={'draft':[('readonly', False)]}, help="Delivery address for current reservation. ")
+    warehouse_id = fields.Many2one('stock.warehouse','Hotel', readonly=True, required=True, states={'draft':[('readonly', False)]})
+    partner_id = fields.Many2one('res.partner','Guest Name' ,readonly=True, required=True, states={'draft':[('readonly', False)]})
+    pricelist_id = fields.Many2one('product.pricelist','Price List' ,required=True, readonly=True, states={'draft':[('readonly', False)]}, help="Pricelist for current reservation. ")
+    partner_invoice_id = fields.Many2one('res.partner','Invoice Address' ,readonly=True, states={'draft':[('readonly', False)]}, help="Invoice address for current reservation. ")
+    partner_order_id = fields.Many2one('res.partner','Ordering Contact',readonly=True, states={'draft':[('readonly', False)]}, help="The name and address of the contact that requested the order or quotation.")
+    partner_shipping_id = fields.Many2one('res.partner','Delivery Address' ,readonly=True, states={'draft':[('readonly', False)]}, help="Delivery address for current reservation. ")
     checkin = fields.Datetime('Expected-Date-Arrival', required=True, readonly=True, states={'draft':[('readonly', False)]})
     checkout = fields.Datetime('Expected-Date-Departure', required=True, readonly=True, states={'draft':[('readonly', False)]})
     adults = fields.Integer('Adults', size=64, readonly=True, states={'draft':[('readonly', False)]}, help='List of adults there in guest list. ')
     children = fields.Integer('Children', size=64, readonly=True, states={'draft':[('readonly', False)]}, help='Number of children there in guest list. ')
     reservation_line = fields.One2many('hotel_reservation.line','line_id','Reservation Line',help='Hotel room reservation details. ')
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirm'), ('cancel', 'Cancel'), ('done', 'Done')], 'State', readonly=True,default=lambda *a: 'draft')
-    folio_id = fields.Many2many(comodel_name='hotel.folio',relation='hotel_folio_reservation_rel',column1='order_id',column2='invoice_id',string='Folio')
+    folio_id = fields.Many2many('hotel.folio','hotel_folio_reservation_rel','order_id','invoice_id',string='Folio')
     dummy = fields.Datetime('Dummy')
 
     _sql_constraints = [
@@ -94,6 +94,7 @@ class hotel_reservation(models.Model):
 #      delta = datetime.timedelta(days=1)
 #      addDays = datetime(*time.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) + delta
 #      self.dummy = addDays.strftime('%Y-%m-%d %H:%M:%S')
+#      print "self.dummy=-----------------------------",self.dummy
 
 #completed in v8 but return blank dic...!!!!!
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=time.strftime('%Y-%m-%d %H:%M:%S'), checkout_date=time.strftime('%Y-%m-%d %H:%M:%S'), context=None):
@@ -137,14 +138,8 @@ class hotel_reservation(models.Model):
                         "inner join hotel_reservation_line_room_rel as hrlrr on hrlrr.room_id = hrl.id " \
                         "where hr.id = cast(%s as integer) )" \
                         , (reservation.checkin, reservation.checkout, str(reservation.id), str(reservation.id)))
-            print "reservation.checkin------------------",reservation.checkin
-            print "reservation.checkout------------------",reservation.checkout
-            print "str(reservation.id)-------------------------",str(reservation.id)
-            print "str(reservation.id)----------------------",str(reservation.id)
             res = self._cr.fetchone()
-            print "res--------------------",res
             roomcount = res and res[0] or 0.0
-            print "room count-------------------------",roomcount
             if roomcount:
                 raise except_orm(_('Warning'), _('You tried to confirm reservation with room those already reserved in this reservation period'))
             else:
@@ -292,36 +287,30 @@ class hotel_reservation_line(models.Model):
     _description = "Reservation Line"
 
     name = fields.Char('Name', size=64)
-    line_id = fields.Many2one(comodel_name='hotel.reservation')
-    reserve = fields.Many2many(comodel_name='hotel.room',relation='hotel_reservation_line_room_rel',column1='room_id',column2='hotel_reservation_line_id', domain="[('isroom','=',True),('categ_id','=',categ_id)]")
-    categ_id =  fields.Many2one(comodel_name='product.category',string='Room Type' ,domain="[('isroomtype','=',True)]", change_default=True)
+    line_id = fields.Many2one('hotel.reservation')
+    reserve = fields.Many2many('hotel.room','hotel_reservation_line_room_rel','room_id','hotel_reservation_line_id', domain="[('isroom','=',True),('categ_id','=',categ_id)]")
+    categ_id =  fields.Many2one('product.category','Room Type' ,domain="[('isroomtype','=',True)]", change_default=True)
 
     @api.onchange('categ_id')#,'parent.checkin', 'parent.checkout')
     def on_change_categ(self):
-        print "categ_id called............"
         hotel_room_obj = self.env['hotel.room']
         hotel_room_ids = hotel_room_obj.search([('categ_id', '=',self.categ_id.id)])
         assigned = False
         room_ids = []
         if not self.line_id.checkin:
             raise except_orm(_('Warning'),_('Before choosing a room,\n You have to select a Check in date or a Check out date in the reservation form.'))
-        for room in hotel_room_obj.browse(hotel_room_ids.ids):
+        for room in hotel_room_ids:
             assigned = False
             for line in room.room_reservation_line_ids:
-                if line.check_in == self.line_id.checkin and line.check_out == self.line_id.checkout:
-                    print line.check_in,"line.check_in--------------------"
-                    print self.line_id.checkin,"self.line_id.checkin---------------------"
+
+                if line.check_in >= self.line_id.checkin and line.check_in <= self.line_id.checkout or line.check_out <= self.line_id.checkout and line.check_out >=self.line_id.checkin:
                     assigned = True
+
             if not assigned:
                 room_ids.append(room.id)
-                print "room.id------------------------",room.ids
-
         domain = {'reserve': [('id', 'in', room_ids)]}
-        print "Domain--------------------",domain
         return {'domain': domain}
         
-        #self.reserve = [('id', 'in', room_ids)]
-            
 #completed in v8
 #    def on_change_categ(self, cr, uid, ids, categ_ids, checkin, checkout, context=None):
 #        hotel_room_obj = self.pool.get('hotel.room')
@@ -351,9 +340,6 @@ class hotel_room_reservation_line(models.Model):
     state = fields.Selection([('assigned', 'Assigned'), ('unassigned', 'Unassigned')], 'Room Status')
     reservation_id = fields.Many2one(comodel_name='hotel.reservation',string='Reservation')
 
-hotel_room_reservation_line()
-
-
 class hotel_room(models.Model):
     _inherit = 'hotel.room'
     _description = 'Hotel Room'
@@ -363,7 +349,6 @@ class hotel_room(models.Model):
     #every 1min scheduler will call this method and check Status of room is occupied or available
     @api.model
     def cron_room_line(self):
-        print "scheduler called...................................."
         reservation_line_obj = self.env['hotel.room.reservation.line']
         now = datetime.now()
         curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)

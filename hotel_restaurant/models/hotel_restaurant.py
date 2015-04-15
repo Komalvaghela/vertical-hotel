@@ -38,7 +38,7 @@ class hotel_menucard_type(models.Model):
     _name = 'hotel.menucard.type'
     _description = 'Amenities Type'
     
-    menu_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, delegate=True, ondelete='cascade')
+    menu_id = fields.Many2one('product.category','Category',required=True, delegate=True, ondelete='cascade')
     
     _defaults = {
         'ismenutype': 1,
@@ -48,7 +48,7 @@ class hotel_menucard(models.Model):
     _name = 'hotel.menucard'
     _description = 'Hotel Menucard'
 
-    product_id = fields.Many2one(comodel_name='product.product',string='Product',required=True, delegate=True, ondelete='cascade')
+    product_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
     image = fields.Binary("Image", help="This field holds the image used as image for the product, limited to 1024x1024px.")
     
     _defaults = {
@@ -77,7 +77,6 @@ class hotel_restaurant_reservation(models.Model):
                 'date1':record.start_date,
                 'table_no':[(6, 0, table_ids)],
             }
-            print "values------------",values
             proxy.create(values)
         return True
 
@@ -124,9 +123,7 @@ class hotel_restaurant_reservation(models.Model):
                        "where hrr.id= %s) " \
                         , (self.start_date, self.end_date, reservation.id, reservation.id))
             res = self._cr.fetchone()
-            print "res1-----------------------",res
             roomcount = res and res[0] or 0.0
-            print "roomcount---------------",roomcount
             if roomcount:
                 raise except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
             else:
@@ -166,12 +163,12 @@ class hotel_restaurant_reservation(models.Model):
     _description = "Includes Hotel Restaurant Reservation"
                                                                                 
     reservation_id = fields.Char('Reservation No', size=64, required=True, default=lambda obj: obj.env['ir.sequence'].get('hotel.restaurant.reservation'))
-    room_no = fields.Many2one(comodel_name='hotel.room', string='Room No', size=64)
+    room_no = fields.Many2one('hotel.room', string='Room No', size=64)
     start_date = fields.Datetime('Start Time', required=True)
     end_date = fields.Datetime('End Time', required=True)
-    cname = fields.Many2one(comodel_name='res.partner', string='Customer Name', size=64, required=True)
-    partner_address_id = fields.Many2one(comodel_name='res.partner', string='Address')
-    tableno = fields.Many2many(comodel_name='hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
+    cname = fields.Many2one('res.partner', string='Customer Name', size=64, required=True)
+    partner_address_id = fields.Many2one('res.partner', string='Address')
+    tableno = fields.Many2many('hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled')], 'state', select=True, required=True, readonly=True,default=lambda * a: 'draft')
 
 #    @api.constrains('start_date')
@@ -382,7 +379,7 @@ class hotel_reservation_order(models.Model):
     order_number = fields.Char('Order No', size=64,default=lambda obj: obj.env['ir.sequence'].get('hotel.reservation.order'))
     reservationno = fields.Char('Reservation No', size=64)
     date1 = fields.Datetime('Date', required=True)
-    waitername = fields.Many2one(comodel_name='res.partner',string='Waiter Name')#,size=64)
+    waitername = fields.Many2one('res.partner','Waiter Name')#,size=64)
     table_no = fields.Many2many('hotel.restaurant.tables','temp_table4','table_no','name','Table Number')#,size=64)
     order_list = fields.One2many('hotel.restaurant.order.list','o_l','Order List')
     tax = fields.Float('Tax (%) ', size=64)
@@ -418,7 +415,7 @@ class hotel_restaurant_order_list(models.Model):
     o_list = fields.Many2one('hotel.restaurant.order','Restaurant Order')
     o_l = fields.Many2one('hotel.reservation.order','Reservation Order')
     kot_order_list = fields.Many2one('hotel.restaurant.kitchen.order.tickets','Kitchen Order Tickets')
-    name = fields.Many2one(comodel_name='hotel.menucard',string='Item Name',required=True)
+    name = fields.Many2one('hotel.menucard','Item Name',required=True)
     item_qty = fields.Char('Qty', size=64, required=True)
     item_rate = fields.Float('Rate', size=64)
     price_subtotal = fields.Integer(compute='_sub_total', method=True, string='Subtotal')

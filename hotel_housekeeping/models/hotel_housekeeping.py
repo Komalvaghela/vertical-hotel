@@ -33,7 +33,7 @@ class hotel_housekeeping_activity_type(models.Model):
     _name = 'hotel.housekeeping.activity.type'
     _description = 'Activity Type'
     
-    activity_id = fields.Many2one(comodel_name='product.category',string='Category',required=True, delegate=True, ondelete='cascade')
+    activity_id = fields.Many2one('product.category','Category',required=True, delegate=True, ondelete='cascade')
 
 class hotel_activity(models.Model):
     _name = 'hotel.activity'
@@ -96,11 +96,11 @@ class hotel_housekeeping_activities(models.Model):
     _name = "hotel.housekeeping.activities"
     _description = "Housekeeping Activities "
 
-    a_list = fields.Many2one(comodel_name='hotel.housekeeping',string='Reservation')
-    room_id = fields.Many2one(comodel_name='hotel.room',string='Room No')
+    a_list = fields.Many2one('hotel.housekeeping',string='Reservation')
+    room_id = fields.Many2one('hotel.room',string='Room No')
     today_date = fields.Date('Today Date')
-    activity_name = fields.Many2one(comodel_name='hotel.activity',string='Housekeeping Activity')
-    housekeeper = fields.Many2one(comodel_name='res.users',string='Housekeeper' ,required=True)
+    activity_name = fields.Many2one('hotel.activity',string='Housekeeping Activity')
+    housekeeper = fields.Many2one('res.users',string='Housekeeper' ,required=True)
     clean_start_time = fields.Datetime('Clean Start Time', required=True)
     clean_end_time = fields.Datetime('Clean End Time', required=True)
     dirty = fields.Boolean('Dirty', help='Checked if the housekeeping activity results as Dirty.')

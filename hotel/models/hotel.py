@@ -46,7 +46,7 @@ class hotel_room_type(models.Model):
     _name = "hotel.room.type"
     _description = "Room Type"
     
-    cat_id = fields.Many2one(comodel_name='product.category',string='category', required=True, delegate=True, select=True, ondelete='cascade')
+    cat_id = fields.Many2one('product.category','category', required=True, delegate=True, select=True, ondelete='cascade')
 
     _defaults = {
         'isroomtype': 1,
@@ -87,14 +87,21 @@ class hotel_room(models.Model):
 
     _inherits = {'product.product': 'product_id'}
 
-    product_id = fields.Many2one(comodel_name='product.product',string='Product_id' ,required=True, delegate=True, ondelete='cascade')
-    floor_id = fields.Many2one(comodel_name='hotel.floor',string='Floor No',help='At which floor the room is located.')
+    product_id = fields.Many2one('product.product','Product_id' ,required=True, delegate=True, ondelete='cascade')
+    floor_id = fields.Many2one('hotel.floor','Floor No',help='At which floor the room is located.')
     max_adult = fields.Integer('Max Adult')
     max_child = fields.Integer('Max Child')
-    room_amenities = fields.Many2many(comodel_name='hotel.room.amenities',relation='temp_tab',column1='room_amenities',column2='rcateg_id',string='Room Amenities',help='List of room amenities. ')
+    room_amenities = fields.Many2many('hotel.room.amenities','temp_tab','room_amenities','rcateg_id',string='Room Amenities',help='List of room amenities. ')
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
 #    room_rent_ids = fields.One2many('room.rent', 'rent_id', 'Room Rent')
 
+#    @api.model
+#    def default_get(self, fields):
+#        ret_val = super(hotel_room, self).default_get(fields)
+#        print "ret_val", ret_val
+#        self._context.update({'self.product_id.isroom':1})
+#        print "--++----------------------------------",self._context 
+#        return ret_val
 
     _defaults = {
         'isroom': 1,
@@ -113,7 +120,7 @@ class hotel_folio(models.Model):
     @api.multi
     def copy(self,default=None):
         print "copy hotel.folio------------------"
-        res = self.pool.get('sale.order').copy(default=None)
+        res = self.env['sale.order'].copy(default=None)
         return super(hotel_folio,self).copy(default=default)
 
 #    def copy(self, cr, uid, id, default=None, context=None):
@@ -144,11 +151,11 @@ class hotel_folio(models.Model):
     _order = 'id desc'
 
     name = fields.Char('Folio Number', size=24,default=lambda obj: obj.env['ir.sequence'].get('hotel.folio')) # readonly=True)
-    order_id = fields.Many2one(comodel_name='sale.order',string='Order',  delegate=True, required=True, ondelete='cascade') #required=True,
+    order_id = fields.Many2one('sale.order','Order',  delegate=True, required=True, ondelete='cascade') #required=True,
     checkin_date = fields.Datetime('Check In', required=True, readonly=True, states={'draft':[('readonly', False)]})
     checkout_date = fields.Datetime('Check Out', required=True, readonly=True, states={'draft':[('readonly', False)]})
-    room_lines = fields.One2many(comodel_name='hotel.folio.line',inverse_name='folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel room reservation detail.")
-    service_lines = fields.One2many(comodel_name='hotel.service.line',inverse_name='folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel services detail provide to customer and it will include in main Invoice.")
+    room_lines = fields.One2many('hotel.folio.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel room reservation detail.")
+    service_lines = fields.One2many('hotel.service.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel services detail provide to customer and it will include in main Invoice.")
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
     duration = fields.Float('Duration in Days', readonly=True, help="Number of days which will automatically count from the check-in and check-out date. ")
 
@@ -215,7 +222,6 @@ class hotel_folio(models.Model):
                 checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
             self.checkout_date = checkout_date    
             value.update({'value':{'checkout_date':checkout_date}})
-        print "value------------------------------------------------------",value
         return value     
     #    return True 
 
@@ -569,8 +575,8 @@ class hotel_folio_line(models.Model):
     _name = 'hotel.folio.line'
     _description = 'hotel folio1 room line'
     
-    order_line_id = fields.Many2one(comodel_name='sale.order.line',string='Order Line' ,required=True, delegate=True, ondelete='cascade')
-    folio_id = fields.Many2one(comodel_name='hotel.folio',string='Folio', ondelete='cascade')
+    order_line_id = fields.Many2one('sale.order.line',string='Order Line' ,required=True, delegate=True, ondelete='cascade')
+    folio_id = fields.Many2one('hotel.folio',string='Folio', ondelete='cascade')
     checkin_date = fields.Datetime('Check In', required=True)
     checkout_date = fields.Datetime('Check Out', required=True)
 
@@ -624,12 +630,12 @@ class hotel_folio_line(models.Model):
 #        return  self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
 
     @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
-    def product_id_change(self,pricelist, product, qty=0,
+    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
         line_ids = [folio.order_line_id.id for folio in self.browse(self._ids)]
         print "product_id_change=======================hotel.folio.line"
-        return self.env['sale.order.line'].product_id_change(line_ids, pricelist, product, 
+        return super(sale.order.line, self).product_id_change(cr, uid, line_ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
             lang=False, update_tax=True, date_order=False)
 
@@ -643,11 +649,11 @@ class hotel_folio_line(models.Model):
 #            lang=False, update_tax=True, date_order=False)
 
     @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')  #,'parent.partner_id', False, False, 'parent.date_order','parent.pricelist_id',
-    def product_uom_change(self, pricelist, product, qty=0,
+    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
         print "hello product_uom_change ---------------hotel folio line------------------"
-        return self.product_id_change(pricelist, product,
+        return super(hotel_folio_line, self).product_id_change(cursor, user, ids, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
             lang=False, update_tax=True, date_order=False)
 
@@ -751,8 +757,8 @@ class hotel_service_line(models.Model):
     _name = 'hotel.service.line'
     _description = 'hotel Service line'
     
-    service_line_id = fields.Many2one(comodel_name='sale.order.line',string='Service Line', required=True, delegate=True, ondelete='cascade')
-    folio_id = fields.Many2one(comodel_name='hotel.folio',string='Folio',ondelete='cascade')
+    service_line_id = fields.Many2one('sale.order.line','Service Line', required=True, delegate=True, ondelete='cascade')
+    folio_id = fields.Many2one('hotel.folio','Folio',ondelete='cascade')
 
 #    def create(self, cr, uid, vals, context=None, check=True):
 #        if 'folio_id' in vals:
@@ -869,7 +875,7 @@ class hotel_service_type(models.Model):
     _name = "hotel.service.type"
     _description = "Service Type"
     
-    ser_id = fields.Many2one(comodel_name='product.category',string='category', required=True, delegate=True, select=True, ondelete='cascade')
+    ser_id = fields.Many2one('product.category','category', required=True, delegate=True, select=True, ondelete='cascade')
 
     _defaults = {
         'isservicetype': 1,
@@ -879,7 +885,7 @@ class hotel_services(models.Model):
     _name = 'hotel.services'
     _description = 'Hotel Services and its charges'
     
-    service_id = fields.Many2one(comodel_name='product.product',string='Service_id',required=True, ondelete='cascade', delegate=True)
+    service_id = fields.Many2one('product.product','Service_id',required=True, ondelete='cascade', delegate=True)
 
     _defaults = {
         'isservice': 1,
