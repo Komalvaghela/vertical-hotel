@@ -40,9 +40,9 @@ class hotel_menucard_type(models.Model):
     
     menu_id = fields.Many2one('product.category','Category',required=True, delegate=True, ondelete='cascade')
     
-    _defaults = {
-        'ismenutype': 1,
-    }
+#    _defaults = {
+#        'ismenutype': 1,
+#    }
 
 class hotel_menucard(models.Model):
     _name = 'hotel.menucard'
@@ -51,9 +51,9 @@ class hotel_menucard(models.Model):
     product_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
     image = fields.Binary("Image", help="This field holds the image used as image for the product, limited to 1024x1024px.")
     
-    _defaults = {
-        'ismenucard': 1,
-    }
+#    _defaults = {
+#        'ismenucard': 1,
+#    }
 
 class hotel_restaurant_tables(models.Model):
     _name = "hotel.restaurant.tables"

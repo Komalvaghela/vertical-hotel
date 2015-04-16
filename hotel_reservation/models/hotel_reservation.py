@@ -56,11 +56,11 @@ class hotel_reservation(models.Model):
     folio_id = fields.Many2many('hotel.folio','hotel_folio_reservation_rel','order_id','invoice_id',string='Folio')
     dummy = fields.Datetime('Dummy')
 
-    _sql_constraints = [
-        ('number_reserve', 'unique(checkin, checkout,reservation_line.reserve)',
-            'Already Reserved!'),
-    ]
-    
+#    _sql_constraints = [
+#        ('number_reserve', 'unique(checkin, checkout,reservation_line.reserve)',
+#            'Already Reserved!'),
+#    ]
+#    
     #Checkin date should be greater than the date ordered.
     @api.onchange('date_order','checkin')
     def on_change_checkin(self):

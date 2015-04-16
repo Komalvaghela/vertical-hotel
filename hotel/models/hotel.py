@@ -22,6 +22,7 @@
 ##############################################################################
 
 from openerp import models,fields,api,_
+import openerp.addons.decimal_precision as dp
 from openerp.exceptions import except_orm, Warning, RedirectWarning
 import time
 from openerp import netsvc
@@ -48,13 +49,47 @@ class hotel_room_type(models.Model):
     
     cat_id = fields.Many2one('product.category','category', required=True, delegate=True, select=True, ondelete='cascade')
 
-    _defaults = {
-        'isroomtype': 1,
-    }
+#    _defaults = {
+#        'isroomtype': 1,
+#    }
 
 class product_product(models.Model):
     _inherit = "product.product"
 
+#    standard_price = fields.Float(digits_compute=dp.get_precision('Product Price'), 
+#                                          help="Cost price of the product template used for standard stock valuation in accounting and used as a base price on purchase orders.", 
+#                                          groups="base.group_user", string="Cost Price")
+#    cost_method = fields.Selection(selection=[('standard', 'Standard Price'), ('average', 'Average Price'), ('real', 'Real Price')],
+#            help="""Standard Price: The cost price is manually updated at the end of a specific period (usually every year).
+#                    Average Price: The cost price is recomputed at each incoming shipment and used for the product valuation.
+#                    Real Price: The cost price displayed is the price of the last outgoing product (will be use in case of inventory loss for example).""",
+#            string="Costing Method", required=True, copy=True)
+#    product_manager = fields.Many2one('res.users','Product Manager')
+#    seller_ids = fields.One2many('product.supplierinfo', 'product_tmpl_id', 'Supplier')
+#    taxes_id = fields.Many2many('account.tax', 'product_taxes_rel',
+#            'prod_id', 'tax_id', 'Customer Taxes',
+#            domain=[('parent_id','=',False),('type_tax_use','in',['sale','all'])])   
+#    state = fields.Selection([('',''),
+#            ('draft', 'In Development'),
+#            ('sellable','Normal'),
+#            ('end','End of Lifecycle'),
+#            ('obsolete','Obsolete')], 'Status')
+#    categ_id = fields.Many2one('product.category','Internal Category', required=True, change_default=True, domain="[('type','=','normal')]" ,help="Select category for the current product")
+#    name = fields.Char('Name', required=True, translate=True, select=True)
+#    uos_coeff = fields.Float('Unit of Measure -> UOS Coeff', digits_compute= dp.get_precision('Product UoS'),
+#            help='Coefficient to convert default Unit of Measure to Unit of Sale\n'
+#            ' uos = uom * coeff')
+#    rental = fields.Boolean('Can be Rent')
+#    uom_id = fields.Many2one('product.uom', 'Unit of Measure', required=True, help="Default Unit of Measure used for all stock operation.")
+#    supplier_taxes_id = fields.Many2many('account.tax',
+#            'product_supplier_taxes_rel', 'prod_id', 'tax_id',
+#            'Supplier Taxes', domain=[('parent_id', '=', False),('type_tax_use','in',['purchase','all'])])
+#    description = fields.Text('Description',translate=True,
+#            help="A precise description of the Product, used only for internal information purposes.")
+#    list_price = fields.Float('Sale Price', digits_compute=dp.get_precision('Product Price'), help="Base price to compute the customer price. Sometimes called the catalog price.")
+#    uos_id = fields.Many2one('product.uom', 'Unit of Sale',
+#            help='Specify a unit of measure here if invoicing is made in another unit of measure than inventory. Keep empty to use the default unit of measure.')
+   
     isroom = fields.Boolean('Is Room')
     iscategid = fields.Boolean('Is categ id')
     isservice = fields.Boolean('Is Service id')
@@ -65,9 +100,9 @@ class hotel_room_amenities_type(models.Model):
     
     cat_id = fields.Many2one('product.category','category', required=True, delegate=True, ondelete='cascade')
 
-    _defaults = {
-        'isamenitytype': 1,
-    }
+#    _defaults = {
+#        'isamenitytype': 1,
+#    }
 
 class hotel_room_amenities(models.Model):
     _name = 'hotel.room.amenities'
@@ -76,10 +111,9 @@ class hotel_room_amenities(models.Model):
     room_categ_id = fields.Many2one('product.product','Product Category' ,required=True, delegate=True, ondelete='cascade')
     rcateg_id = fields.Many2one('hotel.room.amenities.type','Amenity Catagory')
 
-    _defaults = {
-        'iscategid': 1,
-    }
-
+#    _defaults = {
+#        'iscategid': 1,
+#    }
 
 class hotel_room(models.Model):
     _name = 'hotel.room'
@@ -95,18 +129,11 @@ class hotel_room(models.Model):
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
 #    room_rent_ids = fields.One2many('room.rent', 'rent_id', 'Room Rent')
 
-#    @api.model
-#    def default_get(self, fields):
-#        ret_val = super(hotel_room, self).default_get(fields)
-#        print "ret_val", ret_val
-#        self._context.update({'self.product_id.isroom':1})
-#        print "--++----------------------------------",self._context 
-#        return ret_val
 
-    _defaults = {
-        'isroom': 1,
-        'rental': 1,
-    }
+#    _defaults = {
+#        'isroom': 1,
+#        'rental': 1,
+#    }
 
 #    def set_room_status_occupied(self, cr, uid, ids, context=None):
 #        return self.write(cr, uid, ids, {'status': 'occupied'}, context=context)
@@ -629,8 +656,9 @@ class hotel_folio_line(models.Model):
 #        line_ids = [folio.order_line_id.id for folio in self.browse(cr, uid, ids)]
 #        return  self.pool.get('sale.order.line').uos_change(cr, uid, line_ids, product_uos, product_uos_qty=0, product_id=None)
 
-    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
-    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
+  #  @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
+    @api.multi     
+    def product_id_change(self,pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
         line_ids = [folio.order_line_id.id for folio in self.browse(self._ids)]
@@ -648,8 +676,9 @@ class hotel_folio_line(models.Model):
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
-    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')  #,'parent.partner_id', False, False, 'parent.date_order','parent.pricelist_id',
-    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
+    #@api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')  #,'parent.partner_id', False, False, 'parent.date_order','parent.pricelist_id',
+    @api.multi
+    def product_uom_change(self, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
         print "hello product_uom_change ---------------hotel folio line------------------"
@@ -760,12 +789,29 @@ class hotel_service_line(models.Model):
     service_line_id = fields.Many2one('sale.order.line','Service Line', required=True, delegate=True, ondelete='cascade')
     folio_id = fields.Many2one('hotel.folio','Folio',ondelete='cascade')
 
+    @api.model
+    def create(self,vals,check=True):
+        if self.folio_id in vals:
+            folio = self.env['hotel.folio'].browse(vals['folio_id'])
+            vals.update({'order_id':folio.order_id.id})
+        return super(hotel_service_line, self).create(vals)
+
+#testing.........!!
 #    def create(self, cr, uid, vals, context=None, check=True):
 #        if 'folio_id' in vals:
 #            folio = self.pool.get("hotel.folio").browse(cr, uid, vals['folio_id'], context=context)
 #            vals.update({'order_id':folio.order_id.id})
 #        return super(osv.Model, self).create(cr, uid, vals, context=context)
 
+    @api.multi
+    def unlink(self):
+        sale_line_obj = self.env['sale.order.line']
+        for line in self.browse(self._ids):
+            if line.service_line_id:
+                sale_line_obj.unlink()
+        return super(hotel_service_line, self).unlink()
+
+#testing.........!!
 #    def unlink(self, cr, uid, ids, context=None):
 #        sale_line_obj = self.pool.get('sale.order.line')
 #        for line in self.browse(cr, uid, ids, context=context):
@@ -773,42 +819,29 @@ class hotel_service_line(models.Model):
 #                sale_line_obj.unlink(cr, uid, [line.service_line_id.id], context=context)
 #        return super(hotel_service_line, self).unlink(cr, uid, ids, context=None)
 
-   # @api.multi
-    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#,'parent.partner_id, False, False, parent.date_order),parent.pricelist_id,
-    def product_id_change(self,pricelist, product, qty=0,
-            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
-            lang=False, update_tax=True, date_order=False):
-        line_ids = [folio.service_line_id.id for folio in self]
-        print "product_id_change-------------------service line"
-        return self.env['sale.order.line'].product_id_change(line_ids, pricelist, product, 
-            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
-            lang=False, update_tax=True, date_order=False)  
-
-#    def product_id_change(self, cr, uid, ids, pricelist, product, qty=0,
+#may be unused..................
+#    @api.multi
+#    def product_id_change(self,pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
 #            lang=False, update_tax=True, date_order=False):
-#        line_ids = [folio.service_line_id.id for folio in self.browse(cr, uid, ids)]
-#        return self.pool.get('sale.order.line').product_id_change(cr, uid, line_ids, pricelist, product, qty=0,
+#        line_ids = [folio.service_line_id.id for folio in self]
+#        print "product_id_change-------------------service line"
+#        return self.env['sale.order.line'].product_id_change(line_ids, pricelist, product, 
+#            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
+#            lang=False, update_tax=True, date_order=False)  
+
+
+#may be unused..................
+#    @api.multi
+#    def product_uom_change(self, pricelist, product, qty=0,
+#            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
+#            lang=False, update_tax=True, date_order=False):
+#        print "hello product_uom_change service line------------------"
+#        return self.product_id_change(pricelist, product, qty=0,
 #            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
 #            lang=False, update_tax=True, date_order=False)
 
-    #@api.multi
-    @api.onchange('product_id','product_uom_qty','product_uom','product_uos_qty','product_uos','name')#'parent.pricelist_id','parent.partner_id','False', 'False', 'parent.date_order')
-    def product_uom_change(self, pricelist, product, qty=0,
-            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
-            lang=False, update_tax=True, date_order=False):
-        print "hello product_uom_change service line------------------"
-        return self.product_id_change(pricelist, product, qty=0,
-            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
-            lang=False, update_tax=True, date_order=False)
 
-#    def product_uom_change(self, cursor, user, ids, pricelist, product, qty=0,
-#            uom=False, qty_uos=0, uos=False, name='', partner_id=False,
-#            lang=False, update_tax=True, date_order=False):
-#        print "hello service"
-#        return self.product_id_change(cursor, user, ids, pricelist, product, qty=0,
-#            uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
-#            lang=False, update_tax=True, date_order=False)
 
 #    @api.onchange('checkin_date','checkout_date')
 #    def on_change_checkout(self):
@@ -877,9 +910,9 @@ class hotel_service_type(models.Model):
     
     ser_id = fields.Many2one('product.category','category', required=True, delegate=True, select=True, ondelete='cascade')
 
-    _defaults = {
-        'isservicetype': 1,
-    }
+#    _defaults = {
+#        'isservicetype': 1,
+#    }
 
 class hotel_services(models.Model):
     _name = 'hotel.services'
