@@ -480,7 +480,9 @@
                 </form>
             </field>
         </record>
-        <record model="ir.ui.view" id="view_hotel_menucard_search">
+       
+	<!-- 
+		<record model="ir.ui.view" id="view_hotel_menucard_search">
             <field name="name">hotel.menucard.search</field>
             <field name="model">hotel.menucard</field>
             <field name="arch" type="xml">
@@ -488,20 +490,43 @@
                     <field name="name" />
                     <field name="categ_id" select="1"/>
                     <field name="list_price" string="Item Rate"/>
+                    <newline/>
+                    <group expand="0" string="Group By...">
+                        <filter name="categ_id" string="Category" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'categ_id'}" />
+                    </group>
                 </search>
             </field>
-        </record>
+	
+        </record> -->
+		
+		<record id="view_hotel_menucard_search_new" model="ir.ui.view">
+            <field name="name">hotel.menucard.search</field>
+            <field name="model">hotel.menucard</field>
+            <field name="arch" type="xml">
+                <search string="Hotel Menucard">
+                    <field name="name"/>
+                    <field name="categ_id"/>
+                    <field name="list_price"/>
+                	<separator/>
+				    <group expand="0" string="Group By">
+                        <filter string="Categoty" domain="[]" context="{'group_by':'categ_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>	
+
         <record model="ir.ui.view" id="view_hotel_menucard_tree">
             <field name="name">hotel.menucard.tree</field>
             <field name="model">hotel.menucard</field>
             <field name="arch" type="xml">
                 <tree string="Hotel Menucard" >
                     <field name="name" />
-                    <field name="categ_id" select="1"/>
+                    <field name="categ_id"/>
                     <field name="list_price" string="Item Rate"/>
                 </tree>
             </field>
         </record>
+        
         <record model="ir.ui.view" id="hotel_manucard_kanban_view">
             <field name="name">Menucard Kanban</field>
             <field name="model">hotel.menucard</field>
@@ -542,43 +567,7 @@
                             </div>
                         </t>
                     </templates>
-                    <!-- <templates>
-                    <t t-name="kanban-box">
-
-                    <t t-set="record.group_fancy" t-value="1"  groups="note.group_note_fancy"/>
-
-                    <div t-attf-class="oe_kanban_color_#{kanban_getcolor(record.color.raw_value)} oe_kanban_global_click_edit oe_semantic_html_override oe_kanban_card #{record.group_fancy==1 ? 'oe_kanban_card_fancy' : ''}">
-                    <div class="oe_dropdown_kanban">
-
-                    dropdown menu
-                    <span class="oe_dropdown_toggle">
-                    <span class="oe_e">í</span>
-                    <ul class="oe_dropdown_menu">
-                    <li><a type="delete">Delete</a></li>
-                    <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
-                    </ul>
-                    </span>
-                    <div style="display: inline">
-                    <a name="onclick_note_is_done" type="object" t-if="record.open.raw_value" class="oe_e">W</a>
-                    <a name="onclick_note_not_done" type="object" t-if="!record.open.raw_value" class="oe_e">W</a>
-                    </div>
-                    </div>
-                    kanban note
-                    <div t-attf-class="oe_kanban_content #{record.open.raw_value ? '' : 'note_text_line_through'}">
-                    title
-                    <field name="name"/>
-                    </div>
-                    <div class="oe_clear"></div>
-                    <field name="tag_ids"/>
-                    <div class="oe_right">
-                    <t t-foreach="record.message_follower_ids.raw_value" t-as="follower">
-                    <img t-if="record.current_partner_id.raw_value!=follower" t-att-src="kanban_image('res.partner', 'image_small', follower)" width="24" height="24" class="oe_kanban_avatar" t-att-data-member_id="follower"/>
-                    </t>
-                    </div>
-                    <div class="oe_clear"></div>
-                    </div>
-                    </t>
-                    </templates> -->
+                   
 
                 </kanban>
             </field>
@@ -588,7 +577,8 @@
             <field name="res_model">hotel.menucard</field>
             <field name="view_type">form</field>
             <field name="context">{'default_ismenucard':1}</field>
-            <field name="view_mode">tree,form,kanban</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="search_view_id" ref="view_hotel_menucard_search_new"/>
         </record>
         <menuitem name="Food Items"
         id="menu_open_hotel_menucard_form"

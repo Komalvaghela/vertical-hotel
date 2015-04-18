@@ -338,8 +338,9 @@ class hotel_room_reservation_line(models.Model):
     check_in = fields.Datetime('Check In Date', required=True)
     check_out = fields.Datetime('Check Out Date', required=True)
     state = fields.Selection([('assigned', 'Assigned'), ('unassigned', 'Unassigned')], 'Room Status')
-    reservation_id = fields.Many2one(comodel_name='hotel.reservation',string='Reservation')
-
+    reservation_id = fields.Many2one('hotel.reservation',string='Reservation')
+     
+        
 class hotel_room(models.Model):
     _inherit = 'hotel.room'
     _description = 'Hotel Room'
@@ -352,16 +353,13 @@ class hotel_room(models.Model):
         reservation_line_obj = self.env['hotel.room.reservation.line']
         now = datetime.now()
         curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-        room_ids = self.search([])
-        for room in self.browse(room_ids):
-            status = {}
-            reservation_line_ids = [reservation_line.id for reservation_line in self.room_reservation_line_ids]
-            reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids), ('check_in', '<=', curr_date), ('check_out', '>=', curr_date)])
+        for room in self.search([]):
+            reservation_line_ids = [reservation_line.ids for reservation_line in room.room_reservation_line_ids]
+            reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids),('check_in', '<=', curr_date), ('check_out', '>=', curr_date)])
             if reservation_line_ids:
-                status = {'status': 'occupied'}
+                room.write({'status':'occupied'})
             else:
-                status = {'status': 'available'}
-            self.write(status)
+              room.write({'status':'available'})
         return True
 
 #completed in v8

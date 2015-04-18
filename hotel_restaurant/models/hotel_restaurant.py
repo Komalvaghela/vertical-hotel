@@ -47,10 +47,10 @@ class hotel_menucard_type(models.Model):
 class hotel_menucard(models.Model):
     _name = 'hotel.menucard'
     _description = 'Hotel Menucard'
+   # _inherits = {'product.product':'product_id'}
 
     product_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
     image = fields.Binary("Image", help="This field holds the image used as image for the product, limited to 1024x1024px.")
-    
 #    _defaults = {
 #        'ismenucard': 1,
 #    }
@@ -63,7 +63,7 @@ class hotel_restaurant_tables(models.Model):
     capacity = fields.Integer('Capacity')
 
 class hotel_restaurant_reservation(models.Model):
-
+ 
 #when table is booked and create order button is clicked then this method is called and order is created.
 #you can see this created order in "Orders"
  

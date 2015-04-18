@@ -139,6 +139,8 @@
 			<field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
         </record>
+        
+
         <menuitem  id="menu_amenity" name="Amenity" parent="hotel.hotel_configuration_menu" sequence="2"/>
         <menuitem name="Amenity Types"
                   id="menu_action_hotel_room_amenities_type_view_form"
@@ -307,33 +309,7 @@
                             <field name="uos_id"/>
                             <field name="uos_coeff" /> 
                              <newline/> 
-<!--                             <separator string="Room Rent" /> -->
-<!--                               <field name="room_rent_ids" colspan="4" nolabel='1' > -->
-<!--                                 <form string="Room Rent" > -->
-<!--                                     <group colspan="4" col="2"> -->
-<!--                                    		<field name="price"/> -->
-<!--                                    	</group> -->
-<!--                                    	<group colspan="4" col="8"> -->
-<!-- 	                                    <field name="mon"/> -->
-<!-- 	                                    <field name="tue"/> -->
-<!-- 	                                    <field name="wed"/> -->
-<!-- 	                                    <field name="thu"/> -->
-<!-- 	                                    <field name="fri"/> -->
-<!-- 	                                    <field name="sat"/> -->
-<!-- 	                                    <field name="sun"/> -->
-<!-- 	                                </group> -->
-<!--                                 </form> -->
-<!--                                 <tree string="Room Rent" editable="bottom" > -->
-<!--                                    		<field name="price"/> -->
-<!-- 	                                    <field name="mon"/> -->
-<!-- 	                                    <field name="tue"/> -->
-<!-- 	                                    <field name="wed"/> -->
-<!-- 	                                    <field name="thu"/> -->
-<!-- 	                                    <field name="fri"/> -->
-<!-- 	                                    <field name="sat"/> -->
-<!-- 	                                    <field name="sun"/> -->
-<!--                                 </tree> -->
-<!--                             </field> -->
+
                            </group>
                           <newline/> 
                           <group>
@@ -351,7 +327,8 @@
             </field>
         </record>
         
-        <record model="ir.ui.view" id="view_hotel_room_search">
+        <!--
+								<record model="ir.ui.view" id="view_hotel_room_search">
             <field name="name">hotel.room.search</field>
             <field name="model">hotel.room</field>
             <field name="arch" type="xml">
@@ -368,6 +345,7 @@
                 </search>
             </field>
         </record>
+								-->
 
 		<record model="ir.ui.view" id="view_hotel_room_tree">
 			<field name="name">hotel.room.tree</field>
@@ -382,59 +360,45 @@
 			</field>
 		</record>
 
-<!-- 		<record model="ir.ui.view" id="view_hotel_room_kanban"> -->
-<!-- 			<field name="name">hotel.room.kanban</field> -->
-<!-- 			<field name="model">hotel.room</field> -->
-<!-- 			<field name="arch" type="xml"> -->
-<!-- 				<kanban filter="status" > -->
-<!-- 					<field name="name" /> -->
-<!-- 					<field name="status" /> -->
-<!-- 					<field name="color" /> -->
-<!-- 					<field name="lst_price"/> -->
-<!-- 					<templates> -->
-<!--                         <t t-name="kanban-box"> -->
-<!--                             <div class="oe_kanban_vignette oe_semantic_html_override oe_kanban_card oe_kanban_project oe_kanban_global_click"> -->
-<!-- 	                            <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user"> -->
-<!-- 	                            <span class="oe_e">í</span> -->
-<!-- 	                                    <ul class="oe_dropdown_menu"> -->
-<!-- 				                            <t t-if="widget.view.is_action_enabled('edit')"><li><a type="edit">Edit</a></li></t> -->
-<!-- 		                                    <t t-if="widget.view.is_action_enabled('delete')"><li><a type="delete">Delete</a></li></t> -->
-<!-- 		                                    <li><ul class="oe_kanban_colorpicker" data-field="color"/></li> -->
-<!-- 	                                    </ul> -->
-<!-- 	                            </div> -->
-<!-- 	                            <div class="oe_kanban_details" style='margin-top: -10px;'> -->
-<!-- 	                               <div class="oe_kanban_content">  -->
-<!-- 	                                   <div class="oe_kanban_project_list"> -->
-<!-- 		                                   <H3> -->
-<!-- 		                                   <a type="open"> -->
-<!-- 		                                       <t t-if="record.code.raw_value" style="margin-right: 10px">[<field name="code" />] </t> <field name="name"/> -->
-<!-- 	                                       </a> -->
-<!-- 	                                       </H3> -->
-<!-- 	                                   </div> -->
-<!-- 	                                   <div name="tags"/> -->
-<!-- 	                                        <ul> -->
-<!-- 		                                        <li>Status: <field name="status"></field></li> -->
-<!-- 		                                        <li>Rate: <field name="lst_price"></field></li> -->
-<!-- 		                                    </ul>    -->
-<!-- 	                               </div> -->
-<!-- 	                               <div class="oe_kanban_bottom_right"> -->
-<!-- 	                                     <a t-if="record.status.raw_value === 'available'" type="object" string="Available" name="set_room_status_occupied" class="oe_kanban_status oe_kanban_status_green "> </a> -->
-<!-- 	                                     <a t-if="record.status.raw_value === 'occupied'" type="object" string="occupied" name="set_room_status_available" class="oe_kanban_status oe_kanban_status_red " > </a> -->
-<!-- 	                                </div> -->
-<!-- 	                            </div> -->
-<!--                             </div> -->
-<!--                         </t> -->
-<!--                     </templates> -->
-<!-- 				</kanban> -->
-<!-- 			</field> -->
-<!-- 		</record> -->
+ 		<record model="ir.ui.view" id="view_hotel_room_kanban"> 
+ 			<field name="name">hotel.room.kanban</field> 
+ 			<field name="model">hotel.room</field> 
+ 			<field name="arch" type="xml"> 
+ 				<kanban filter="status" > 
+ 					<field name="name" /> 
+ 					<field name="status" /> 
+ 					<field name="lst_price"/> 
+ 					<templates> 
+                         <t t-name="kanban-box"> 
+ 	                            <div class="oe_kanban_details" style='margin-top: -10px;'> 
+ 	                               <div class="oe_kanban_content">  
+ 	                                   <div class="oe_kanban_project_list"> 
+ 		                                   <H3> 
+ 		                                   <a type="open"> 
+		                                       <t t-if="record.code.raw_value" style="margin-right: 10px">[<field name="code" />] </t> <field name="name"/> 
+ 	                                       </a> 
+ 	                                       </H3> 
+ 	                                   </div> 
+ 	                                   <div name="tags"/> 
+ 	                                        <ul> 
+ 		                                        <li>Status: <field name="status"></field></li> 
+ 		                                        <li>Rate: <field name="lst_price"></field></li>
+ 		                                    </ul>    
+ 	                               </div> 
+ 	                               
+ 	                            </div> 
+                         </t> 
+                     </templates> 
+ 				</kanban>
+ 			</field> 
+ 		</record> 
 
 		<record model="ir.actions.act_window" id="action_hotel_room_form">
 			<field name="name">Hotel Room</field>
 			<field name="res_model">hotel.room</field>
 			<field name="view_type">form</field>
 			<field name="context">{'default_isroom':1,'default_rental':1}</field>
-			<field name="view_mode">tree,form</field>
+			<field name="view_mode">tree,form,kanban</field>
 		</record>
 
 		<menuitem name="Rooms"
@@ -796,7 +760,7 @@
             <field name="arch" type="xml">
                 <tree string="Hotel Services" >
                     <field name="name" />
-                    <field name="categ_id" select="1"/>
+                    <field name="categ_id"/>
                     <field name="list_price" string="Service rate"/>
                 </tree>
             </field>
@@ -823,7 +787,7 @@
             <field name="view_type">tree</field>
             <field name="view_id" ref="product.product_category_tree_view"/>
         </record>
-        <menuitem name="Room by Category" 
+        <menuitem name="Room by Type" 
                   id="menu_hotel_room_category_action" 
                   action="hotel_room_category_action"
                   sequence="7"
@@ -837,7 +801,7 @@
             <field name="view_type">tree</field>
             <field name="view_id" ref="product.product_category_tree_view"/>
         </record>
-        <menuitem name="Amenities by Category" 
+        <menuitem name="Amenities by Type" 
                   id="menu_hotel_ty_category_action" 
                   action="hotel_ty_category_action"
                   sequence="4"
@@ -851,7 +815,7 @@
             <field name="view_type">tree</field>
             <field name="view_id" ref="product.product_category_tree_view"/>
         </record>
-        <menuitem name="Services by Category" 
+        <menuitem name="Services by Type" 
                   id="menu_hotel_service_category_action" 
                   action="hotel_service_category_action"
                   sequence="10"

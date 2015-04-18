@@ -129,7 +129,6 @@ class hotel_room(models.Model):
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
 #    room_rent_ids = fields.One2many('room.rent', 'rent_id', 'Room Rent')
 
-
 #    _defaults = {
 #        'isroom': 1,
 #        'rental': 1,
