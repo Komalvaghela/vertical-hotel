@@ -115,7 +115,7 @@
                 <form string="Hotel Room Amenities Type" >
                   <sheet>
                    <group>
-                    <field name="name"/>
+                    <field name="name" string="Amenity Type"/>
                     <field name="parent_id" domain="[('isamenitytype','=',True)]"/>
                    </group>
                   </sheet>
@@ -168,8 +168,8 @@
                     <notebook>
                         <page string="Information">
                            <group colspan="4" col="4">
-                            <field name="type" select="2"/>
-                            <field name="product_manager" select="2"/>
+                            <field name="type" select="2" string="Amenity Type"/>
+                            <field name="product_manager" select="2" string="Amenity manager"/>
                             <field name="state" select="2"/>
                             <field name="categ_id" select="1" domain="[('istype','=',True)]"/>
                             <field name="uom_id"/>
@@ -214,7 +214,8 @@
             </field>
         </record>
         
-        <record model="ir.ui.view" id="view_hotel_room_aenities_search">
+        
+		<record model="ir.ui.view" id="view_hotel_room_aenities_search">
             <field name="name">hotel.room_amenities_search</field>
             <field name="model">hotel.room.amenities</field>
             <field name="arch" type="xml">
@@ -229,6 +230,7 @@
                 </search>
             </field>
         </record>
+							
         
         <record model="ir.ui.view" id="view_hotel_room_amenities_list">
             <field name="name">hotel.room_amenities_list</field>
@@ -284,7 +286,7 @@
                          <group colspan="4" col="4">
                             <field name="floor_id" string = "Floor" />
                             <field name="categ_id" select="1" domain="[('isroomtype','=',True)]"/>
-                            <field name="product_manager" select="2"/>
+                            <field name="product_manager" select="2" string="Room Manager"/>
                             <field name="uom_id" invisible="1"/>
                           </group>
                             <newline/>
@@ -327,12 +329,12 @@
             </field>
         </record>
         
-        <!--
-								<record model="ir.ui.view" id="view_hotel_room_search">
+        
+		<record model="ir.ui.view" id="view_hotel_room_search">
             <field name="name">hotel.room.search</field>
             <field name="model">hotel.room</field>
             <field name="arch" type="xml">
-                <search string="Hotel Room" >
+                <search string="Hotel Room">
                     <field name="name" />
                     <field name="categ_id" select="1"/>
                     <field name="list_price" string="Room rate"/>
@@ -345,7 +347,7 @@
                 </search>
             </field>
         </record>
-								-->
+								
 
 		<record model="ir.ui.view" id="view_hotel_room_tree">
 			<field name="name">hotel.room.tree</field>
@@ -360,7 +362,8 @@
 			</field>
 		</record>
 
- 		<record model="ir.ui.view" id="view_hotel_room_kanban"> 
+ 		
+			<record model="ir.ui.view" id="view_hotel_room_kanban"> 
  			<field name="name">hotel.room.kanban</field> 
  			<field name="model">hotel.room</field> 
  			<field name="arch" type="xml"> 
@@ -392,6 +395,7 @@
  				</kanban>
  			</field> 
  		</record> 
+			
 
 		<record model="ir.actions.act_window" id="action_hotel_room_form">
 			<field name="name">Hotel Room</field>
@@ -443,7 +447,7 @@
                     <notebook colspan="4">
                         <page string="Folio">
                          <group colspan="4" col="4">
-                            <field name="partner_id"  string="Guest Name"/><!--required="1" on_change="onchange_partner_id(partner_id)"-->
+                            <field name="partner_id"  string="Guest Name" required="1"/> <!--on_change="onchange_partner_id(partner_id)"-->
                             <field name="partner_invoice_id"  domain="[('parent_id','=',partner_id)]"/>
                             <field name="pricelist_id"  domain="[('type','=','sale')]" />
                             <field name="project_id"/>
@@ -451,8 +455,8 @@
                          </group>
                             <newline/>
                             <group colspan="4" col="6">
-                                <field name="checkin_date"/> <!--on_change="onchange_dates(checkin_date,checkout_date)" -->
-                                <field name="checkout_date"/><!-- on_change="onchange_dates(checkin_date,checkout_date)"-->
+                                <field name="checkin_date"/> 
+                                <field name="checkout_date"/>
                                 <field name="duration"/> <!--on_change="onchange_dates(checkin_date,False,duration)"-->
                             </group>
                             <separator string="Room Lines" colspan="4"/>
@@ -462,13 +466,12 @@
                                         <page string="Folio Line">
                                             <group>
                                             <field name="checkin_date"/>
-                                            <field name="checkout_date"/> <!--on_change="on_change_checkout(checkin_date,checkout_date)" -->
+                                            <field name="checkout_date" />
                                             <separator string="Automatic Declaration" colspan="4"/>
                                             <field name="product_uom_qty" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
                                                 invisible="1" on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"/>
                                                 
-                                            <field name="product_uom" string="Rent(UOM)"/>
-                                              <!-- on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"-->
+                                            <field name="product_uom" string="Rent(UOM)" on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"/>
                                                 
                                             <field name="product_id" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'uom':product_uom}"
                                                 colspan="4" select="1" domain="[('isroom','=',True)]" string="Room No" on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)" />
@@ -518,16 +521,11 @@
                                         <page string="Service Line">
                                             <separator string="Automatic Declaration" colspan="4"/>
                                             <group>
-                                            <field name="product_uom_qty" select="1" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}"/>
-                                             <!--   on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"
-                                                -->
+                                            <field name="product_uom_qty" select="1" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}"  on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"/>
                                                 
-                                            <field name="product_uom"/>
-                                               <!-- on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"-->
+                                            <field name="product_uom" on_change="product_uom_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, False, parent.date_order)"/>
                                                 
-                                            <field name="product_id" select="1" domain="[('isservice','=',True)]" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}" />
-                                              <!-- on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"
-                                                -->
+                                            <field name="product_id" select="1" domain="[('isservice','=',True)]" context="{'partner_id':parent.partner_id,'quantity':product_uom_qty,'pricelist':parent.pricelist_id,'hotel':parent.warehouse_id,'uom':product_uom}" on_change="product_id_change(parent.pricelist_id,product_id,product_uom_qty,product_uom,product_uos_qty,product_uos,name,parent.partner_id, False, True, parent.date_order)"/>
                                                 
                                             </group>
                                             <separator string="Manual Description"
@@ -645,7 +643,7 @@
 				<form string="Service Type" >
                   <sheet>
                    <group>
-                    <field name="name" select="1"/>
+                    <field name="name" select="1" string="Service Name"/>
                     <field name="parent_id" domain="[('isservicetype','=',True)]" select="1"/>
                    </group>
                   </sheet>
@@ -692,10 +690,10 @@
                         <page string="Information">
                           <group>
                           <group colspan="4" col="4">
-                            <field name="type" select="2"/>
+                            <field name="type" select="2" string="Service Type"/>
                             <field name="state" select="2"/>
                             <field name="categ_id" domain="[('isservicetype','=',True)]" select="1"/>
-                            <field name="product_manager" select="2"/>
+                            <field name="product_manager" select="2" string="Service Manager"/>
                             <field name="uom_id"/>
                             <field name="uom_po_id"/>
                           </group>
@@ -738,7 +736,8 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="view_hotel_services_search">
+        <!--
+								<record model="ir.ui.view" id="view_hotel_services_search">
             <field name="name">hotel.services.search</field>
             <field name="model">hotel.services</field>
             <field name="arch" type="xml">
@@ -753,6 +752,7 @@
                 </search>
             </field>
         </record>
+								-->
 
         <record model="ir.ui.view" id="view_hotel_services_tree">
             <field name="name">hotel.services.tree</field>
@@ -769,6 +769,7 @@
             <field name="name">Hotel Services</field>
             <field name="res_model">hotel.services</field>
             <field name="view_type">form</field>
+            <field name="context">{'default_isservice':1}</field>
             <field name="view_mode">tree,form</field>
         </record>
 

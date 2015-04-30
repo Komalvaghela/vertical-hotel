@@ -40,20 +40,14 @@ class hotel_menucard_type(models.Model):
     
     menu_id = fields.Many2one('product.category','Category',required=True, delegate=True, ondelete='cascade')
     
-#    _defaults = {
-#        'ismenutype': 1,
-#    }
 
 class hotel_menucard(models.Model):
     _name = 'hotel.menucard'
     _description = 'Hotel Menucard'
-   # _inherits = {'product.product':'product_id'}
 
     product_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
     image = fields.Binary("Image", help="This field holds the image used as image for the product, limited to 1024x1024px.")
-#    _defaults = {
-#        'ismenucard': 1,
-#    }
+
 
 class hotel_restaurant_tables(models.Model):
     _name = "hotel.restaurant.tables"
@@ -80,18 +74,6 @@ class hotel_restaurant_reservation(models.Model):
             proxy.create(values)
         return True
 
-#completed in v8
-#    def create_order(self, cr, uid, ids, context=None):
-#        proxy = self.pool.get('hotel.reservation.order')
-#        for record in self.browse(cr, uid, ids):
-#            table_ids = [tableno.id for tableno in record.tableno]
-#            values = {
-#                'reservationno':record.reservation_id,
-#                'date1':record.start_date,
-#                'table_no':[(6, 0, table_ids)],
-#            }
-#            proxy.create(cr, uid, values, context=context)
-#        return True
 
     #When Customer name is changed respective adress will display in Adress field
     @api.onchange('cname')
@@ -130,24 +112,6 @@ class hotel_restaurant_reservation(models.Model):
                 self.write({'state':'confirm'})
             return True
 
-#completed in v8
-#    def table_reserved(self, cr, uid, ids, *args):
-#        for reservation in self.browse(cr, uid, ids):
-#            cr.execute("select count(*) from hotel_restaurant_reservation as hrr " \
-#                       "inner join reservation_table as rt on rt.reservation_table_id = hrr.id " \
-#                       "where (start_date,end_date)overlaps( timestamp %s , timestamp %s ) " \
-#                       "and hrr.id<> %s " \
-#                       "and rt.name in (select rt.name from hotel_restaurant_reservation as hrr " \
-#                       "inner join reservation_table as rt on rt.reservation_table_id = hrr.id " \
-#                       "where hrr.id= %s) " \
-#                        , (reservation.start_date, reservation.end_date, reservation.id, reservation.id))
-#            res = cr.fetchone()
-#            roomcount = res and res[0] or 0.0
-#            if roomcount:
-#                raise except_orm(_('Warning'), _('You tried to confirm reservation with table those already reserved in this reservation period'))
-#            else:
-#                self.write(cr, uid, ids, {'state':'confirm'})
-#            return True
 
     @api.multi
     def table_cancel(self):
@@ -171,12 +135,6 @@ class hotel_restaurant_reservation(models.Model):
     tableno = fields.Many2many('hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled')], 'state', select=True, required=True, readonly=True,default=lambda * a: 'draft')
 
-#    @api.constrains('start_date')
-#    def check_dates(self):    
-#          if self.start_date >= self.end_date:
-#                raise except_orm(_('error!'),_('Start Date Should be less than the End Date'))
-
-# completed in v8
     _sql_constraints = [
         ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
     ]
@@ -205,13 +163,6 @@ class hotel_restaurant_order(models.Model):
         self.amount_subtotal = res[sale.id]
         return res
 
-#completed v8
-#    def _sub_total(self, cr, uid, ids, field_name, arg, context=None):
-#        res = {}
-#        for sale in self.browse(cr, uid, ids, context=context):
-#            res[sale.id] = sum(line.price_subtotal for line in sale.order_list)
-#        return res
-
     @api.multi 
     @api.depends('amount_subtotal') 
     def _total(self):
@@ -221,13 +172,6 @@ class hotel_restaurant_order(models.Model):
         self.amount_total = res[line.id]
         return res  
     
-#completed in v8
-#    def _total(self, cr, uid, ids, field_name, arg, context=None):
-#        res = {}
-#        for line in self.browse(cr, uid, ids, context=context):
-#            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
-#        return res
-
     @api.multi
     def generate_kot(self):
         order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
@@ -250,28 +194,6 @@ class hotel_restaurant_order(models.Model):
                 restaurant_order_list_obj.create(o_line)
         return True
 
-#completed in v8
-#    def generate_kot(self, cr, uid, ids, part):
-#        order_tickets_obj = self.pool.get('hotel.restaurant.kitchen.order.tickets')
-#        restaurant_order_list_obj = self.pool.get('hotel.restaurant.order.list')
-#        for order in self.browse(cr, uid, ids):
-#            table_ids = [x.id for x in order.table_no]
-#            kot_data = order_tickets_obj.create(cr, uid, {
-#                'orderno':order.order_no,
-#                'kot_date':order.o_date,
-#                'room_no':order.room_no.name,
-#                'w_name':order.waiter_name.name,
-#                'tableno':[(6, 0, table_ids)],
-#            })
-#            for order_line in order.order_list:
-#                o_line = {
-#                         'kot_order_list':kot_data,
-#                         'name':order_line.name.id,
-#                         'item_qty':order_line.item_qty,
-#                }
-#                restaurant_order_list_obj.create(cr, uid, o_line)
-#        return True
-
     _name = "hotel.restaurant.order"
     _description = "Includes Hotel Restaurant Order"
     
@@ -290,14 +212,6 @@ class hotel_restaurant_order(models.Model):
 
 class hotel_reservation_order(models.Model):
 
-#completed in v8
-#    def _sub_total(self, cr, uid, ids, field_name, arg, context):
-#        res = {}
-#        for sale in self.browse(cr, uid, ids):
-#            res[sale.id] = 0.00
-#            for line in sale.order_list:
-#                res[sale.id] += line.price_subtotal
-#        return res
 
     @api.multi
     @api.depends('order_list')
@@ -307,7 +221,7 @@ class hotel_reservation_order(models.Model):
             res[sale.id] = 0.00
             for line in sale.order_list:
                 res[sale.id] += line.price_subtotal
-       self.amount_subtotal = res[sale.id]   
+       self.amount_subtotal = res[sale.id]
        return res
 
     @api.multi
@@ -319,12 +233,6 @@ class hotel_reservation_order(models.Model):
         self.amount_total = res[line.id]
         return res    
 
-#completed in v8
-#    def _total(self, cr, uid, ids, field_name, arg, context):
-#        res = {}
-#        for line in self.browse(cr, uid, ids):
-#            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
-#        return res
 
     @api.multi
     def reservation_generate_kot(self):
@@ -348,29 +256,6 @@ class hotel_reservation_order(models.Model):
                 rest_order_list_obj.create(o_line)
             return True
 
-
-#completed in v8..............................1
-#    def reservation_generate_kot(self, cr, uid, ids, part):
-#        order_tickets_obj = self.pool.get('hotel.restaurant.kitchen.order.tickets')
-#        rest_order_list_obj = self.pool.get('hotel.restaurant.order.list')
-#        for order in self.browse(cr, uid, ids):
-#            table_ids = [x.id for x in order.table_no]
-#            kot_data = order_tickets_obj.create(cr, uid, {
-#                'orderno':order.order_number,
-#                'resno':order.reservationno,
-#                'kot_date':order.date1,
-#                'w_name':order.waitername.name,
-#                'tableno':[(6, 0, table_ids)],
-#            })
-#            for order_line in order.order_list:
-#                o_line = {
-#                    'kot_order_list':kot_data,
-#                    'name':order_line.name.id,
-#                    'item_qty':order_line.item_qty,
-#                }
-#                rest_order_list_obj.create(cr, uid, o_line)
-#            return True
-
     _name = "hotel.reservation.order"
     _description = "Reservation Order"
 
@@ -390,24 +275,24 @@ class hotel_reservation_order(models.Model):
 class hotel_restaurant_order_list(models.Model):
 
     @api.one
+    @api.depends('item_rate')
     def _sub_total(self):
         self.price_subtotal=self.item_rate * int(self.item_qty)
 
-
+#   def _sub_total(self, cr, uid, ids, field_name, arg, context):
+#        res = {}
+#        for line in self.browse(cr, uid, ids):
+#            res[line.id] = line.item_rate * int(line.item_qty)
+#        return res
+     
     #item rate will display on change of item name     
     @api.onchange('name')
     def on_change_item_name(self):   
-        
+        if not self.name:
+            return {'value':{}}
         temp = self.env['hotel.menucard'].browse(self.name.id)
         if temp.name:
             self.item_rate=temp.list_price     
-
-#completed in v8
-#    def on_change_item_name(self, cr, uid, ids, name, context=None):
-#        if not name:
-#            return {'value':{}}
-#        temp = self.pool.get('hotel.menucard').browse(cr, uid, name, context)
-#        return {'value':{'item_rate':temp.list_price}}
 
     _name = "hotel.restaurant.order.list"
     _description = "Includes Hotel Restaurant Order"
@@ -418,6 +303,6 @@ class hotel_restaurant_order_list(models.Model):
     name = fields.Many2one('hotel.menucard','Item Name',required=True)
     item_qty = fields.Char('Qty', size=64, required=True)
     item_rate = fields.Float('Rate', size=64)
-    price_subtotal = fields.Integer(compute='_sub_total', method=True, string='Subtotal')
+    price_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal1')
 
 ## vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

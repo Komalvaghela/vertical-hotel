@@ -40,8 +40,7 @@ class wizard_hotel_restaurant(models.TransientModel):
 #            'report_name': 'hotel.table.res',
 #            'datas': values,
 #        }
-        print "data rest-----------------------",data
-        return self.env['report'].get_action(self, 'hotel_restaurant.report_res_table',datas=data)
+        return self.env['report'].get_action(self, 'hotel_restaurant.report_res_table',data=data)
     
 wizard_hotel_restaurant()
 

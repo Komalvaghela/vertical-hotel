@@ -56,14 +56,6 @@ class hotel_housekeeping(models.Model):
     quality = fields.Selection([('bad', 'Bad'), ('good', 'Good'), ('ok', 'Ok')], 'Quality', required=True, help='Inspector inspect the room and mark as Bad, Good or Ok. ')
     state = fields.Selection([('dirty', 'Dirty'), ('clean', 'Clean'), ('inspect', 'Inspect'), ('done', 'Done'), ('cancel', 'Cancelled')], 'State', select=True, required=True, readonly=True,default=lambda *a: 'dirty')
 
-#    @api.multi
-#    def action_set_to_dirty(self):
-#        self.write({'state': 'dirty'})
-#        wf_service = netsvc.LocalService('workflow')
-#        for id in ids:
-#            wf_service.trg_create(uid, self._name, id, cr)
-#        return True
-
     @api.multi
     def action_set_to_dirty(self):
         self.write({'state': 'dirty'})
@@ -106,6 +98,10 @@ class hotel_housekeeping_activities(models.Model):
     dirty = fields.Boolean('Dirty', help='Checked if the housekeeping activity results as Dirty.')
     clean = fields.Boolean('Clean', help='Checked if the housekeeping activity results as Clean.')
 
+    _sql_constraints = [
+        ('check_dates', 'CHECK (clean_start_time<=clean_end_time)', 'Start Date Should be less than the End Date!'),
+    ]
+
     @api.model
     def default_get(self,fields):
         """ To get default values for the object.
@@ -124,24 +120,5 @@ class hotel_housekeeping_activities(models.Model):
         if self._context.get('today_date', False):
             res.update({'today_date':self._context['today_date']})
         return res
-
-#completed in v8
-#    def default_get(self, cr, uid, fields, context=None):
-#        """ To get default values for the object.
-#        @param self: The object pointer.
-#        @param cr: A database cursor
-#        @param uid: ID of the user currently logged in
-#        @param fields: List of fields for which we want default values 
-#        @param context: A standard dictionary 
-#        @return: A dictionary which of fields with values. 
-#        """ 
-#        if context is None:
-#            context = {}
-#        res = super(hotel_housekeeping_activities, self).default_get(cr, uid, fields, context=context)
-#        if context.get('room_id', False):
-#            res.update({'room_id':context['room_id']})
-#        if context.get('today_date', False):
-#            res.update({'today_date':context['today_date']})
-#        return res
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

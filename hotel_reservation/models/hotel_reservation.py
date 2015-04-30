@@ -56,11 +56,7 @@ class hotel_reservation(models.Model):
     folio_id = fields.Many2many('hotel.folio','hotel_folio_reservation_rel','order_id','invoice_id',string='Folio')
     dummy = fields.Datetime('Dummy')
 
-#    _sql_constraints = [
-#        ('number_reserve', 'unique(checkin, checkout,reservation_line.reserve)',
-#            'Already Reserved!'),
-#    ]
-#    
+    
     #Checkin date should be greater than the date ordered.
     @api.onchange('date_order','checkin')
     def on_change_checkin(self):
@@ -87,16 +83,17 @@ class hotel_reservation(models.Model):
     @api.onchange('checkin','checkout')
     def on_change_checkout(self):
       checkout_date=time.strftime('%Y-%m-%d %H:%M:%S')
+      print "checkout_date--------------------",checkout_date
       if not (self.checkout and self.checkin):
             return {'value':{}}
       if self.checkout < self.checkin:
                 raise except_orm(_('Warning'),_('Checkout date should be greater than Checkin date.'))       
-#      delta = datetime.timedelta(days=1)
-#      addDays = datetime(*time.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) + delta
-#      self.dummy = addDays.strftime('%Y-%m-%d %H:%M:%S')
-#      print "self.dummy=-----------------------------",self.dummy
+     # delta = datetime.timedelta(days=1)
+    #  addDays = datetime(*time.strptime(self.checkout, '%Y-%m-%d %H:%M:%S')[:5]) + delta
+    #  self.dummy = addDays.strftime('%Y-%m-%d %H:%M:%S')
+    #  print "self.dummy=-----------------------------",self.delta
 
-#completed in v8 but return blank dic...!!!!!
+#completed in v8 but dummy...!!!!!
 #    def on_change_checkout(self, cr, uid, ids, checkin_date=time.strftime('%Y-%m-%d %H:%M:%S'), checkout_date=time.strftime('%Y-%m-%d %H:%M:%S'), context=None):
 #        if not (checkout_date and checkin_date):
 #            return {'value':{}}
@@ -361,23 +358,5 @@ class hotel_room(models.Model):
             else:
               room.write({'status':'available'})
         return True
-
-#completed in v8
-#    def cron_room_line(self, cr, uid, context=None):
-#        reservation_line_obj = self.pool.get('hotel.room.reservation.line')
-#        now = datetime.datetime.now()
-#        curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
-#        room_ids = self.search(cr, uid, [], context=context)
-#        for room in self.browse(cr, uid, room_ids, context=context):
-#            status = {}
-#            reservation_line_ids = [reservation_line.id for reservation_line in room.room_reservation_line_ids]
-#            reservation_line_ids = reservation_line_obj.search(cr, uid, [('id', 'in', reservation_line_ids), ('check_in', '<=', curr_date), ('check_out', '>=', curr_date)], context=context)
-#            if reservation_line_ids:
-#                status = {'status': 'occupied'}
-#            else:
-#                status = {'status': 'available'}
-#            self.write(cr, uid, [room.id], status, context=context)
-#        return True
-
 
 ## vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

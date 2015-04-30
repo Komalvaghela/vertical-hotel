@@ -246,7 +246,7 @@
                            <field name="order_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
-                                    <field name="name"/> <!--on_change="on_change_item_name(name)"-->
+                                    <field name="name"/> 
                                     <field name="item_qty"/>
                                     <field name="item_rate"/> 
                                     </group>
@@ -330,7 +330,7 @@
                            <field name="kot_list" colspan="4" nolabel='1'>
                                 <form string="Order List">
                                     <group>
-                                        <field name="name"/><!-- on_change="on_change_item_name(name)"-->
+                                        <field name="name"/>
                                         <field name="item_qty"/>
                                         <field name="item_rate"/> 
                                     </group>    
@@ -381,7 +381,7 @@
                 <form string="Hotel Food Items Type" >
                     <sheet>
                         <group>
-                            <field name="name"/>
+                            <field name="name" string="Item Name"/>
                             <field name="parent_id" domain="[('ismenutype','=',True)]"/>
                         </group>
                     </sheet>
@@ -433,8 +433,8 @@
                             <page string="Information">
                                 <group colspan="4" col="2">
                                     <group colspan="4" col="4">
-                                        <field name="type" select="2"/>
-                                        <field name="product_manager" select="2"/>
+                                        <field name="type" select="2" string="Food Type"/>
+                                        <field name="product_manager" select="2" string="Food Manager"/>
                                         <!-- <field name="procure_method"/> -->
                                         <!-- </group>
                                         <group colspan="4" col="4"> -->

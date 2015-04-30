@@ -35,9 +35,7 @@ class hotel_restaurant_report(report_sxw.rml_parse):
 
     def get_res_data(self,date_start,date_end):
         rest_reservation_obj = self.pool.get('hotel.restaurant.reservation')
-        print "hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
         tids = rest_reservation_obj.search(self.cr, self.uid, [('start_date', '>=', date_start),('end_date', '<=', date_end)])
-        print "tids-----------------",tids
         res = rest_reservation_obj.browse(self.cr, self.uid, tids)
         return res
 
