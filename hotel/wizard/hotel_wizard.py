@@ -36,6 +36,5 @@ class folio_report_wizard(models.TransientModel):
             'model': 'hotel.folio',
             'form': self.read(['date_start','date_end'])[0]
         }
-        print "data-----------------------",data
         return self.env['report'].get_action(self, 'hotel.report_hotel_folio', data=data)
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

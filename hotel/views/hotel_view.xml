@@ -330,6 +330,7 @@
         </record>
         
         
+<!--
 		<record model="ir.ui.view" id="view_hotel_room_search">
             <field name="name">hotel.room.search</field>
             <field name="model">hotel.room</field>
@@ -347,7 +348,8 @@
                 </search>
             </field>
         </record>
-								
+
+-->								
 
 		<record model="ir.ui.view" id="view_hotel_room_tree">
 			<field name="name">hotel.room.tree</field>
@@ -363,6 +365,7 @@
 		</record>
 
  		
+<!--
 			<record model="ir.ui.view" id="view_hotel_room_kanban"> 
  			<field name="name">hotel.room.kanban</field> 
  			<field name="model">hotel.room</field> 
@@ -395,14 +398,16 @@
  				</kanban>
  			</field> 
  		</record> 
-			
+
+-->			
 
 		<record model="ir.actions.act_window" id="action_hotel_room_form">
 			<field name="name">Hotel Room</field>
 			<field name="res_model">hotel.room</field>
 			<field name="view_type">form</field>
 			<field name="context">{'default_isroom':1,'default_rental':1}</field>
-			<field name="view_mode">tree,form,kanban</field>
+			<field name="view_id" ref="view_hotel_room_tree"/>
+			<field name="view_mode">form,tree</field>
 		</record>
 
 		<menuitem name="Rooms"

@@ -135,9 +135,15 @@ class hotel_restaurant_reservation(models.Model):
     tableno = fields.Many2many('hotel.restaurant.tables',relation='reservation_table',column1='reservation_table_id',column2='name',string='Table Number',help="Table reservation detail. ")
     state = fields.Selection([('draft', 'Draft'), ('confirm', 'Confirmed'), ('done', 'Done'), ('cancel', 'Cancelled')], 'state', select=True, required=True, readonly=True,default=lambda * a: 'draft')
 
-    _sql_constraints = [
-        ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
-    ]
+#    _sql_constraints = [
+#        ('check_dates', 'CHECK (start_date<=end_date)', 'Start Date Should be less than the End Date!'),
+#    ]
+    
+    @api.constrains('start_date','end_date')
+    def check_dates(self):
+            if self.start_date >= self.end_date:
+                raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
+
 
 class hotel_restaurant_kitchen_order_tickets(models.Model):
     _name = "hotel.restaurant.kitchen.order.tickets"
@@ -177,7 +183,7 @@ class hotel_restaurant_order(models.Model):
         order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
         restaurant_order_list_obj = self.env['hotel.restaurant.order.list']
         for order in self:
-            table_ids = [x.id for x in self.table_no]
+            table_ids = [x.id for x in order.table_no]
             kot_data = order_tickets_obj.create({
                 'orderno':order.order_no,
                 'kot_date':order.o_date,
@@ -185,7 +191,7 @@ class hotel_restaurant_order(models.Model):
                 'w_name':order.waiter_name.name,
                 'tableno':[(6, 0, table_ids)],
             })
-            for order_line in self.order_list:
+            for order_line in order.order_list:
                 o_line = {
                          'kot_order_list':kot_data.id,
                          'name':order_line.name.id,
@@ -193,6 +199,7 @@ class hotel_restaurant_order(models.Model):
                 }
                 restaurant_order_list_obj.create(o_line)
         return True
+    
 
     _name = "hotel.restaurant.order"
     _description = "Includes Hotel Restaurant Order"
@@ -211,7 +218,6 @@ class hotel_restaurant_order(models.Model):
 
 
 class hotel_reservation_order(models.Model):
-
 
     @api.multi
     @api.depends('order_list')
@@ -247,7 +253,7 @@ class hotel_reservation_order(models.Model):
                 'w_name':order.waitername.name,
                 'tableno':[(6, 0, table_ids)],
             })
-            for order_line in self.order_list:
+            for order_line in order.order_list:
                 o_line = {
                     'kot_order_list':kot_data.id,
                     'name':order_line.name.id,
@@ -273,7 +279,6 @@ class hotel_reservation_order(models.Model):
 
 
 class hotel_restaurant_order_list(models.Model):
-
     @api.one
     @api.depends('item_rate')
     def _sub_total(self):

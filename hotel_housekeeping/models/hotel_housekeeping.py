@@ -98,9 +98,16 @@ class hotel_housekeeping_activities(models.Model):
     dirty = fields.Boolean('Dirty', help='Checked if the housekeeping activity results as Dirty.')
     clean = fields.Boolean('Clean', help='Checked if the housekeeping activity results as Clean.')
 
-    _sql_constraints = [
-        ('check_dates', 'CHECK (clean_start_time<=clean_end_time)', 'Start Date Should be less than the End Date!'),
-    ]
+#    _sql_constraints = [
+#        ('check_dates', 'CHECK (clean_start_time<=clean_end_time)', 'Start Date Should be less than the End Date!'),
+#    ]
+
+    @api.constrains('clean_start_time','clean_end_time')
+    def check_clean_start_time(self):
+            if self.clean_start_time >= self.clean_end_time:
+                raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
+
+
 
     @api.model
     def default_get(self,fields):

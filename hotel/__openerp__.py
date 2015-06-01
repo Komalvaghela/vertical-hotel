@@ -37,8 +37,8 @@
     """,
     "website": ["http://www.serpentcs.com", "http://www.openerp.com"],
     "depends" : ["sale_stock", "report_extended"],
-    "demo" : ["views/hotel_data.xml"
-    ],
+#    "demo" : ["views/hotel_data.xml"
+#    ],
     "data": [
         "security/hotel_security.xml",
         "security/ir.model.access.csv",
