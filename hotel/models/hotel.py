@@ -133,7 +133,6 @@ class hotel_folio(models.Model):
 #    This mathod gives the duration between check in checkout if customer will leave only for some
 #    hour it would be considers as a whole day. If customer will checkin checkout for more or equal
 #    hours , which configured in company as additional hours than it would be consider as full days
-        print'onchange'
         value = {}
         company_obj = self.env['res.company']
         configured_addition_hours = 0
@@ -156,10 +155,8 @@ class hotel_folio(models.Model):
             if checkin_date:
                 chkin_dt = datetime.datetime.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')
                 chkout_dt = chkin_dt + datetime.timedelta(days=duration)
-                print'chkout_dt--------------------------------',chkout_dt
                 checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
                 value.update({'value':{'checkout_date':checkout_date}})
-                print'value--------------------------------',value
         return value
 
 
@@ -210,7 +207,6 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done']):
-        print'action_invoice_create-------------------------'
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         invoice_id = sale_obj.action_invoice_create(grouped=False,states=['confirmed', 'done'])
@@ -225,7 +221,6 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_invoice_cancel(self):
-        print'action_invoice_cancel----------------'
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         res = sale_obj.action_invoice_cancel()
@@ -237,7 +232,6 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_cancel(self):
-        print'action_cancel----------------------->>>>>>>>>>>>>'
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         rv = sale_obj.action_cancel()
@@ -252,7 +246,6 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_wait(self):
-        print'action_wait----------------------->>>>>>>>>>>>>'
         sale_order_obj = self.env['sale.order']
         res = False
         for o in self:
@@ -267,7 +260,6 @@ class hotel_folio(models.Model):
 
     @api.multi
     def test_state(self,mode):
-        print'test_state----------------------->>>>>>>>>>>>>',mode
         write_done_ids = []
         write_cancel_ids = []
         if write_done_ids:
@@ -284,14 +276,12 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_ship_create(self):
-        print'action_ship_create----------------------->>>>>>>>>>>>>'
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         return sale_obj.action_ship_create()
 
     @api.multi
     def action_ship_end(self):
-        print'action_ship_end----------------------->>>>>>>>>>>>>'
         order_ids = [folio.order_id.id for folio in self]
         for order in self:
             order.write ({'shipped':True})
@@ -304,7 +294,6 @@ class hotel_folio(models.Model):
 
     @api.multi     
     def action_cancel_draft(self):
-        print'action_cancel_draft----------------------->>>>>>>>>>>>>'
         if not len(self._ids):
             return False
         query = "select id from sale_order_line where order_id IN %s and state=%s"

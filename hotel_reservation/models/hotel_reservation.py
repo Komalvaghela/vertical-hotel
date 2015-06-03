@@ -130,7 +130,6 @@ class hotel_reservation(models.Model):
 
     @api.multi
     def _create_folio(self):
-        print'_create_folio-------------------------------------------------'
         hotel_folio_obj = self.env['hotel.folio']
         folio_line_obj = self.env['hotel.folio.line']
         room_obj = self.env['hotel.room']

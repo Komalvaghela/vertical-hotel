@@ -95,7 +95,7 @@ class hotel_restaurant_reservation(models.Model):
         wf_service = netsvc.LocalService('workflow')
         for id in self.ids:
             wf_service.trg_create(self._uid, self._name, self.id, self._cr)
-        return True        
+        return True
 
     #when CONFIRM BUTTON is clicked this method is called (table booking)...!!
     @api.multi
@@ -130,7 +130,7 @@ class hotel_restaurant_reservation(models.Model):
 
     _name = "hotel.restaurant.reservation"
     _description = "Includes Hotel Restaurant Reservation"
-                                                                                
+
     reservation_id = fields.Char('Reservation No', size=64, required=True, default=lambda obj: obj.env['ir.sequence'].get('hotel.restaurant.reservation'))
     room_no = fields.Many2one('hotel.room', string='Room No', size=64)
     start_date = fields.Datetime('Start Time', required=True)
@@ -294,7 +294,7 @@ class hotel_restaurant_order_list(models.Model):
             return {'value':{}}
         temp = self.env['hotel.menucard'].browse(self.name.id)
         if temp.name:
-            self.item_rate=temp.list_price     
+            self.item_rate=temp.list_price
 
     _name = "hotel.restaurant.order.list"
     _description = "Includes Hotel Restaurant Order"

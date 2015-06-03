@@ -36,7 +36,6 @@ class hotel_reservation_wizard(models.TransientModel):
             'model': 'hotel.reservation',
             'form': self.read(['date_start','date_end'])[0]
         }
-        print "data----------",data
         return self.env['report'].get_action(self, 'hotel_reservation.report_roomres_qweb',data=data)
 
     @api.multi
