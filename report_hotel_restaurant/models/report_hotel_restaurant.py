@@ -20,7 +20,7 @@
 #
 ##############################################################################
 
-from openerp import models,fields,api,_
+from openerp import models,fields
  
 AVAILABLE_STATES = [
     ('draft', 'Draft'),
@@ -38,6 +38,7 @@ class report_hotel_restaurant_status(models.Model):
     state = fields.Selection(AVAILABLE_STATES, 'State', size=16, readonly=True)
 
     def init(self,cr):
+        print'restaurent init called----------------------------------'
         cr.execute("""
             create or replace view report_hotel_restaurant_status as (
                 select

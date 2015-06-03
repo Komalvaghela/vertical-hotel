@@ -20,12 +20,12 @@
 #
 ##############################################################################
 
-from openerp import models,fields,api,_
-#from openerp.osv import osv, fields
+from openerp import models,fields,api
 
 class hotel_reservation_wizard(models.TransientModel):
+
     _name = 'hotel.reservation.wizard'
-    
+
     date_start = fields.Datetime('Start Date', required=True)
     date_end = fields.Datetime('End Date', required=True)
 
@@ -56,7 +56,7 @@ class hotel_reservation_wizard(models.TransientModel):
             'form': self.read(['date_start','date_end'])[0]
         }
         return self.env['report'].get_action(self, 'hotel_reservation.report_checkout_qweb',data=data)
-    
+
     @api.multi
     def report_maxroom_detail(self):
         data = {
@@ -68,6 +68,7 @@ class hotel_reservation_wizard(models.TransientModel):
 
 
 class make_folio_wizard(models.TransientModel):
+
     _name = 'wizard.make.folio'
 
     grouped = fields.Boolean('Group the Folios')
