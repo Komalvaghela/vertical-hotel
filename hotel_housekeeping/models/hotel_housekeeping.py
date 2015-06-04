@@ -62,6 +62,12 @@ class hotel_housekeeping(models.Model):
 
     @api.multi
     def action_set_to_dirty(self):
+        """
+        This method is used to change the state 
+        to dirty of the hotel housekeeping
+        ---------------------------------------
+        @param self : object pointer
+        """
         self.write({'state': 'dirty'})
         wf_service = netsvc.LocalService('workflow')
         for id in self.ids:
@@ -70,21 +76,45 @@ class hotel_housekeeping(models.Model):
 
     @api.multi
     def room_cancel(self):
+        """
+        This method is used to change the state 
+        to cancel of the hotel housekeeping
+        ---------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'cancel'})
         return True
 
     @api.multi
     def room_done(self):
+        """
+        This method is used to change the state 
+        to done of the hotel housekeeping
+        ---------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'done'})
         return True
 
     @api.multi
     def room_inspect(self):
+        """
+        This method is used to change the state 
+        to inspect of the hotel housekeeping
+        ---------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'inspect'})
         return True
 
     @api.multi
     def room_clean(self):
+        """
+        This method is used to change the state 
+        to clean of the hotel housekeeping
+        ---------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'clean'})
         return True
 
@@ -105,17 +135,21 @@ class hotel_housekeeping_activities(models.Model):
 
     @api.constrains('clean_start_time','clean_end_time')
     def check_clean_start_time(self):
-            if self.clean_start_time >= self.clean_end_time:
-                raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
+        '''
+        This method is used to validate the clean_start_time and clean_end_time.
+        ------------------------------------------------------------------------
+        @param self : object pointer
+        @return : raise warning depending on the validation
+        '''
+        if self.clean_start_time >= self.clean_end_time:
+            raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
 
     @api.model
     def default_get(self,fields):
-        """ To get default values for the object.
+        """ 
+        To get default values for the object.
         @param self: The object pointer.
-        @param cr: A database cursor
-        @param uid: ID of the user currently logged in
         @param fields: List of fields for which we want default values 
-        @param context: A standard dictionary 
         @return: A dictionary which of fields with values. 
         """ 
         if self._context is None:

@@ -48,7 +48,7 @@
                                     <form string="Reservation Line">
                                         <separator string="Room Type"/>
                                         <field name="name" invisible="1" />
-                                        <field name="categ_id" select="1" colspan="4" nolabel="1"/><!--on_change="on_change_categ(categ_id, parent.checkin, parent.checkout)" -->
+                                        <field name="categ_id" select="1" colspan="4" nolabel="1"/>
                                         <newline/>
                                         <separator string="Select Room"/>
                                         <field name="reserve" colspan="4" string="Room Number" nolabel="1" />

@@ -19,7 +19,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 #
 ##############################################################################
-from openerp.tools import DEFAULT_SERVER_DATE_FORMAT, DEFAULT_SERVER_DATETIME_FORMAT
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.exceptions import except_orm, Warning
 from openerp import models,fields,api,_
 import datetime
@@ -59,14 +59,29 @@ class hotel_reservation(models.Model):
 
     @api.onchange('date_order','checkin')
     def on_change_checkin(self):
-      checkin_date=time.strftime('%Y-%m-%d %H:%M:%S')
-      if self.date_order and self.checkin:  
-        if self.checkin < self.date_order:
+        '''
+        When you change date_order or checkin it will check whether 
+        Checkin date should be greater than the current date
+        -------------------------------------------------------------
+        @param self : object pointer
+        @return : raise warning depending on the validation
+        '''
+        checkin_date=time.strftime('%Y-%m-%d %H:%M:%S')
+        if self.date_order and self.checkin:  
+            if self.checkin < self.date_order:
                 raise except_orm(_('Warning'),_('Checkin date should be greater than the current date.'))
 
 
     @api.onchange('checkin','checkout')
     def on_change_checkout(self):
+      '''
+      When you change checkout or checkin it will check whether 
+      Checkout date should be greater than Checkin date 
+      and update dummy field
+      -------------------------------------------------------------
+      @param self : object pointer
+      @return : raise warning depending on the validation
+      '''
       checkout_date=time.strftime('%Y-%m-%d %H:%M:%S')
       checkin_date=time.strftime('%Y-%m-%d %H:%M:%S')
       if not (self.checkout and self.checkin):
@@ -80,6 +95,12 @@ class hotel_reservation(models.Model):
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
+        '''
+        When you change partner_id it will update the partner_invoice_id,
+        partner_shipping_id and pricelist_id of the hotel reservation as well
+        ----------------------------------------------------------------------
+        @param self : object pointer
+        '''
         if not self.partner_id:
             self.partner_invoice_id = False
             self.partner_shipping_id=False 
@@ -94,6 +115,12 @@ class hotel_reservation(models.Model):
 
     @api.multi
     def confirmed_reservation(self):
+        """
+        This method create a new recordset for hotel room reservation line
+        -------------------------------------------------------------------
+        @param self: The object pointer
+        @return: new record set for hotel room reservation line.
+        """
         reservation_line_obj = self.env['hotel.room.reservation.line']
         for reservation in self:
             self._cr.execute("select count(*) from hotel_reservation as hr " \
@@ -130,6 +157,12 @@ class hotel_reservation(models.Model):
 
     @api.multi
     def _create_folio(self):
+        """
+        This method is for create new hotel folio.
+        -----------------------------------------
+        @param self: The object pointer
+        @return: new record set for hotel folio.
+        """
         hotel_folio_obj = self.env['hotel.folio']
         folio_line_obj = self.env['hotel.folio.line']
         room_obj = self.env['hotel.room']
@@ -138,9 +171,9 @@ class hotel_reservation(models.Model):
             checkin_date, checkout_date = reservation['checkin'], reservation['checkout']
             if not self.checkin < self.checkout:
                 raise except_orm(_('Error'), _('Invalid values in reservation.\nCheckout date should be greater than the Checkin date.'))
-            myobj = hotel_folio_obj.browse()
-            duration_vals = myobj.onchange_dates(checkin_date = checkin_date, checkout_date = checkout_date, duration=False)
-            duration = duration_vals.get('value', False) and duration_vals['value'].get('duration') or 0.0
+            myobj = hotel_folio_obj.browse([])
+            duration_vals = myobj.onchange_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
+            duration = duration_vals.get('value', False) and duration_vals.get('duration') or 0.0
             folio_vals = {
                 'date_order':reservation.date_order,
                 'warehouse_id':reservation.warehouse_id.id,
@@ -186,6 +219,12 @@ class hotel_reservation_line(models.Model):
 
     @api.onchange('categ_id','checkin', 'checkout')
     def on_change_categ(self):
+        '''
+        When you change categ_id it check checkin and checkout are filled or not 
+        if not then raise warning 
+        ------------------------------------------------------------------------
+        @param self : object pointer
+        '''
         hotel_room_obj = self.env['hotel.room']
         hotel_room_ids = hotel_room_obj.search([('categ_id', '=',self.categ_id.id)])
         assigned = False
@@ -224,19 +263,25 @@ class hotel_room(models.Model):
 
     room_reservation_line_ids = fields.One2many('hotel.room.reservation.line','room_id',string='Room Reservation Line')
 
-    #every 1min scheduler will call this method and check Status of room is occupied or available
     @api.model
     def cron_room_line(self):
+        """
+        This method is for scheduler
+        every 1min scheduler will call this method and check Status of room is occupied or available
+        --------------------------------------------------------------------------------------------
+        @param self: The object pointer
+        @return: update status of hotel room reservation line
+        """
         reservation_line_obj = self.env['hotel.room.reservation.line']
         now = datetime.datetime.now()
         curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         for room in self.search([]):
             reservation_line_ids = [reservation_line.ids for reservation_line in room.room_reservation_line_ids]
             reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids),('check_in', '<=', curr_date), ('check_out', '>=', curr_date)])
-            if reservation_line_ids:
+            if reservation_line_ids.ids:
                 status = {'status': 'occupied'}
             else:
-                status = {'status': 'occupied'}
+                status = {'status': 'available'}
             room.write(status)
         return True
 

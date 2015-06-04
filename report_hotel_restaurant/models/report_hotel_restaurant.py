@@ -38,6 +38,11 @@ class report_hotel_restaurant_status(models.Model):
     state = fields.Selection(AVAILABLE_STATES, 'State', size=16, readonly=True)
 
     def init(self,cr):
+        """
+        This method is for initialization for report hotel restaurant status Module.
+        @param self: The object pointer
+        @param cr: database cursor
+        """
         cr.execute("""
             create or replace view report_hotel_restaurant_status as (
                 select

@@ -63,11 +63,16 @@ class hotel_restaurant_tables(models.Model):
 
 class hotel_restaurant_reservation(models.Model):
 
-#when table is booked and create order button is clicked then this method is called and order is created.
-#you can see this created order in "Orders"
-
     @api.multi
     def create_order(self):
+        """
+        This method is for create a new order for hotel restaurant reservation .
+        when table is booked and create order button is clicked then this method is called 
+        and order is created.you can see this created order in "Orders"
+        -----------------------------------------------------------------------------------
+        @param self: The object pointer
+        @return: new record set for hotel restaurant reservation.
+        """
         proxy = self.env['hotel.reservation.order']
         for record in self:
             table_ids = [tableno.id for tableno in record.tableno]
@@ -80,9 +85,12 @@ class hotel_restaurant_reservation(models.Model):
         return True
 
 
-    #When Customer name is changed respective adress will display in Adress field
     @api.onchange('cname')
     def onchange_partner_id(self):
+        '''
+        When Customer name is changed respective adress will display in Adress field
+        @param self : object pointer
+        '''
         if not self.cname:
             self.partner_address_id = False
         else:
@@ -91,15 +99,25 @@ class hotel_restaurant_reservation(models.Model):
 
     @api.multi
     def action_set_to_draft(self):
+        """
+        This method is used to change the state 
+        to draft of the hotel restaurant reservation
+        --------------------------------------------
+        @param self : object pointer
+        """
         self.write({'state': 'draft'})
         wf_service = netsvc.LocalService('workflow')
         for id in self.ids:
             wf_service.trg_create(self._uid, self._name, self.id, self._cr)
         return True
 
-    #when CONFIRM BUTTON is clicked this method is called (table booking)...!!
     @api.multi
     def table_reserved(self):
+        """
+        when CONFIRM BUTTON is clicked this method is called for table reservation
+        @param self: The object pointer
+        @return: change a state depending on the condition
+        """
         for reservation in self:
             self._cr.execute("select count(*) from hotel_restaurant_reservation as hrr " \
                        "inner join reservation_table as rt on rt.reservation_table_id = hrr.id " \
@@ -120,11 +138,23 @@ class hotel_restaurant_reservation(models.Model):
 
     @api.multi
     def table_cancel(self):
+        """
+        This method is used to change the state 
+        to cancel of the hotel restaurant reservation
+        --------------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'cancel'})
         return True
 
     @api.multi
     def table_done(self):
+        """
+        This method is used to change the state 
+        to done of the hotel restaurant reservation
+        --------------------------------------------
+        @param self : object pointer
+        """
         self.write({'state':'done'})
         return True
 
@@ -143,8 +173,14 @@ class hotel_restaurant_reservation(models.Model):
 
     @api.constrains('start_date','end_date')
     def check_start_dates(self):
-            if self.start_date >= self.end_date:
-                raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
+        '''
+        This method is used to validate the start_date and end_date.
+        -------------------------------------------------------------
+        @param self : object pointer
+        @return : raise a warning depending on the validation
+        '''
+        if self.start_date >= self.end_date:
+            raise except_orm(_('Warning'),_('Start Date Should be less than the End Date!'))
 
 
 class hotel_restaurant_kitchen_order_tickets(models.Model):
@@ -165,6 +201,11 @@ class hotel_restaurant_order(models.Model):
     @api.multi
     @api.depends('order_list')
     def _sub_total(self):
+        '''
+        amount_subtotal will display on change of order_list
+        ---------------------------------------------
+        @param self : object pointer
+        '''
         res = {}
         for sale in self:
             res[sale.id] = 0.00
@@ -175,6 +216,11 @@ class hotel_restaurant_order(models.Model):
     @api.multi 
     @api.depends('amount_subtotal') 
     def _total(self):
+        '''
+        amount_total will display on change of amount_subtotal
+        ---------------------------------------------
+        @param self : object pointer
+        '''
         res = {}
         for line in self:
             res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
@@ -183,6 +229,11 @@ class hotel_restaurant_order(models.Model):
     
     @api.multi
     def generate_kot(self):
+        """
+        This method create new record for hotel restaurant order list.
+        @param self: The object pointer
+        @return: new record set for hotel restaurant order list.
+        """
         order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
         restaurant_order_list_obj = self.env['hotel.restaurant.order.list']
         for order in self:
@@ -224,6 +275,11 @@ class hotel_reservation_order(models.Model):
     @api.multi
     @api.depends('order_list')
     def _sub_total(self):
+       '''
+       amount_subtotal will display on change of order_list
+       ---------------------------------------------
+       @param self : object pointer
+       '''
        res = {}
        for sale in self:
             res[sale.id] = 0.00
@@ -235,6 +291,11 @@ class hotel_reservation_order(models.Model):
     @api.multi
     @api.depends('amount_subtotal')
     def _total(self):
+        '''
+        amount_total will display on change of amount_subtotal
+        ---------------------------------------------
+        @param self : object pointer
+        '''
         res = {}
         for line in self:
             res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
@@ -244,6 +305,12 @@ class hotel_reservation_order(models.Model):
 
     @api.multi
     def reservation_generate_kot(self):
+        """
+        This method create new record for hotel restaurant order list.
+        --------------------------------------------------------------
+        @param self: The object pointer
+        @return: new record set for hotel restaurant order list.
+        """
         order_tickets_obj = self.env['hotel.restaurant.kitchen.order.tickets']
         rest_order_list_obj = self.env['hotel.restaurant.order.list']
         for order in self:
@@ -285,11 +352,20 @@ class hotel_restaurant_order_list(models.Model):
     @api.one
     @api.depends('item_rate')
     def _sub_total(self):
+        '''
+        price_subtotal will display on change of item_rate
+        ---------------------------------------------
+        @param self : object pointer
+        '''
         self.price_subtotal=self.item_rate * int(self.item_qty)
 
-    #item rate will display on change of item name     
     @api.onchange('name')
     def on_change_item_name(self):
+        '''
+        item rate will display on change of item name
+        ---------------------------------------------
+        @param self : object pointer
+        '''
         if not self.name:
             return {'value':{}}
         temp = self.env['hotel.menucard'].browse(self.name.id)

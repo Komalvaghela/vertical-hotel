@@ -21,7 +21,6 @@
 #
 ##############################################################################
 from openerp.exceptions import except_orm, Warning
-import openerp.addons.decimal_precision as dp
 from openerp import models,fields,api,_
 from openerp import netsvc
 import datetime
@@ -90,14 +89,28 @@ class hotel_folio(models.Model):
 
     @api.multi
     def copy(self,default=None):
+        '''
+        @param self : object pointer
+        @param default : dict of default values to be set
+        '''
         return self.env['sale.order'].copy(default=default)
 
     @api.multi 
     def _invoiced(self, name, arg):
+        '''
+        @param self : object pointer
+        @param name: Names of fields.
+        @param arg: User defined arguments
+        '''
         return self.env['sale.order']._invoiced()
 
     @api.multi
     def _invoiced_search(self,name, args,obj):
+        '''
+        @param self : object pointer
+        @param name: Names of fields.
+        @param arg: User defined arguments
+        '''
         return self.env['sale.order']._invoiced_search()
 
     _name = 'hotel.folio'
@@ -114,13 +127,27 @@ class hotel_folio(models.Model):
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
     duration = fields.Float('Duration in Days', readonly=True, help="Number of days which will automatically count from the check-in and check-out date. ")
 
-    @api.constrains('checkin_date')
+
+    @api.constrains('checkin_date','checkout_date')
     def check_dates(self):
+        '''
+        This method is used to validate the checkin_date and checkout_date.
+        -------------------------------------------------------------------
+        @param self : object pointer
+        @return : raise warning depending on the validation
+        '''
         if self.checkin_date >= self.checkout_date:
                 raise except_orm(_('Warning'),_('Check in Date Should be less than the Check Out Date!'))
 
+
     @api.constrains('room_lines')
     def check_room_lines(self):
+        '''
+        This method is used to validate the room_lines.
+        ------------------------------------------------
+        @param self : object pointer
+        @return : True/False depending on the validation
+        '''
         rooms = []
         for room in self[0].room_lines:
             if room.product_id in rooms:
@@ -128,11 +155,19 @@ class hotel_folio(models.Model):
             rooms.append(room.product_id)
         return True
 
-    @api.onchange('checkin_date','checkout_date')
+
+    @api.onchange('checkout_date','checkin_date')
     def onchange_dates(self,checkin_date=False, checkout_date=False, duration=False):
-#    This mathod gives the duration between check in checkout if customer will leave only for some
-#    hour it would be considers as a whole day. If customer will checkin checkout for more or equal
-#    hours , which configured in company as additional hours than it would be consider as full days
+        '''
+        This mathod gives the duration between check in checkout if customer will leave only for some
+        hour it would be considers as a whole day. If customer will checkin checkout for more or equal
+        hours , which configured in company as additional hours than it would be consider as full days
+        ---------------------------------------------------------------------------------------------
+        @param self : object pointer
+        @return : Duration and checkout_date
+        '''
+        checkin_date = self.checkin_date
+        checkout_date = self.checkout_date
         value = {}
         company_obj = self.env['res.company']
         configured_addition_hours = 0
@@ -150,18 +185,26 @@ class hotel_folio(models.Model):
                     additional_hours = abs((dur.seconds / 60) / 60)
                     if additional_hours >= configured_addition_hours:
                         duration += 1
-            value.update({'value':{'duration':duration}})
+            value.update({'duration':duration})
+            self.duration = duration
         else:
             if checkin_date:
                 chkin_dt = datetime.datetime.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')
-                chkout_dt = chkin_dt + datetime.timedelta(days=duration)
+                chkout_dt = chkin_dt + datetime.timedelta(days=self.duration)
                 checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
-                value.update({'value':{'checkout_date':checkout_date}})
+                value.update({'checkout_date':checkout_date})
+                self.checkout_date = checkout_date
         return value
 
 
     @api.model
     def create(self, vals,check=True):
+        """
+        Overrides orm create method.
+        @param self: The object pointer
+        @param vals: dictionary of fields value.
+        @return: new record set for hotel folio.
+        """
         tmp_room_lines = vals.get('room_lines', [])
         vals['order_policy'] = vals.get('hotel_policy', 'manual')
         if not 'service_lines' and 'folio_id' in vals:
@@ -178,6 +221,12 @@ class hotel_folio(models.Model):
 
     @api.onchange('warehouse_id')
     def onchange_warehouse_id(self):
+        '''
+        When you change warehouse it will update the warehouse of
+        the hotel folio as well
+        ----------------------------------------------------------
+        @param self : object pointer
+        '''
 #        order_ids = [folio.order_id.id for folio in self]
         for folio in self:
             order = folio.order_id
@@ -187,19 +236,30 @@ class hotel_folio(models.Model):
 
     @api.onchange('partner_id')
     def onchange_partner_id(self):
+        '''
+        When you change partner_id it will update the partner_invoice_id,
+        partner_shipping_id and pricelist_id of the hotel folio as well
+        ---------------------------------------------------------------
+        @param self : object pointer
+        '''
         if self.partner_id:
             partner_rec = self.env['res.partner'].browse(self.partner_id.id)
             order_ids = [folio.order_id.id for folio in self]
             if not order_ids:
-                self.partner_invoice_id = partner_rec.id 
+                self.partner_invoice_id = partner_rec.id
+                self.partner_shipping_id = partner_rec.id 
                 self.pricelist_id = partner_rec.property_product_pricelist.id
                 raise Warning('Not Any Order For  %s ' % (partner_rec.name))
             else:
                 self.partner_invoice_id = partner_rec.id
+                self.partner_shipping_id = partner_rec.id
                 self.pricelist_id = partner_rec.property_product_pricelist.id
 
     @api.multi   
     def button_dummy(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         return sale_obj.button_dummy()
@@ -207,6 +267,9 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done']):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         invoice_id = sale_obj.action_invoice_create(grouped=False,states=['confirmed', 'done'])
@@ -221,6 +284,9 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_invoice_cancel(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         res = sale_obj.action_invoice_cancel()
@@ -232,6 +298,9 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_cancel(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         rv = sale_obj.action_cancel()
@@ -246,6 +315,9 @@ class hotel_folio(models.Model):
 
     @api.multi
     def action_wait(self):
+        '''
+        @param self : object pointer
+        '''
         sale_order_obj = self.env['sale.order']
         res = False
         for o in self:
@@ -260,6 +332,10 @@ class hotel_folio(models.Model):
 
     @api.multi
     def test_state(self,mode):
+        '''
+        @param self : object pointer
+        @param mode : state of workflow
+        '''
         write_done_ids = []
         write_cancel_ids = []
         if write_done_ids:
@@ -271,29 +347,44 @@ class hotel_folio(models.Model):
 
     @api.multi
     def procurement_lines_get(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         return True
 
     @api.multi
     def action_ship_create(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         return sale_obj.action_ship_create()
 
     @api.multi
     def action_ship_end(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         for order in self:
             order.write ({'shipped':True})
 
     @api.multi
     def has_stockable_products(self):
+        '''
+        @param self : object pointer
+        '''
         order_ids = [folio.order_id.id for folio in self]
         sale_obj = self.env['sale.order'].browse(order_ids)
         return sale_obj.has_stockable_products()
 
     @api.multi     
     def action_cancel_draft(self):
+        '''
+        @param self : object pointer
+        '''
         if not len(self._ids):
             return False
         query = "select id from sale_order_line where order_id IN %s and state=%s"
@@ -317,14 +408,28 @@ class hotel_folio_line(models.Model):
 
     @api.one
     def copy(self,default=None):
+        '''
+        @param self : object pointer
+        @param default : dict of default values to be set
+        '''
         return self.env['sale.order.line'].copy(default=default)
 
     @api.multi
     def _amount_line(self,field_name, arg):
+        '''
+        @param self : object pointer
+        @param field_name: Names of fields.
+        @param arg: User defined arguments
+        '''
         return self.env['sale.order.line']._amount_line(field_name, arg)
 
     @api.multi
     def _number_packages(self,field_name, arg):
+        '''
+        @param self : object pointer
+        @param field_name: Names of fields.
+        @param arg: User defined arguments
+        '''
         return self.env['sale.order.line']._number_packages(field_name, arg)
 
     @api.model
@@ -349,6 +454,12 @@ class hotel_folio_line(models.Model):
 
     @api.model
     def create(self,vals,check=True):
+        """
+        Overrides orm create method.
+        @param self: The object pointer
+        @param vals: dictionary of fields value.
+        @return: new record set for hotel folio line.
+        """
         if 'folio_id' in vals:
             folio = self.env["hotel.folio"].browse(vals['folio_id'])
             vals.update({'order_id':folio.order_id.id})
@@ -357,6 +468,11 @@ class hotel_folio_line(models.Model):
 
     @api.multi
     def unlink(self):
+        """
+        Overrides orm unlink method.
+        @param self: The object pointer
+        @return: Tru/False.
+        """
         sale_line_obj = self.env['sale.order.line']
         for line in self:
             if line.order_line_id:
@@ -366,6 +482,9 @@ class hotel_folio_line(models.Model):
 
     @api.multi
     def uos_change(self, product_uos, product_uos_qty=0, product_id=None):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.order_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return  sale_line_obj.uos_change(product_uos, product_uos_qty=0, product_id=None)
@@ -375,6 +494,9 @@ class hotel_folio_line(models.Model):
     def product_id_change(self,pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.order_line_id.id for folio in self]
         if product:
             sale_line_obj = self.env['sale.order.line'].browse(line_ids)
@@ -386,6 +508,9 @@ class hotel_folio_line(models.Model):
     def product_uom_change(self, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
+        '''
+        @param self : object pointer
+        '''
         if product:
             return self.product_id_change(pricelist, product, qty=0,
                 uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
@@ -393,6 +518,12 @@ class hotel_folio_line(models.Model):
 
     @api.onchange('checkin_date','checkout_date')
     def on_change_checkout(self):
+        '''
+        When you change checkin_date or checkout_date it will checked it
+        and update the qty of hotel folio line
+        -----------------------------------------------------------------
+        @param self : object pointer
+        '''
         if not self.checkin_date:
             self.checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
         if not self.checkout_date:
@@ -410,12 +541,18 @@ class hotel_folio_line(models.Model):
 
     @api.multi
     def button_confirm(self):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.order_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return sale_line_obj.button_confirm()
 
     @api.multi
     def button_done(self):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.order_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         res = sale_line_obj.button_done()
@@ -427,6 +564,10 @@ class hotel_folio_line(models.Model):
 
     @api.one
     def copy_data(self,default=None):
+        '''
+        @param self : object pointer
+        @param default : dict of default values to be set
+        '''
         line_id = self.order_line_id.id
         sale_line_obj = self.env['sale.order.line'].browse(line_id)
         return sale_line_obj.copy_data(default=default)
@@ -436,17 +577,31 @@ class hotel_service_line(models.Model):
 
     @api.one
     def copy(self, default=None):
+        '''
+        @param self : object pointer
+        @param default : dict of default values to be set
+        '''
         line_id = self.service_line_id.id
         sale_line_obj = self.env['sale.order.line'].browse(line_id)
         return sale_line_obj.copy(default=default)
 
     @api.multi
     def _amount_line(self,field_name, arg):
+        '''
+        @param self : object pointer
+        @param field_name: Names of fields.
+        @param arg: User defined arguments
+        '''
         line_ids = [folio.service_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return  sale_line_obj._amount_line(field_name, arg)
     @api.multi
     def _number_packages(self,field_name, arg):
+        '''
+        @param self : object pointer
+        @param field_name: Names of fields.
+        @param arg: User defined arguments
+        '''
         line_ids = [folio.service_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return sale_line_obj._number_packages(field_name, arg)
@@ -459,6 +614,13 @@ class hotel_service_line(models.Model):
 
     @api.model
     def create(self,vals,check=True):
+        """
+        Overrides orm create method.
+        @param self: The object pointer
+        @param vals: dictionary of fields value.
+        @return: new record set for hotel service line.
+        """
+
         if 'folio_id' in vals:
             folio = self.env['hotel.folio'].browse(vals['folio_id'])
             vals.update({'order_id':folio.order_id.id})
@@ -466,6 +628,11 @@ class hotel_service_line(models.Model):
 
     @api.multi
     def unlink(self):
+        """
+        Overrides orm unlink method.
+        @param self: The object pointer
+        @return: Tru/False.
+        """
         sale_line_obj = self.env['sale.order.line']
         for line in self:
             if line.service_line_id:
@@ -477,6 +644,9 @@ class hotel_service_line(models.Model):
     def product_id_change(self,pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.order_line_id.id for folio in self]
         if product:
             sale_line_obj = self.env['sale.order.line'].browse(line_ids)
@@ -489,6 +659,9 @@ class hotel_service_line(models.Model):
     def product_uom_change(self, pricelist, product, qty=0,
             uom=False, qty_uos=0, uos=False, name='', partner_id=False,
             lang=False, update_tax=True, date_order=False):
+        '''
+        @param self : object pointer
+        '''
         if product:
             return self.product_id_change(pricelist, product, qty=0,
                 uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
@@ -496,6 +669,13 @@ class hotel_service_line(models.Model):
 
     @api.onchange('checkin_date','checkout_date')
     def on_change_checkout(self):
+        '''
+        When you change checkin_date or checkout_date it will checked it
+        and update the qty of hotel service line
+        -----------------------------------------------------------------
+        @param self : object pointer
+        '''
+
         if not self.checkin_date:
             self.checkin_date = time.strftime('%Y-%m-%d %H:%M:%S')
         if not self.checkout_date:
@@ -510,18 +690,28 @@ class hotel_service_line(models.Model):
 
     @api.multi 
     def button_confirm(self):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.service_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return sale_line_obj.button_confirm()
 
     @api.multi
     def button_done(self):
+        '''
+        @param self : object pointer
+        '''
         line_ids = [folio.service_line_id.id for folio in self]
         sale_line_obj = self.env['sale.order.line'].browse(line_ids)
         return sale_line_obj.button_done()
 
     @api.one
     def copy_data(self,default=None):
+        '''
+        @param self : object pointer
+        @param default : dict of default values to be set
+        '''
         line_id = self.service_line_id.id
         sale_line_obj = self.env['sale.order.line'].browse(line_id)
         return sale_line_obj.copy_data(default=default)
