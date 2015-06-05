@@ -25,6 +25,7 @@
     <!--====================================================
                                 Floor
         ==================================================== -->
+    <!-- Form view of hotel floor -->
     <record model="ir.ui.view" id="view_hotel_floor_form">
             <field name="name">hotel.floor.form</field>
             <field name="model">hotel.floor</field>
@@ -40,6 +41,7 @@
             </field>
         </record>
         
+        <!-- Tree view of hotel floor -->
         <record model="ir.ui.view" id="view_hotel_floor_tree">
             <field name="name">hotel.floor.tree</field>
             <field name="model">hotel.floor</field>
@@ -51,6 +53,7 @@
             </field>
         </record>
         
+        <!-- Action of hotel floor -->
         <record model="ir.actions.act_window" id="open_hotel_floor_form_tree">
             <field name="name">Floor Structure</field>
             <field name="res_model">hotel.floor</field>
@@ -67,6 +70,8 @@
 	 <!--========================================================
                                 Room Type
         ========================================================-->
+	 
+       <!-- Form view of hotel room type -->
        <record model="ir.ui.view" id="view_hotel_room_type_form">
             <field name="name">hotel.room_type.form</field>
             <field name="model">hotel.room.type</field>
@@ -81,6 +86,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel room type -->
         <record model="ir.ui.view" id="view_hotel_room_type_tree">
             <field name="name">hotel.room_type.tree</field>
             <field name="model">hotel.room.type</field>
@@ -90,6 +97,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action for hotel room type -->
         <record model="ir.actions.act_window" id="open_hotel_room_type_form_tree">
             <field name="name">Room Type</field>
             <field name="res_model">hotel.room.type</field>
@@ -107,7 +116,7 @@
 		<!--==================================================================== 
                                 Amenities Type
         ====================================================================-->
-
+        <!-- Form view of hotel room amenities type -->
         <record model="ir.ui.view" id="view_hotel_room_amenities_type_form">
             <field name="name">hotel.room_amenities_type_form</field>
             <field name="model">hotel.room.amenities.type</field>
@@ -122,16 +131,19 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel room amenities type -->
         <record model="ir.ui.view" id="view_hotel_room_amenities_type_list">
             <field name="name">hotel.room_amenities_type_list</field>
             <field name="model">hotel.room.amenities.type</field>
             <field name="arch" type="xml">
                 <tree string="Hotel Room Amenities Type">
                     <field name="complete_name"/>
-                    
                 </tree>
             </field>
         </record>
+        
+        <!-- Action for hotel room amenities type -->
         <record model="ir.actions.act_window" id="action_hotel_room_amenities_type_view_form">
             <field name="name">Hotel Room Amenities Type</field>
             <field name="res_model">hotel.room.amenities.type</field>
@@ -151,7 +163,8 @@
  		<!--===============================================================
                                 Room Amenities
         ===============================================================-->
-        
+ 		
+       <!-- Form view of hotel room amenities -->
        <record id="view_hotel_room_amenities_form" model="ir.ui.view" >
             <field name="name">hotel.room.amenities.form</field>
             <field name="model">hotel.room.amenities</field>
@@ -214,7 +227,7 @@
             </field>
         </record>
         
-        
+        <!-- Search view of hotel room amenities -->
 		<record model="ir.ui.view" id="view_hotel_room_aenities_search">
             <field name="name">hotel.room_amenities_search</field>
             <field name="model">hotel.room.amenities</field>
@@ -231,7 +244,7 @@
             </field>
         </record>
 							
-        
+        <!-- Tree view of hotel room amenities -->
         <record model="ir.ui.view" id="view_hotel_room_amenities_list">
             <field name="name">hotel.room_amenities_list</field>
             <field name="model">hotel.room.amenities</field>
@@ -244,6 +257,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action for hotel room amenities -->
         <record model="ir.actions.act_window" id="action_hotel_room_amenities_view_form">
             <field name="name">Hotel Room Amenities</field>
             <field name="res_model">hotel.room.amenities</field>
@@ -261,7 +276,8 @@
 		<!--===================================================
                                 Rooms
         =================================================== -->
-
+        
+        <!-- Form view of hotel room  -->
         <record model="ir.ui.view" id="view_hotel_room_form">
             <field name="name">hotel.room.form</field>
             <field name="model">hotel.room</field>
@@ -329,8 +345,8 @@
             </field>
         </record>
         
-        
-<!--
+
+        <!-- Search view of hotel room  -->
 		<record model="ir.ui.view" id="view_hotel_room_search">
             <field name="name">hotel.room.search</field>
             <field name="model">hotel.room</field>
@@ -341,7 +357,8 @@
                     <field name="list_price" string="Room rate"/>
                     <field name="state" string="Status"/>
                     <newline/>
-                    <filter string="Available" domain="[('state','=', 'unassigned')]" help="Available Rooms" />
+                    <filter name = "available" string="Available" domain="[('state','=', 'unassigned')]" help="Available Rooms"/>
+                    <filter name = "pack" string="Pack" domain="[]" help="Packed Rooms" />
                     <group expand="0" string="Group By...">
                         <filter name="state" string="state" domain="[]" context="{'group_by':'state'}" />
                     </group>
@@ -349,8 +366,7 @@
             </field>
         </record>
 
--->								
-
+		<!-- Tree view of hotel room  -->
 		<record model="ir.ui.view" id="view_hotel_room_tree">
 			<field name="name">hotel.room.tree</field>
 			<field name="model">hotel.room</field>
@@ -363,51 +379,63 @@
 				</tree>
 			</field>
 		</record>
+		
+        <!-- Kanban view of hotel room  -->
+        <record model="ir.ui.view" id="view_hotel_room_kanban">
+            <field name="name">hotel.room.kanban</field>
+                <field name="model">hotel.room</field>
+            <field name="arch" type="xml">
+                <kanban filter="status" >
+                    <field name="name" />
+                    <field name="status" />
+                    <field name="color" />
+                    <field name="lst_price"/>
+                    <templates>
+                         <t t-name="kanban-box">
+                             <div class="oe_kanban_vignette oe_semantic_html_override oe_kanban_card oe_kanban_project oe_kanban_global_click">
+                                <div class="oe_dropdown_toggle oe_dropdown_kanban" groups="base.group_user">
+                                <span class="oe_e">í</span>
+                                        <ul class="oe_dropdown_menu">
+                                            <t t-if="widget.view.is_action_enabled('edit')"><li><a type="edit">Edit</a></li></t>
+                                            <t t-if="widget.view.is_action_enabled('delete')"><li><a type="delete">Delete</a></li></t>
+                                            <li><ul class="oe_kanban_colorpicker" data-field="color"/></li>
+                                        </ul>
+                                </div>
+                                <div class="oe_kanban_details" style='margin-top: -10px;'>
+                                   <div class="oe_kanban_content"> 
+                                       <div class="oe_kanban_project_list">
+                                           <H3>
+                                           <a type="open">
+                                               <t t-if="record.code.raw_value" style="margin-right: 10px">[<field name="code" />] </t> <field name="name"/>
+                                           </a>
+                                           </H3>
+                                       </div>
+                                       <div name="tags"/>
+                                            <ul>
+                                                <li>Status: <field name="status"></field></li>
+                                                <li>Rate: <field name="lst_price"></field></li>
+                                            </ul>   
+                                   </div>
+                                   <div class="oe_kanban_bottom_right">
+                                         <a t-if="record.status.raw_value === 'available'" type="object" string="Available" name="set_room_status_occupied" class="oe_kanban_status oe_kanban_status_green "> </a>
+                                         <a t-if="record.status.raw_value === 'occupied'" type="object" string="occupied" name="set_room_status_available" class="oe_kanban_status oe_kanban_status_red " > </a>
+                                    </div>
+                                </div>
+                             </div>
+                         </t>
+                     </templates>
+                </kanban>
+            </field>
+        </record>
 
- 		
-<!--
-			<record model="ir.ui.view" id="view_hotel_room_kanban"> 
- 			<field name="name">hotel.room.kanban</field> 
- 			<field name="model">hotel.room</field> 
- 			<field name="arch" type="xml"> 
- 				<kanban filter="status" > 
- 					<field name="name" /> 
- 					<field name="status" /> 
- 					<field name="lst_price"/> 
- 					<templates> 
-                         <t t-name="kanban-box"> 
- 	                            <div class="oe_kanban_details" style='margin-top: -10px;'> 
- 	                               <div class="oe_kanban_content">  
- 	                                   <div class="oe_kanban_project_list"> 
- 		                                   <H3> 
- 		                                   <a type="open"> 
-		                                       <t t-if="record.code.raw_value" style="margin-right: 10px">[<field name="code" />] </t> <field name="name"/> 
- 	                                       </a> 
- 	                                       </H3> 
- 	                                   </div> 
- 	                                   <div name="tags"/> 
- 	                                        <ul> 
- 		                                        <li>Status: <field name="status"></field></li> 
- 		                                        <li>Rate: <field name="lst_price"></field></li>
- 		                                    </ul>    
- 	                               </div> 
- 	                               
- 	                            </div> 
-                         </t> 
-                     </templates> 
- 				</kanban>
- 			</field> 
- 		</record> 
-
--->			
-
+        <!-- Action for hotel room  -->
 		<record model="ir.actions.act_window" id="action_hotel_room_form">
 			<field name="name">Hotel Room</field>
 			<field name="res_model">hotel.room</field>
 			<field name="view_type">form</field>
 			<field name="context">{'default_isroom':1,'default_rental':1}</field>
 			<field name="view_id" ref="view_hotel_room_tree"/>
-			<field name="view_mode">form,tree</field>
+			<field name="view_mode">kanban,tree,form</field>
 		</record>
 
 		<menuitem name="Rooms"
@@ -419,11 +447,13 @@
   	   <!--========================================================
                                 Hotel Folio
         ========================================================-->
+  	   
+       <!-- Form view of hotel folio  -->
        <record model="ir.ui.view" id="view_hotel_folio1_form">
             <field name="name">hotel.folio.form</field>
             <field name="model">hotel.folio</field>
             <field name="arch" type="xml">
-                <form string="Folio" >
+                <form string="Folio">
                  <header>
                      <button name="order_confirm" string="Confirm Folio" states="draft" icon="gtk-apply" class="oe_highlight"/>
                      <button name="invoice_recreate" string="Recreate Invoice" states="invoice_except" icon="gtk-redo" class="oe_highlight"/>
@@ -460,7 +490,7 @@
                             <field name="partner_shipping_id" domain="[('parent_id','=',partner_id)]" />
                          </group>
                             <newline/>
-                            <group colspan="4" col="6">
+                            <group colspan="4" col="4">
                                 <field name="checkin_date"/> 
                                 <field name="checkout_date"/>
                                 <field name="duration"/>
@@ -599,6 +629,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel folio  -->
         <record model="ir.ui.view" id="view_hotel_folio1_tree">
             <field name="name">hotel.folio.tree</field>
             <field name="model">hotel.folio</field>
@@ -615,6 +647,7 @@
             </field>
         </record>
 
+        <!-- Calendar view of hotel folio  -->
         <record model="ir.ui.view" id="hotel_folio_calendar_view">
             <field name="name">Hotel- Folios Calendar</field>
             <field name="model">hotel.folio</field>
@@ -627,6 +660,7 @@
             </field>
         </record>
 
+        <!-- Action for hotel folio  -->
         <record model="ir.actions.act_window" id="open_hotel_folio1_form_tree_all">
             <field name="name">Hotel Folio</field>
             <field name="res_model">hotel.folio</field>
@@ -642,6 +676,7 @@
                   parent ="menu_all_folio"/> 
 
 		<!-- Services -->
+		<!-- Form view of hotel service type  -->
 		<record model="ir.ui.view" id="view_hotel_service_type_form">
 			<field name="name">hotel.service_type.form</field>
 			<field name="model">hotel.service.type</field>
@@ -656,6 +691,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel service type  -->
         <record model="ir.ui.view" id="view_hotel_service_type_tree">
             <field name="name">hotel.service_type.tree</field>
             <field name="model">hotel.service.type</field>
@@ -665,6 +702,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action for hotel service type  -->
         <record model="ir.actions.act_window" id="open_hotel_service_type_form_tree">
             <field name="name">Service Type</field>
             <field name="res_model">hotel.service.type</field>
@@ -679,6 +718,7 @@
                   sequence="9"
                   parent="hotel.menu_hotel_service"/>
 
+        <!-- Form view of hotel service -->
         <record model="ir.ui.view" id="view_hotel_services_form">
             <field name="name">.hotel.services.form</field>
             <field name="model">hotel.services</field>
@@ -742,8 +782,8 @@
             </field>
         </record>
 
-        <!--
-								<record model="ir.ui.view" id="view_hotel_services_search">
+        <!-- Tree view of hotel service -->
+		<record model="ir.ui.view" id="view_hotel_services_search">
             <field name="name">hotel.services.search</field>
             <field name="model">hotel.services</field>
             <field name="arch" type="xml">
@@ -758,8 +798,8 @@
                 </search>
             </field>
         </record>
-								-->
 
+        <!-- Tree view of hotel service -->
         <record model="ir.ui.view" id="view_hotel_services_tree">
             <field name="name">hotel.services.tree</field>
             <field name="model">hotel.services</field>
@@ -771,6 +811,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action for hotel service -->
         <record model="ir.actions.act_window" id="action_hotel_services_form">
             <field name="name">Hotel Services</field>
             <field name="res_model">hotel.services</field>

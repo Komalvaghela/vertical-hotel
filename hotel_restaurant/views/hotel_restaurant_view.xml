@@ -5,6 +5,8 @@
     	<!-- ==============================
         Table Master
         ============================== -->
+    	
+        <!-- Form view of hotel restaurant tables -->
         <record model="ir.ui.view" id="view_hotel_restaurant_tables_form">
             <field name="name">hotel_restaurant_tables.form</field>
             <field name="model">hotel.restaurant.tables</field>
@@ -20,6 +22,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Search view of hotel restaurant tables -->
         <record model="ir.ui.view" id="view_hotel_restaurant_tables_search">
             <field name="name">hotel_restaurant_tables.search</field>
             <field name="model">hotel.restaurant.tables</field>
@@ -34,6 +38,8 @@
                 </search>
             </field>
         </record>
+        
+        <!-- Tree view of hotel restaurant tables -->
         <record model="ir.ui.view" id="view_hotel_restaurant_tables_tree">
             <field name="name">hotel_restaurant_tables.tree</field>
             <field name="model">hotel.restaurant.tables</field>
@@ -44,6 +50,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel restaurant tables -->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_tables_form_tree">
             <field name="name">Tables Details</field>
             <field name="res_model">hotel.restaurant.tables</field>
@@ -60,6 +68,8 @@
         Table Reservation
         ==============================
         -->
+		
+        <!-- Form view of hotel restaurant reservation -->
         <record model="ir.ui.view" id="view_hotel_restaurant_reservation_form">
             <field name="name">hotel_restaurant_reservation.form</field>
             <field name="model">hotel.restaurant.reservation</field>
@@ -86,7 +96,7 @@
                             <group colspan="4" col="4">
                                 <field name="start_date"/>
                                 <field name="end_date"/>
-                                <field name="cname"/><!-- on_change="onchange_partner_id(cname)"-->
+                                <field name="cname"/>
                                 <field name="partner_address_id"/>
                             </group>
                             <group colspan="4">
@@ -98,6 +108,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel restaurant reservation -->
         <record model="ir.ui.view" id="view_hotel_restaurant_reservation_tree">
             <field name="name">hotel_restaurant_reservation.tree</field>
             <field name="model">hotel.restaurant.reservation</field>
@@ -113,6 +125,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel restaurant reservation -->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_reservation_form_tree">
             <field name="name">Table Reservation</field>
             <field name="res_model">hotel.restaurant.reservation</field>
@@ -129,6 +143,8 @@
         Orders for Reservation
         ======================
         -->
+		
+        <!-- Form view of hotel reservation order-->
         <record model="ir.ui.view" id="view_hotel_reservation_order_form">
             <field name="name">hotel_reservation_order.form</field>
             <field name="model">hotel.reservation.order</field>
@@ -185,6 +201,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel reservation order-->
         <record model="ir.ui.view" id="view_hotel_reservation_order_tree">
             <field name="name">hotel_reservation_order.tree</field>
             <field name="model">hotel.reservation.order</field>
@@ -196,10 +214,11 @@
                     <field name="waitername"/>
                     <field name="table_no"/>
                		<field name="order_list" /> 
-
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel reservation order-->
         <record model="ir.actions.act_window" id="open_view_hotel_reservation_order_form_tree">
             <field name="name">Order Generate</field>
             <field name="res_model">hotel.reservation.order</field>
@@ -217,6 +236,8 @@
         Table Order
         ==============================
         -->
+		
+        <!-- Form view of hotel restaurant order-->
         <record model="ir.ui.view" id="view_hotel_restaurant_order_form">
             <field name="name">hotel_restaurant_order.form</field>
             <field name="model">hotel.restaurant.order</field>
@@ -248,7 +269,7 @@
                                     <group>
                                     <field name="name"/> 
                                     <field name="item_qty"/>
-                                    <field name="item_rate"/> 
+                                    <field name="item_rate"/>
                                     </group>
                                 </form>
                                 <tree string="Order List">
@@ -273,6 +294,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel restaurant order-->
         <record model="ir.ui.view" id="view_hotel_restaurant_order_tree">
             <field name="name">hotel_restaurant_order.tree</field>
             <field name="model">hotel.restaurant.order</field>
@@ -284,16 +307,16 @@
                     <field name="room_no"/>
                     <field name="waiter_name"/>
                     <field name="order_list"/> 
-
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel restaurant order-->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_order_form_tree">
             <field name="name">Order Generate</field>
             <field name="res_model">hotel.restaurant.order</field>
             <field name="view_type">form</field>
             <field name="view_mode">tree,form</field>
-
         </record>
         <menuitem name="Table Order"
         id="menu_open_view_hotel_restaurant_order_form_tree"
@@ -304,6 +327,8 @@
         <!-- ==============================
         Kitchen Order List
         ==============================  -->
+        
+        <!-- Form view of hotel restaurant kitchen order tickets-->
         <record model="ir.ui.view" id="view_hotel_restaurant_kitchen_order_tickets_form">
             <field name="name">hotel_restaurant_kitchen_order_tickets.form</field>
             <field name="model">hotel.restaurant.kitchen.order.tickets</field>
@@ -346,6 +371,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel restaurant kitchen order tickets-->
         <record model="ir.ui.view" id="view_hotel_restaurant_kitchen_order_tickets_tree">
             <field name="name">hotel_restaurant_kitchen_order_tickets.tree</field>
             <field name="model">hotel.restaurant.kitchen.order.tickets</field>
@@ -361,6 +388,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel restaurant kitchen order tickets-->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_kitchen_order_tickets_form_tree">
             <field name="name">Kitchen Order Tickets</field>
             <field name="res_model">hotel.restaurant.kitchen.order.tickets</field>
@@ -374,6 +403,7 @@
         parent="hotel_restaurant_menu"/>
 
         <!-- Menucard Category -->
+        <!-- Form view of hotel menucard type-->
         <record model="ir.ui.view" id="view_hotel_menucard_type_form">
             <field name="name">hotel_menucard_type_form</field>
             <field name="model">hotel.menucard.type</field>
@@ -388,16 +418,19 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel menucard type-->
         <record model="ir.ui.view" id="view_hotel_menucard_type_list">
             <field name="name">hotel_menucard_type_list</field>
             <field name="model">hotel.menucard.type</field>
             <field name="arch" type="xml">
                 <tree string="Hotel Food Items Type">
                     <field name="complete_name"/>
-
                 </tree>
             </field>
         </record>
+        
+        <!-- Action of hotel menucard type-->
         <record model="ir.actions.act_window" id="action_hotel_menucard_type_view_form">
             <field name="name">Hotel Food Item Type</field>
             <field name="res_model">hotel.menucard.type</field>
@@ -410,6 +443,8 @@
         id="menu_action_hotel_menucard_type_view_form"
         action="action_hotel_menucard_type_view_form"
         parent="menu_hotel_food_item" sequence="12"/>
+        
+        <!-- Form view of hotel menucard-->
         <record model="ir.ui.view" id="view_hotel_menucard_form">
             <field name="name">hotel.menucard.form</field>
             <field name="model">hotel.menucard</field>
@@ -481,7 +516,7 @@
             </field>
         </record>
        
-	<!-- 
+	    <!-- Search view of hotel menucard-->
 		<record model="ir.ui.view" id="view_hotel_menucard_search">
             <field name="name">hotel.menucard.search</field>
             <field name="model">hotel.menucard</field>
@@ -496,9 +531,9 @@
                     </group>
                 </search>
             </field>
-	
-        </record> -->
-		
+        </record> 
+
+        <!-- Search view of hotel menucard-->
 		<record id="view_hotel_menucard_search_new" model="ir.ui.view">
             <field name="name">hotel.menucard.search</field>
             <field name="model">hotel.menucard</field>
@@ -514,7 +549,8 @@
                 </search>
             </field>
         </record>	
-
+        
+        <!-- Tree view of hotel menucard-->
         <record model="ir.ui.view" id="view_hotel_menucard_tree">
             <field name="name">hotel.menucard.tree</field>
             <field name="model">hotel.menucard</field>
@@ -527,6 +563,7 @@
             </field>
         </record>
         
+        <!-- Kanban view of hotel menucard-->
         <record model="ir.ui.view" id="hotel_manucard_kanban_view">
             <field name="name">Menucard Kanban</field>
             <field name="model">hotel.menucard</field>
@@ -567,11 +604,11 @@
                             </div>
                         </t>
                     </templates>
-                   
-
                 </kanban>
             </field>
         </record>
+        
+        <!-- Action of hotel menucard-->
         <record model="ir.actions.act_window" id="action_hotel_menucard_form">
             <field name="name">Hotel Menucard</field>
             <field name="res_model">hotel.menucard</field>
@@ -584,6 +621,5 @@
         id="menu_open_hotel_menucard_form"
         action="action_hotel_menucard_form"
         parent="menu_hotel_food_item"/>
-
 	</data>
 </openerp>

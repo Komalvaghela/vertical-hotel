@@ -85,6 +85,15 @@ class hotel_room(models.Model):
     room_amenities = fields.Many2many('hotel.room.amenities','temp_tab','room_amenities','rcateg_id',string='Room Amenities',help='List of room amenities. ')
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
 
+    @api.multi
+    def set_room_status_occupied(self):
+        return self.write({'status': 'occupied'})
+    
+    @api.multi
+    def set_room_status_available(self):
+        return self.write({'status': 'available'})
+
+
 class hotel_folio(models.Model):
 
     @api.multi
@@ -125,7 +134,7 @@ class hotel_folio(models.Model):
     room_lines = fields.One2many('hotel.folio.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel room reservation detail.")
     service_lines = fields.One2many('hotel.service.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel services detail provide to customer and it will include in main Invoice.")
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
-    duration = fields.Float('Duration in Days', readonly=True, help="Number of days which will automatically count from the check-in and check-out date. ")
+    duration = fields.Float('Duration in Days', help="Number of days which will automatically count from the check-in and check-out date. ")
 
 
     @api.constrains('checkin_date','checkout_date')
@@ -157,7 +166,7 @@ class hotel_folio(models.Model):
 
 
     @api.onchange('checkout_date','checkin_date')
-    def onchange_dates(self,checkin_date=False, checkout_date=False, duration=False):
+    def onchange_dates(self):
         '''
         This mathod gives the duration between check in checkout if customer will leave only for some
         hour it would be considers as a whole day. If customer will checkin checkout for more or equal
@@ -166,36 +175,22 @@ class hotel_folio(models.Model):
         @param self : object pointer
         @return : Duration and checkout_date
         '''
-        checkin_date = self.checkin_date
-        checkout_date = self.checkout_date
-        value = {}
         company_obj = self.env['res.company']
         configured_addition_hours = 0
         company_ids = company_obj.search([])
         if company_ids.ids:
             configured_addition_hours = company_ids[0].additional_hours
-        if not duration:
-            duration = 0 
-            if checkin_date and checkout_date:
-                chkin_dt = datetime.datetime.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')
-                chkout_dt = datetime.datetime.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')
-                dur = chkout_dt - chkin_dt
-                duration = dur.days
-                if configured_addition_hours > 0:
-                    additional_hours = abs((dur.seconds / 60) / 60)
-                    if additional_hours >= configured_addition_hours:
-                        duration += 1
-            value.update({'duration':duration})
-            self.duration = duration
-        else:
-            if checkin_date:
-                chkin_dt = datetime.datetime.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')
-                chkout_dt = chkin_dt + datetime.timedelta(days=self.duration)
-                checkout_date = datetime.datetime.strftime(chkout_dt, '%Y-%m-%d %H:%M:%S')
-                value.update({'checkout_date':checkout_date})
-                self.checkout_date = checkout_date
-        return value
-
+        myduration = 0 
+        if self.checkin_date and self.checkout_date:
+            chkin_dt = datetime.datetime.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')
+            chkout_dt = datetime.datetime.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')
+            dur = chkout_dt - chkin_dt
+            myduration = dur.days
+            if configured_addition_hours > 0:
+                additional_hours = abs((dur.seconds / 60) / 60)
+                if additional_hours >= configured_addition_hours:
+                    myduration += 1
+        self.duration = myduration
 
     @api.model
     def create(self, vals,check=True):
@@ -209,11 +204,11 @@ class hotel_folio(models.Model):
         vals['order_policy'] = vals.get('hotel_policy', 'manual')
         if not 'service_lines' and 'folio_id' in vals:
                 vals.update({'room_lines':[]})
-                folio = super(hotel_folio, self).create(vals)
+                folio_id = super(hotel_folio, self).create(vals)
                 for line in (tmp_room_lines):
                     line[2].update({'folio_id':folio_id})
                 vals.update({'room_lines':tmp_room_lines})
-                folio.write(vals)
+                folio_id.write(vals)
         else:
             folio_id = super(hotel_folio, self).create(vals)
         return folio_id
@@ -260,10 +255,11 @@ class hotel_folio(models.Model):
         '''
         @param self : object pointer
         '''
-        order_ids = [folio.order_id.id for folio in self]
-        sale_obj = self.env['sale.order'].browse(order_ids)
-        return sale_obj.button_dummy()
-
+        for folio in self:
+            order = folio.order_id
+            x = order.button_dummy()
+        return x
+         
 
     @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done']):
@@ -346,21 +342,14 @@ class hotel_folio(models.Model):
             test_obj.write({'state': 'cancel'})
 
     @api.multi
-    def procurement_lines_get(self):
-        '''
-        @param self : object pointer
-        '''
-        order_ids = [folio.order_id.id for folio in self]
-        return True
-
-    @api.multi
     def action_ship_create(self):
         '''
         @param self : object pointer
         '''
-        order_ids = [folio.order_id.id for folio in self]
-        sale_obj = self.env['sale.order'].browse(order_ids)
-        return sale_obj.action_ship_create()
+        for folio in self:
+            order = folio.order_id
+            x = order.action_ship_create()
+        return x
 
     @api.multi
     def action_ship_end(self):
@@ -376,9 +365,10 @@ class hotel_folio(models.Model):
         '''
         @param self : object pointer
         '''
-        order_ids = [folio.order_id.id for folio in self]
-        sale_obj = self.env['sale.order'].browse(order_ids)
-        return sale_obj.has_stockable_products()
+        for folio in self:
+            order = folio.order_id
+            x = order.has_stockable_products()
+        return x
 
     @api.multi     
     def action_cancel_draft(self):
@@ -544,9 +534,10 @@ class hotel_folio_line(models.Model):
         '''
         @param self : object pointer
         '''
-        line_ids = [folio.order_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return sale_line_obj.button_confirm()
+        for folio in self:
+            line = folio.order_line_id
+            x = line.button_confirm()
+        return x
 
     @api.multi
     def button_done(self):
@@ -568,7 +559,7 @@ class hotel_folio_line(models.Model):
         @param self : object pointer
         @param default : dict of default values to be set
         '''
-        line_id = self.order_line_id.id
+        line_id = self.order_line_id.id 
         sale_line_obj = self.env['sale.order.line'].browse(line_id)
         return sale_line_obj.copy_data(default=default)
 
@@ -592,9 +583,11 @@ class hotel_service_line(models.Model):
         @param field_name: Names of fields.
         @param arg: User defined arguments
         '''
-        line_ids = [folio.service_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return  sale_line_obj._amount_line(field_name, arg)
+        for folio in self:
+            line = folio.service_line_id
+            x = line._amount_line(field_name, arg)
+        return x
+
     @api.multi
     def _number_packages(self,field_name, arg):
         '''
@@ -602,10 +595,12 @@ class hotel_service_line(models.Model):
         @param field_name: Names of fields.
         @param arg: User defined arguments
         '''
-        line_ids = [folio.service_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return sale_line_obj._number_packages(field_name, arg)
-#
+        for folio in self:
+            line = folio.service_line_id
+            x = line._number_packages(field_name, arg)
+        return x
+
+
     _name = 'hotel.service.line'
     _description = 'hotel Service line'
     
@@ -693,18 +688,20 @@ class hotel_service_line(models.Model):
         '''
         @param self : object pointer
         '''
-        line_ids = [folio.service_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return sale_line_obj.button_confirm()
+        for folio in self:
+            line = folio.service_line_id
+            x = line.button_confirm()
+        return x
 
     @api.multi
     def button_done(self):
         '''
         @param self : object pointer
         '''
-        line_ids = [folio.service_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return sale_line_obj.button_done()
+        for folio in self:
+            line = folio.service_line_id
+            x = line.button_done()
+        return x
 
     @api.one
     def copy_data(self,default=None):
@@ -715,7 +712,6 @@ class hotel_service_line(models.Model):
         line_id = self.service_line_id.id
         sale_line_obj = self.env['sale.order.line'].browse(line_id)
         return sale_line_obj.copy_data(default=default)
-
 
 class hotel_service_type(models.Model):
 

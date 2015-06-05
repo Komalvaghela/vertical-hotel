@@ -171,9 +171,10 @@ class hotel_reservation(models.Model):
             checkin_date, checkout_date = reservation['checkin'], reservation['checkout']
             if not self.checkin < self.checkout:
                 raise except_orm(_('Error'), _('Invalid values in reservation.\nCheckout date should be greater than the Checkin date.'))
-            myobj = hotel_folio_obj.browse([])
-            duration_vals = myobj.onchange_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
-            duration = duration_vals.get('value', False) and duration_vals.get('duration') or 0.0
+#            myobj = hotel_folio_obj.browse([])
+#            duration_vals = myobj.onchange_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
+            duration_vals = self.onchange_check_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
+            duration = duration_vals.get('duration') or 0.0
             folio_vals = {
                 'date_order':reservation.date_order,
                 'warehouse_id':reservation.warehouse_id.id,
@@ -205,6 +206,36 @@ class hotel_reservation(models.Model):
             self._cr.execute('insert into hotel_folio_reservation_rel (order_id, invoice_id) values (%s,%s)', (reservation.id, folio.id))
             reservation.write({'state': 'done'})
         return True
+
+
+    @api.multi
+    def onchange_check_dates(self,checkin_date=False, checkout_date=False, duration=False):
+        '''
+        This mathod gives the duration between check in checkout if customer will leave only for some
+        hour it would be considers as a whole day. If customer will checkin checkout for more or equal
+        hours , which configured in company as additional hours than it would be consider as full days
+        ---------------------------------------------------------------------------------------------
+        @param self : object pointer
+        @return : Duration and checkout_date
+        '''
+        value = {}
+        company_obj = self.env['res.company']
+        configured_addition_hours = 0
+        company_ids = company_obj.search([])
+        if company_ids.ids:
+            configured_addition_hours = company_ids[0].additional_hours
+        duration = 0 
+        if checkin_date and checkout_date:
+            chkin_dt = datetime.datetime.strptime(checkin_date, '%Y-%m-%d %H:%M:%S')
+            chkout_dt = datetime.datetime.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')
+            dur = chkout_dt - chkin_dt
+            duration = dur.days
+            if configured_addition_hours > 0:
+                additional_hours = abs((dur.seconds / 60) / 60)
+                if additional_hours >= configured_addition_hours:
+                    duration += 1
+        value.update({'duration':duration})
+        return value
 
 
 class hotel_reservation_line(models.Model):

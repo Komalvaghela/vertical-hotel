@@ -5,6 +5,7 @@
         Reservation
         ============================================================ -->
 
+        <!-- Form view of hotel reservation -->
         <record model="ir.ui.view" id="view_hotel_reservation_form">
             <field name="name">hotel.reservation.form</field>
             <field name="model">hotel.reservation</field>
@@ -27,15 +28,15 @@
                             </group>
                             <separator/>
                             <group colspan="4" col="4">
-                                <field name="partner_id" select="1" domain="[('customer','=',True)]"/><!-- on_change="onchange_partner_id(partner_id)"-->
+                                <field name="partner_id" select="1" domain="[('customer','=',True)]"/>
                                 <field name="pricelist_id" col="2"/>
                                 <field name="partner_order_id" domain="[('parent_id','=',partner_id)]"/>
                                 <field name="partner_invoice_id" domain="[('parent_id','=',partner_id)]"/>
                                 <field name="partner_shipping_id" domain="[('parent_id','=',partner_id)]"/>
                             </group>
                             <group colspan="4" col="4">
-                                <field name="checkin"/> <!-- on_change="on_change_checkin(date_order,checkin)"-->
-                                <field name="checkout"/><!-- on_change="on_change_checkout(checkin,checkout)"-->
+                                <field name="checkin"/>
+                                <field name="checkout"/>
                                 <field name="adults"/>
                                 <field name="children"/>
                             </group>
@@ -67,6 +68,8 @@
                 </form>
             </field>
         </record>
+        
+        <!-- Tree view of hotel reservation -->
         <record model="ir.ui.view" id="view_hotel_reservation_tree">
             <field name="name">hotel.reservation.tree</field>
             <field name="model">hotel.reservation</field>
@@ -80,6 +83,8 @@
                 </tree>
             </field>
         </record>
+        
+        <!-- Search view of hotel reservation -->
         <record model="ir.ui.view" id="view_hotel_reservation_search">
             <field name="name">hotel.reservation.search</field>
             <field name="model">hotel.reservation</field>
@@ -103,6 +108,8 @@
                 </search>
             </field>
         </record>
+        
+        <!-- Graph view of hotel reservation -->
         <record model="ir.ui.view" id="view_hotel_reservation_graph">
             <field name="name">hotel.reservation.graph</field>
             <field name="model">hotel.reservation</field>
@@ -113,6 +120,8 @@
                 </graph>
             </field>
         </record>
+        
+        <!-- Calendar view of hotel reservation -->
         <record model="ir.ui.view" id="hotel_calendar_view">
             <field name="name">Room Reservation</field>
             <field name="model">hotel.reservation</field>
@@ -123,6 +132,8 @@
                 </calendar>
             </field>
         </record>
+        
+        <!-- gantt view of hotel reservation -->
         <record model="ir.ui.view" id="hotel_gantt_view">
             <field name="name">hotel.gantt</field>
             <field name="model">hotel.reservation</field>
@@ -131,6 +142,8 @@
                 <gantt date_start="checkin" date_stop="checkout" string="Reservation" default_group_by="partner_id"></gantt>
             </field>
         </record>
+        
+        <!-- Action of hotel reservation -->
         <record model="ir.actions.act_window" id="action_hotel_reservation_tree_all">
             <field name="name">Reservations</field>
             <field name="type">ir.actions.act_window</field>
@@ -145,6 +158,7 @@
         parent="menu_hotel_reservation"
         sequence="3"/>
         
+
         <record id="view_hotel_room_form_inherited" model="ir.ui.view">
             <field name="name">view.hotel.room.form.inherited</field>
             <field name="model">hotel.room</field>

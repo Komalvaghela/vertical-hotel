@@ -14,6 +14,7 @@
 			</field>
 		</record>
 
+        <!-- Form view of report hotel restaurant status-->
 		<record model="ir.ui.view" id="view_hotel_restaurant_status_form">
 			<field name="name">report.hotel.restaurant.status.form</field>
 			<field name="model">report.hotel.restaurant.status</field>
@@ -25,6 +26,7 @@
 			</field>
 		</record>
 
+        <!-- Graph view of report hotel restaurant status-->
 		<record model="ir.ui.view" id="view_hotel_restaurant_status_graph">
 			<field name="name">report.hotel.restaurant.status.graph</field>
 			<field name="model">report.hotel.restaurant.status</field>
@@ -36,6 +38,7 @@
 			</field>
 		</record>
 
+        <!-- Graph view of report hotel restaurant status-->
 		<record model="ir.ui.view" id="view_hotel_restaurant_status_graph_bar">
 			<field name="name">report.hotel.restaurant.status.graph</field>
 			<field name="model">report.hotel.restaurant.status</field>
@@ -47,6 +50,7 @@
 			</field>
 		</record>
 
+        <!-- Action of report hotel restaurant status-->
 		<record model="ir.actions.act_window"
 			id="action_report_hotel_restaurant_status_tree_graph">
 			<field name="name">States By Restaurant</field>

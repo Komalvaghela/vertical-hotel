@@ -250,6 +250,7 @@ class hotel_restaurant_order(models.Model):
                          'kot_order_list':kot_data.id,
                          'name':order_line.name.id,
                          'item_qty':order_line.item_qty,
+                         'item_rate':order_line.item_rate
                 }
                 restaurant_order_list_obj.create(o_line)
         return True
@@ -327,6 +328,7 @@ class hotel_reservation_order(models.Model):
                     'kot_order_list':kot_data.id,
                     'name':order_line.name.id,
                     'item_qty':order_line.item_qty,
+                    'item_rate':order_line.item_rate
                 }
                 rest_order_list_obj.create(o_line)
             return True
@@ -350,14 +352,15 @@ class hotel_reservation_order(models.Model):
 class hotel_restaurant_order_list(models.Model):
 
     @api.one
-    @api.depends('item_rate')
+    @api.depends('item_qty','item_rate')
     def _sub_total(self):
         '''
         price_subtotal will display on change of item_rate
         ---------------------------------------------
         @param self : object pointer
         '''
-        self.price_subtotal=self.item_rate * int(self.item_qty)
+        for line in self:
+            self.price_subtotal=line.item_rate * int(line.item_qty)
 
     @api.onchange('name')
     def on_change_item_name(self):

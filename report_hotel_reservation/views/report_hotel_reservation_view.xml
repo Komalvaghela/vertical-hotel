@@ -13,6 +13,7 @@
 			</field>
 		</record>
 
+        <!-- Form view of report hotel reservation status-->
 		<record model="ir.ui.view" id="view_hotel_reservation_status_form">
 			<field name="name">report.hotel.reservation.status.form</field>
 			<field name="model">report.hotel.reservation.status</field>
@@ -24,6 +25,7 @@
 			</field>
 		</record>
 
+        <!-- Graph view of report hotel reservation status-->
 		<record model="ir.ui.view" id="view_hotel_reservation_status_graph">
 			<field name="name">report.hotel.reservation.status.graph</field>
 			<field name="model">report.hotel.reservation.status</field>
@@ -35,6 +37,7 @@
 			</field>
 		</record>
 
+        <!-- Graph view of report hotel reservation status-->
 		<record model="ir.ui.view" id="view_hotel_reservation_status_graph_bar">
 			<field name="name">report.hotel.reservation.status.graph</field>
 			<field name="model">report.hotel.reservation.status</field>
@@ -46,6 +49,7 @@
 			</field>
 		</record>
 
+        <!-- Action of report hotel reservation status-->
 		<record model="ir.actions.act_window"
 			id="action_report_hotel_reservation_status_tree_graph">
 			<field name="name">States By Reservation</field>
