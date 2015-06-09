@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 	<data>
+
+		<!--Report for hotel folio -->
+
 	    <report 
             id="report_hotel_management"
             string="Hotel Folio"

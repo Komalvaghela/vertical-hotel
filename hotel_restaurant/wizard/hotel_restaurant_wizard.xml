@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
 <openerp>
     <data>
+
+        <!--Form view for wizard hotel restaurant -->
         <record model="ir.ui.view" id="wizard_hotel_restaurant_form_view">
             <field name="name">wizard.hotel.restaurant.form</field>
             <field name="model">wizard.hotel.restaurant</field>
@@ -18,7 +20,8 @@
                 </form>
             </field>
         </record>
-        
+
+        <!--Action for wizard hotel restaurant -->
         <record id="action_wizard_hotel_restaurant" model="ir.actions.act_window">
             <field name="name">Reservation List</field>
             <field name="res_model">wizard.hotel.restaurant</field>

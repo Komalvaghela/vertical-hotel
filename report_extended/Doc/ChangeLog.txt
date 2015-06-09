@@ -1,6 +1,8 @@
 ============================================================================================================================
  Version Change Log (report_extended)
 ============================================================================================================================
+0.02 on 2015-06-05 by Malay Khamar
+    * Migrate this module in version 8.0.
 
 0.01 on 2014-09-07 by Naitik Maheta
     * Report_Extended Module For Qweb Report For Add Company's Full Address In Header.

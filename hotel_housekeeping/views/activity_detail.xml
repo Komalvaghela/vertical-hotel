@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
 <data>
+<!--Template for hotel housekeeping -->
 <template id="report_housekeeping">
     <t t-call="report.html_container">
         <t t-foreach="docs" t-as="o">
@@ -11,7 +12,6 @@
 		                        <span><center>Room Activities Report</center></span>
                     		</h2>
 	                    </div>
-
 	                   <div class="row mt32 mb32">
 		                    <div class="text-center">
 		                        <strong>From:</strong>
@@ -26,8 +26,6 @@
 		                        <p t-esc="data['form']['room_no'][1]"/>
 		                    </div>
 	                	</div>
-
-	                    
 					<table class="table table-condensed">
                         <thead>
                             <tr>
@@ -62,7 +60,6 @@
                             </tr>
                         </tbody> 
                    	</table>
-
                 </div>
             </t>
             </t>

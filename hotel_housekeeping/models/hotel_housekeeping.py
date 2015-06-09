@@ -51,7 +51,7 @@ class hotel_housekeeping(models.Model):
     _name = "hotel.housekeeping"
     _description = "Reservation"
 
-    current_date = fields.Date("Today's Date", required=True,default=lambda *a: time.strftime('%Y-%m-%d')) #here in v8 default value is written in field declaration so no more need of _defaults dictionary.. 
+    current_date = fields.Date("Today's Date", required=True,default=lambda *a: time.strftime('%Y-%m-%d')) 
     clean_type = fields.Selection([('daily', 'Daily'), ('checkin', 'Check-In'), ('checkout', 'Check-Out')], 'Clean Type', required=True)
     room_no = fields.Many2one('hotel.room','Room No',required=True)
     activity_lines =fields.One2many('hotel.housekeeping.activities','a_list','Activities',help='Details of housekeeping activities.')
@@ -59,6 +59,7 @@ class hotel_housekeeping(models.Model):
     inspect_date_time =fields.Datetime('Inspect Date Time', required=True)
     quality = fields.Selection([('bad', 'Bad'), ('good', 'Good'), ('ok', 'Ok')], 'Quality', required=True, help='Inspector inspect the room and mark as Bad, Good or Ok. ')
     state = fields.Selection([('dirty', 'Dirty'), ('clean', 'Clean'), ('inspect', 'Inspect'), ('done', 'Done'), ('cancel', 'Cancelled')], 'State', select=True, required=True, readonly=True,default=lambda *a: 'dirty')
+
 
     @api.multi
     def action_set_to_dirty(self):

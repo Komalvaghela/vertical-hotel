@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding='UTF-8'?>
 <openerp>
     <data>
-        
+
         <!--Scheduler for hotel room -->
         <record model="ir.cron" id="room_analytic_cron">
             <field name="name">Room analysis</field>
@@ -15,3 +15,4 @@
         </record>
     </data>
 </openerp>
+

@@ -3,7 +3,7 @@
     <data>
         <!--============================================================ Housekeeping
         ============================================================ -->
-        
+
         <!-- Form view of hotel housekeeping -->
         <record model="ir.ui.view" id="view_hotel_housekeeping_form">
             <field name="name">hotel.housekeeping.form</field>
@@ -11,7 +11,6 @@
             <field name="arch" type="xml">
                 <form string="Housekeeping" >
                     <header>
-
                         <field name="state" widget="statusbar" />
                     </header>
                     <sheet>
@@ -76,7 +75,7 @@
                 </form>
             </field>
         </record>
-        
+
         <!-- Tree view of hotel housekeeping -->
         <record model="ir.ui.view" id="view_hotel_housekeeping_tree">
             <field name="name">hotel.housekeeping.tree</field>
@@ -92,7 +91,7 @@
                 </tree>
             </field>
         </record>
-        
+
         <!-- Action for hotel housekeeping -->
         <record model="ir.actions.act_window" id="open_hotel_housekeeping_form_tree">
             <field name="name">Housekeeping</field>
@@ -108,7 +107,7 @@
         sequence="4" />
 
         <!-- ================ Activity Category================= -->
-        
+
         <!-- Form view of hotel housekeeping activity type -->
         <record model="ir.ui.view" id="view_hotel_housekeeping_activity_type_form">
             <field name="name">hotel_housekeeping_activity_type_form</field>
@@ -124,7 +123,7 @@
                 </form>
             </field>
         </record>
-        
+
         <!-- Tree view of hotel housekeeping activity type -->
         <record model="ir.ui.view" id="view_hotel_housekeeping_activity_type_list">
             <field name="name">hotel_housekeeping_activity_type_list</field>
@@ -135,7 +134,7 @@
                 </tree>
             </field>
         </record>
-        
+
         <!-- Action of hotel housekeeping activity type -->
         <record model="ir.actions.act_window" id="action_hotel_housekeeping_activity_type_view_form">
             <field name="name">Housekeeping Activity Types</field>
@@ -165,7 +164,7 @@
                 </form>
             </field>
         </record>
-        
+
         <!-- Search view of hotel activity -->
         <record model="ir.ui.view" id="view_h_activity_search">
             <field name="name">hotel.activity.search</field>
@@ -183,7 +182,7 @@
                 </search>
             </field>
         </record>
-        
+
         <!-- Tree view of hotel activity -->
         <record model="ir.ui.view" id="view_h_activity_tree">
             <field name="name">hotel.activity.tree</field>
@@ -195,7 +194,7 @@
                 </tree>
             </field>
         </record>
-        
+
         <!-- Action of hotel activity -->
         <record model="ir.actions.act_window" id="action_h_activity_form">
             <field name="name">Housekeeping Activity</field>

@@ -14,7 +14,6 @@
 		<field name="wkf_id" ref="wkf_table_resrvation" />
 		<field name="flow_start">True</field>
 		<field name="name">draft</field>
-
 	</record>
 
 	<record model="workflow.activity" id="act_confirm">
@@ -38,7 +37,6 @@
 	    <field name="flow_stop">True</field>
 		<field name="kind">stopall</field>
 		<field name="action">table_done()</field>
-<!-- write({'state':'done'})</field> -->
 	</record>
  
     <record model="workflow.activity" id="act_create_order">

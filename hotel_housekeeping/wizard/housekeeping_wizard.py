@@ -24,12 +24,12 @@ from openerp import models,fields,api,_
 
 class hotel_housekeeping_wizard(models.TransientModel):
     _name = 'hotel.housekeeping.wizard'
-    
+
     date_start = fields.Datetime('Activity Start Date', required=True)
     date_end = fields.Datetime('Activity End Date', required=True)
     room_no = fields.Many2one('hotel.room', 'Room No', required=True)
 
-    @api.multi    
+    @api.multi
     def print_report(self):
         data = {
             'ids': self.ids,

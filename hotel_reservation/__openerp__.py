@@ -46,6 +46,7 @@
         "views/max_room.xml",
         "views/room_res.xml",
         "views/room_summ_view.xml",
+        "views/hotel_reservation_data.xml",
     ],
     "demo": [
        #  'views/hotel_reservation_data.xml',

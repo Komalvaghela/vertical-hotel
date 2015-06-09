@@ -1,6 +1,8 @@
 ============================================================================================================================
  Version Change Log (hotel)
 ============================================================================================================================
+0.11 on 2015-06-04 by Malay Khamar
+    * Migrate this module in version 8.0.
 
 0.10 on 2015-03-03 by Dhwani Vora
     * Corrected the Services type relation with product category to correct the demo data,

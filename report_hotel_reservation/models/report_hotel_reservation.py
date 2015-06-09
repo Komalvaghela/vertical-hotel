@@ -31,7 +31,7 @@ class report_hotel_reservation_status(models.Model):
     _name = "report.hotel.reservation.status"
     _description = "Reservation By State"
     _auto = False
-    
+
     reservation_no = fields.Char('Reservation No', size=64, readonly=True)
     nbr = fields.Integer('Reservation', readonly=True)
     state = fields.Selection(AVAILABLE_STATES, 'State', size=16, readonly=True)

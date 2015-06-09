@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <openerp>
 	<data noupdate="1">
- 
+
 	 <!-- Table Data --> 
 		<record id="hotel_restaurant_tables_table0" model="hotel.restaurant.tables">
 			<field eval="2" name="capacity"/>
@@ -12,22 +12,21 @@
 			<field eval="4" name="capacity"/>
 			<field eval="&quot;Table-2&quot;" name="name"/>
 		</record>
-	
+
 		<record id="hotel_restaurant_tables_table2" model="hotel.restaurant.tables">
 			<field eval="8" name="capacity"/>
 			<field eval="&quot;Table-3&quot;" name="name"/>
 		</record>
-	
+
 		<record id="hotel_restaurant_tables_table3" model="hotel.restaurant.tables">
 			<field eval="5" name="capacity"/>
 			<field eval="&quot;Table-4&quot;" name="name"/>
 		</record>
-	
+
 		<!--  Food Item Category -->
-			
+
 		<record id="hotel_menucard_type_0" model="hotel.menucard.type">
 			<field name="name">All FoodItems</field>
-
 		</record>
 		<record id="hotel_menucard_type_1" model="hotel.menucard.type">
 			<field name="parent_id" ref="hotel_menucard_type_0"/>
@@ -41,7 +40,7 @@
 			<field name="parent_id" ref="hotel_menucard_type_0"/>
 			<field name="name">Gujarati</field>
 		</record>
-		
+
 		<!-- Food Item List -->
 		<record id="hotel_fooditem_0" model="hotel.menucard">
 			<field name="name">Paneer Tikaa</field>
@@ -95,8 +94,7 @@
         </record>       
 
         <!-- Gujarati -->
-        
-        
+
         <record id="hotel_fooditem_21" model="hotel.menucard">
            <field name="name">Chole-Bhature</field>
            <field name="categ_id" ref="hotel_menucard_type_3"/> 
@@ -117,10 +115,9 @@
             <field name="categ_id" ref="hotel_menucard_type_3"/> 
             <field name="list_price">80</field>
         </record>
-        
+
        <!--  South Indian -->
-        
-        
+
         <record id="hotel_fooditem_15" model="hotel.menucard">
             <field name="name">Idli-Sambar</field>
             <field name="categ_id" ref="hotel_menucard_type_2"/> 
@@ -172,13 +169,12 @@
 			<field eval="&quot;R0/00004&quot;" name="reservation_id"/>
 			<field eval="&quot;2013-04-23 11:09:00&quot;" name="start_date"/>
 		</record>
-	
+
 		<record id="hotel_reservation_order_0" model="hotel.reservation.order">
 			<field eval="[(6,0,[ref('hotel_restaurant.hotel_restaurant_tables_table2'),ref('hotel_restaurant.hotel_restaurant_tables_table3')])]" name="table_no"/>
 			<field eval="&quot;2013-04-25 15:09:00&quot;" name="date1"/>
 			<field eval="&quot;ORR/00001&quot;" name="order_number"/>
 			<field eval="&quot;R0/00004&quot;" name="reservationno"/>
-			
 		</record>
 		<record id="hotel_reservation_order_line_0" model="hotel.restaurant.order.list">
 			<field name="o_l" ref="hotel_reservation_order_0"/>
@@ -186,13 +182,12 @@
 			<field name="item_qty">2</field>
 			<field name="item_rate">50.00</field>
 		</record>
-			
+
 		<record id="hotel_reservation_order_1" model="hotel.reservation.order">
 			<field eval="[(6,0,[ref('hotel_restaurant.hotel_restaurant_tables_table1'),ref('hotel_restaurant.hotel_restaurant_tables_table0')])]" name="table_no"/>
 			<field eval="&quot;2013-04-25 10:09:00&quot;" name="date1"/>
 			<field eval="&quot;ORR/00002&quot;" name="order_number"/>
 			<field eval="&quot;R0/00006&quot;" name="reservationno"/>
-			
 		</record>
 		<record id="hotel_reservation_order_line_1" model="hotel.restaurant.order.list">
 			<field name="o_l" ref="hotel_reservation_order_1"/>
@@ -200,9 +195,9 @@
 			<field name="item_qty">3</field>
 			<field name="item_rate">30.00</field>
 		</record>
-		<!-- 
-		 Table Order -->
-		
+
+		<!-- Table Order -->
+
 		<record id="hotel_restaurant_order_0" model="hotel.restaurant.order">
 			<field eval="[(6,0,[ref('hotel_restaurant.hotel_restaurant_tables_table1'),ref('hotel_restaurant.hotel_restaurant_tables_table0')])]" name="table_no"/>
 			<field eval="&quot;2013-04-25 15:09:00&quot;" name="o_date"/>
@@ -215,20 +210,20 @@
 			<field name="item_qty">3</field>
 			<field name="item_rate">30.00</field>
 		</record>
-		
+
 		<record id="hotel_restaurant_order_1" model="hotel.restaurant.order">
 			<field eval="[(6,0,[ref('hotel_restaurant.hotel_restaurant_tables_table2')])]" name="table_no"/>
 			<field eval="&quot;2013-04-22 12:09:00&quot;" name="o_date"/>
 			<field eval="&quot;OR/00002&quot;" name="order_no"/>
 			<field name="room_no" ref="hotel.hotel_room_6"/>
 		</record>
-		
+
         <record id="hotel_restaurant_order_list_1" model="hotel.restaurant.order.list">
 			<field name="o_list" ref="hotel_restaurant_order_1"/>
 			<field name="name" ref="hotel_fooditem_0"/>
 			<field name="item_qty">3</field>
 			<field name="item_rate">50.00</field>
 		</record>
-		
+
 	</data>
 </openerp>

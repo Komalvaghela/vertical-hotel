@@ -72,7 +72,7 @@ class hotel_reservation(models.Model):
                 raise except_orm(_('Warning'),_('Checkin date should be greater than the current date.'))
 
 
-    @api.onchange('checkin','checkout')
+    @api.onchange('checkout')
     def on_change_checkout(self):
       '''
       When you change checkout or checkin it will check whether 
@@ -84,7 +84,8 @@ class hotel_reservation(models.Model):
       '''
       checkout_date=time.strftime('%Y-%m-%d %H:%M:%S')
       checkin_date=time.strftime('%Y-%m-%d %H:%M:%S')
-      if not (self.checkout and self.checkin):
+      res = {}
+      if not (checkout_date and checkin_date):
             return {'value':{}}
       if self.checkout < self.checkin:
                 raise except_orm(_('Warning'),_('Checkout date should be greater than Checkin date.'))
@@ -171,8 +172,6 @@ class hotel_reservation(models.Model):
             checkin_date, checkout_date = reservation['checkin'], reservation['checkout']
             if not self.checkin < self.checkout:
                 raise except_orm(_('Error'), _('Invalid values in reservation.\nCheckout date should be greater than the Checkin date.'))
-#            myobj = hotel_folio_obj.browse([])
-#            duration_vals = myobj.onchange_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
             duration_vals = self.onchange_check_dates(checkin_date=checkin_date, checkout_date=checkout_date, duration=False)
             duration = duration_vals.get('duration') or 0.0
             folio_vals = {
@@ -303,12 +302,14 @@ class hotel_room(models.Model):
         @param self: The object pointer
         @return: update status of hotel room reservation line
         """
+        print'schedular called'
         reservation_line_obj = self.env['hotel.room.reservation.line']
         now = datetime.datetime.now()
         curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         for room in self.search([]):
             reservation_line_ids = [reservation_line.ids for reservation_line in room.room_reservation_line_ids]
             reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids),('check_in', '<=', curr_date), ('check_out', '>=', curr_date)])
+            print'reservation_line_ids-----------------',reservation_line_ids
             if reservation_line_ids.ids:
                 status = {'status': 'occupied'}
             else:

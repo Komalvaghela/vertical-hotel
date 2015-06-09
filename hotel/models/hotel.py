@@ -88,7 +88,7 @@ class hotel_room(models.Model):
     @api.multi
     def set_room_status_occupied(self):
         return self.write({'status': 'occupied'})
-    
+
     @api.multi
     def set_room_status_available(self):
         return self.write({'status': 'available'})
@@ -111,16 +111,16 @@ class hotel_folio(models.Model):
         @param name: Names of fields.
         @param arg: User defined arguments
         '''
-        return self.env['sale.order']._invoiced()
+        return self.env['sale.order']._invoiced(name, arg)
 
     @api.multi
-    def _invoiced_search(self,name, args,obj):
+    def _invoiced_search(self ,obj, name, args):
         '''
         @param self : object pointer
         @param name: Names of fields.
         @param arg: User defined arguments
         '''
-        return self.env['sale.order']._invoiced_search()
+        return self.env['sale.order']._invoiced_search(obj, name, args)
 
     _name = 'hotel.folio'
     _description = 'hotel folio new'
@@ -135,7 +135,6 @@ class hotel_folio(models.Model):
     service_lines = fields.One2many('hotel.service.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel services detail provide to customer and it will include in main Invoice.")
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
     duration = fields.Float('Duration in Days', help="Number of days which will automatically count from the check-in and check-out date. ")
-
 
     @api.constrains('checkin_date','checkout_date')
     def check_dates(self):
@@ -222,7 +221,6 @@ class hotel_folio(models.Model):
         ----------------------------------------------------------
         @param self : object pointer
         '''
-#        order_ids = [folio.order_id.id for folio in self]
         for folio in self:
             order = folio.order_id
             x = order.onchange_warehouse_id(folio.warehouse_id.id)
@@ -259,7 +257,7 @@ class hotel_folio(models.Model):
             order = folio.order_id
             x = order.button_dummy()
         return x
-         
+
 
     @api.multi
     def action_invoice_create(self,grouped=False, states=['confirmed', 'done']):
@@ -289,7 +287,7 @@ class hotel_folio(models.Model):
         for sale in self:
             for line in sale.order_line:
                 line.write({'invoiced': 'invoiced'})
-        self.write({'state':'invoice_except'})
+        sale.write({'state':'invoice_except'})
         return res
 
     @api.multi
@@ -370,7 +368,7 @@ class hotel_folio(models.Model):
             x = order.has_stockable_products()
         return x
 
-    @api.multi     
+    @api.multi
     def action_cancel_draft(self):
         '''
         @param self : object pointer
@@ -436,7 +434,7 @@ class hotel_folio_line(models.Model):
 
     _name = 'hotel.folio.line'
     _description = 'hotel folio1 room line'
-    
+
     order_line_id = fields.Many2one('sale.order.line',string='Order Line' ,required=True, delegate=True, ondelete='cascade')
     folio_id = fields.Many2one('hotel.folio',string='Folio', ondelete='cascade')
     checkin_date = fields.Datetime('Check In', required=True,default = _get_checkin_date)
@@ -453,7 +451,7 @@ class hotel_folio_line(models.Model):
         if 'folio_id' in vals:
             folio = self.env["hotel.folio"].browse(vals['folio_id'])
             vals.update({'order_id':folio.order_id.id})
-        return super(hotel_folio_line, self).create(vals)
+        return super(models.Model, self).create(vals)
 
 
     @api.multi
@@ -461,7 +459,7 @@ class hotel_folio_line(models.Model):
         """
         Overrides orm unlink method.
         @param self: The object pointer
-        @return: Tru/False.
+        @return: True/False.
         """
         sale_line_obj = self.env['sale.order.line']
         for line in self:
@@ -475,10 +473,10 @@ class hotel_folio_line(models.Model):
         '''
         @param self : object pointer
         '''
-        line_ids = [folio.order_line_id.id for folio in self]
-        sale_line_obj = self.env['sale.order.line'].browse(line_ids)
-        return  sale_line_obj.uos_change(product_uos, product_uos_qty=0, product_id=None)
-
+        for folio in self:
+            line = folio.order_line_id
+            x = line.uos_change(product_uos, product_uos_qty=0, product_id=None)
+        return x
 
     @api.multi
     def product_id_change(self,pricelist, product, qty=0,
@@ -506,6 +504,7 @@ class hotel_folio_line(models.Model):
                 uom=False, qty_uos=0, uos=False, name='', partner_id=partner_id,
                 lang=False, update_tax=True, date_order=False)
 
+
     @api.onchange('checkin_date','checkout_date')
     def on_change_checkout(self):
         '''
@@ -525,7 +524,7 @@ class hotel_folio_line(models.Model):
             diffDate = datetime.datetime(*time.strptime(self.checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) - datetime.datetime(*time.strptime(self.checkin_date, '%Y-%m-%d %H:%M:%S')[:5])
             qty = diffDate.days
             if qty == 0:
-                qty == 1
+                qty = 1
         self.product_uom_qty = qty
 
 
@@ -619,7 +618,7 @@ class hotel_service_line(models.Model):
         if 'folio_id' in vals:
             folio = self.env['hotel.folio'].browse(vals['folio_id'])
             vals.update({'order_id':folio.order_id.id})
-        return super(hotel_service_line, self).create(vals)
+        return super(models.Model, self).create(vals)
 
     @api.multi
     def unlink(self):
@@ -717,7 +716,7 @@ class hotel_service_type(models.Model):
 
     _name = "hotel.service.type"
     _description = "Service Type"
-    
+
     ser_id = fields.Many2one('product.category','category', required=True, delegate=True, select=True, ondelete='cascade')
 
 

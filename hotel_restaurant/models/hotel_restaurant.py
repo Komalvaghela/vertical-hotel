@@ -206,12 +206,8 @@ class hotel_restaurant_order(models.Model):
         ---------------------------------------------
         @param self : object pointer
         '''
-        res = {}
         for sale in self:
-            res[sale.id] = 0.00
-            res[sale.id] = sum(line.price_subtotal for line in sale.order_list)
-        self.amount_subtotal = res[sale.id]
-        return res
+            sale.amount_subtotal = sum(line.price_subtotal for line in sale.order_list)
 
     @api.multi 
     @api.depends('amount_subtotal') 
@@ -221,11 +217,8 @@ class hotel_restaurant_order(models.Model):
         ---------------------------------------------
         @param self : object pointer
         '''
-        res = {}
         for line in self:
-            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
-        self.amount_total = res[line.id]
-        return res
+            line.amount_total = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100
     
     @api.multi
     def generate_kot(self):
@@ -273,6 +266,7 @@ class hotel_restaurant_order(models.Model):
 
 class hotel_reservation_order(models.Model):
 
+
     @api.multi
     @api.depends('order_list')
     def _sub_total(self):
@@ -281,13 +275,9 @@ class hotel_reservation_order(models.Model):
        ---------------------------------------------
        @param self : object pointer
        '''
-       res = {}
        for sale in self:
-            res[sale.id] = 0.00
-            for line in sale.order_list:
-                res[sale.id] += line.price_subtotal
-       self.amount_subtotal = res[sale.id]
-       return res
+            sale.amount_subtotal = sum(line.price_subtotal for line in sale.order_list)
+
 
     @api.multi
     @api.depends('amount_subtotal')
@@ -297,11 +287,8 @@ class hotel_reservation_order(models.Model):
         ---------------------------------------------
         @param self : object pointer
         '''
-        res = {}
         for line in self:
-            res[line.id] = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
-        self.amount_total = res[line.id]
-        return res    
+            line.amount_total = line.amount_subtotal + (line.amount_subtotal * line.tax) / 100.0
 
 
     @api.multi
@@ -341,8 +328,8 @@ class hotel_reservation_order(models.Model):
     order_number = fields.Char('Order No', size=64,default=lambda obj: obj.env['ir.sequence'].get('hotel.reservation.order'))
     reservationno = fields.Char('Reservation No', size=64)
     date1 = fields.Datetime('Date', required=True)
-    waitername = fields.Many2one('res.partner','Waiter Name')#,size=64)
-    table_no = fields.Many2many('hotel.restaurant.tables','temp_table4','table_no','name','Table Number')#,size=64)
+    waitername = fields.Many2one('res.partner','Waiter Name')
+    table_no = fields.Many2many('hotel.restaurant.tables','temp_table4','table_no','name','Table Number')
     order_list = fields.One2many('hotel.restaurant.order.list','o_l','Order List')
     tax = fields.Float('Tax (%) ', size=64)
     amount_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal')
@@ -360,7 +347,8 @@ class hotel_restaurant_order_list(models.Model):
         @param self : object pointer
         '''
         for line in self:
-            self.price_subtotal=line.item_rate * int(line.item_qty)
+            line.price_subtotal=line.item_rate * int(line.item_qty)
+
 
     @api.onchange('name')
     def on_change_item_name(self):
@@ -369,11 +357,8 @@ class hotel_restaurant_order_list(models.Model):
         ---------------------------------------------
         @param self : object pointer
         '''
-        if not self.name:
-            return {'value':{}}
-        temp = self.env['hotel.menucard'].browse(self.name.id)
-        if temp.name:
-            self.item_rate=temp.list_price
+        if self.name:
+            self.item_rate=self.name.list_price
 
     _name = "hotel.restaurant.order.list"
     _description = "Includes Hotel Restaurant Order"

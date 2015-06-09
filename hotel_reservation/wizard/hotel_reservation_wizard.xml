@@ -2,6 +2,7 @@
 <openerp>
     <data>
 
+        <!--Form view for hotel reservation wizard-->
         <record model="ir.ui.view" id="hotel_reservation_wizard_form_view">
             <field name="name">hotel.reservation.wizard.form</field>
             <field name="model">hotel.reservation.wizard</field>
@@ -22,6 +23,7 @@
             </field>
         </record>
 
+        <!--Action for hotel reservation wizard-->
         <record id="action_hotel_reservation_wizard"
             model="ir.actions.act_window">
             <field name="name">Reservation List</field>
@@ -31,6 +33,7 @@
             <field name="target">new</field>
         </record>
 
+        <!--Form view for wizard make folio-->
         <record model="ir.ui.view" id="make_folio_wizard_form_view">
             <field name="name">make.folio.wizard.form</field>
             <field name="model">wizard.make.folio</field>

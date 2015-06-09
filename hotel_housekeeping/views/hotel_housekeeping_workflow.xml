@@ -14,7 +14,6 @@
 			<field name="wkf_id" ref="wkf_hotel_housekeeping" />
 			<field name="flow_start">True</field>
 			<field name="name">dirty</field>
-
 		</record>
 
 		<record model="workflow.activity" id="act_hsk_clean">
@@ -30,7 +29,6 @@
 			<field name="name">cancel</field>
 			<field name="kind">function</field>
 			<field name="action">room_cancel()</field>
-
 		</record>
 		<record model="workflow.activity" id="act_hsk_done">
 			<field name="wkf_id" ref="wkf_hotel_housekeeping" />
@@ -38,7 +36,6 @@
 			<field name="flow_stop">True</field>
 			<field name="kind">stopall</field>
 			<field name="action">room_done()</field>
-
 		</record>
 
 		<record model="workflow.activity" id="act_hsk_inspect">
@@ -47,7 +44,6 @@
 			<field name="kind">function</field>
 			<field name="action">room_inspect()</field>
 			<field name="split_mode">OR</field>
-
 		</record>
 
 		<!-- Transition -->
@@ -86,7 +82,6 @@
 			<field name="act_to" ref="act_hsk_done" />
 			<field name="signal">done</field>
 		</record>
-
 
 	</data>
 </openerp>
