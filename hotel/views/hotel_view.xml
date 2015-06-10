@@ -342,19 +342,18 @@
         </record>
 
         <!-- Search view of hotel room  -->
-		<record model="ir.ui.view" id="view_hotel_room_search">
+        <record model="ir.ui.view" id="view_hotel_room_search">
             <field name="name">hotel.room.search</field>
             <field name="model">hotel.room</field>
             <field name="arch" type="xml">
-                <search string="Hotel Room">
+                <search string="Hotel Room" >
                     <field name="name" />
                     <field name="categ_id" select="1"/>
                     <field name="list_price" string="Room rate"/>
                     <field name="state" string="Status"/>
                     <newline/>
-                    <filter name = "available" string="Available" domain="[('state','=', 'unassigned')]" help="Available Rooms"/>
-                    <filter name = "pack" string="Pack" domain="[]" help="Packed Rooms" />
-                    <group expand="0" string="Group By...">
+                    <filter string="Available" domain="[('state','=', 'unassigned')]" help="Available Rooms" />
+                    <group expand="0" string="Group By">
                         <filter name="state" string="state" domain="[]" context="{'group_by':'state'}" />
                     </group>
                 </search>
@@ -646,6 +645,20 @@
                 </calendar>
             </field>
         </record>
+
+        <!-- Search view of hotel restaurant tables -->
+        <record model="ir.ui.view" id="view_hotel_folio_search">
+            <field name="name">hotel.folio.search</field>
+            <field name="model">hotel.folio</field>
+            <field name="arch" type="xml">
+                <search string="Tables Detail">
+                    <group expand="0" string="Group By">
+                        <filter name="partner_id" string="Customer" icon="terp-stock_symbol-selection" context="{'group_by':'partner_id'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
 
         <!-- Action for hotel folio  -->
         <record model="ir.actions.act_window" id="open_hotel_folio1_form_tree_all">

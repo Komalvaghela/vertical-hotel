@@ -32,7 +32,7 @@
                     <field name="name"/>
                     <field name="capacity"/>
                     <newline/>
-                    <group expand="0" string="Group By...">
+                    <group expand="0" string="Group By">
                         <filter name="capacity" string="Capacity" icon="terp-stock_symbol-selection" context="{'group_by':'capacity'}" />
                     </group>
                 </search>
@@ -126,6 +126,33 @@
             </field>
         </record>
 
+
+        <!-- Search view of hotel restaurant reservation -->
+        <record model="ir.ui.view" id="view_hotel_restaurant_reservation_search">
+            <field name="name">hotel.restaurant.reservation.search</field>
+            <field name="model">hotel.restaurant.reservation</field>
+            <field name="arch" type="xml">
+                <search string="Restaurant Reservation">
+                    <group string='Filters'>
+                        <filter domain="[('state','=','draft')]" string="Draft"/>
+                        <filter domain="[('state','=','confirm')]" string="Confirm"/>
+                        <filter domain="[('state','=','cancel')]" string="Cancel"/>
+                        <filter domain="[('state','=','done')]" string="Done"/>
+                    </group>
+                    <field name="room_no" select="1"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name = "cname"/>
+                    <newline/>
+                    <group expand="0" string="Group By">
+                        <filter name="room_no" string="Room Number" icon="terp-personal" domain="[]" context="{'group_by':'room_no'}"/>
+                        <filter name="cname" string="Customer Name" domain="[]" context="{'group_by':'cname'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
         <!-- Action of hotel restaurant reservation -->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_reservation_form_tree">
             <field name="name">Table Reservation</field>
@@ -217,6 +244,21 @@
                 </tree>
             </field>
         </record>
+
+        <!-- Search view of hotel reservation order-->
+        <record model="ir.ui.view" id="view_hotel_reservation_order_search">
+            <field name="name">hotel.reservation.order.search</field>
+            <field name="model">hotel.reservation.order</field>
+            <field name="arch" type="xml">
+                <search string="Reservation Order">
+                    <group expand="0" string="Group By">
+                        <filter name="waitername" string="waiter name" icon="terp-personal" domain="[]" context="{'group_by':'waitername'}"/>
+                        <filter name="date1" string="date"  domain="[]" context="{'group_by':'date1'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
 
         <!-- Action of hotel reservation order-->
         <record model="ir.actions.act_window" id="open_view_hotel_reservation_order_form_tree">
@@ -312,6 +354,21 @@
             </field>
         </record>
 
+        <!-- Search view of hotel restaurant order-->
+        <record model="ir.ui.view" id="view_hotel_restaurant_order_search">
+            <field name="name">hotel.restaurant.order.search</field>
+            <field name="model">hotel.restaurant.order</field>
+            <field name="arch" type="xml">
+                <search string="Restaurant Order">
+                    <group expand="0" string="Group By">
+                        <filter name="waiter_name" string="waiter name" icon="terp-personal" domain="[]" context="{'group_by':'waiter_name'}"/>
+                        <filter name="o_date" string="date"  domain="[]" context="{'group_by':'o_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
         <!-- Action of hotel restaurant order-->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_order_form_tree">
             <field name="name">Order Generate</field>
@@ -388,6 +445,21 @@
                 </tree>
             </field>
         </record>
+
+        <!-- Search view of hotel restaurant kitchen order tickets-->
+        <record model="ir.ui.view" id="view_hotel_restaurant_kitchen_order_search">
+            <field name="name">hotel.restaurant.kitchen.order.tickets.search</field>
+            <field name="model">hotel.restaurant.kitchen.order.tickets</field>
+            <field name="arch" type="xml">
+                <search string="Restaurant kitchen Order">
+                    <group expand="0" string="Group By">
+                        <filter name="w_name" string="waiter name" icon="terp-personal" domain="[]" context="{'group_by':'w_name'}"/>
+                        <filter name="kot_date" string="date"  domain="[]" context="{'group_by':'kot_date'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
 
         <!-- Action of hotel restaurant kitchen order tickets-->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_kitchen_order_tickets_form_tree">
@@ -526,7 +598,7 @@
                     <field name="categ_id" select="1"/>
                     <field name="list_price" string="Item Rate"/>
                     <newline/>
-                    <group expand="0" string="Group By...">
+                    <group expand="0" string="Group By">
                         <filter name="categ_id" string="Category" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'categ_id'}" />
                     </group>
                 </search>

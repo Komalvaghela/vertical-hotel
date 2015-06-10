@@ -302,14 +302,12 @@ class hotel_room(models.Model):
         @param self: The object pointer
         @return: update status of hotel room reservation line
         """
-        print'schedular called'
         reservation_line_obj = self.env['hotel.room.reservation.line']
         now = datetime.datetime.now()
         curr_date = now.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
         for room in self.search([]):
             reservation_line_ids = [reservation_line.ids for reservation_line in room.room_reservation_line_ids]
             reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids),('check_in', '<=', curr_date), ('check_out', '>=', curr_date)])
-            print'reservation_line_ids-----------------',reservation_line_ids
             if reservation_line_ids.ids:
                 status = {'status': 'occupied'}
             else:
