@@ -352,10 +352,8 @@
                     <field name="list_price" string="Room rate"/>
                     <field name="state" string="Status"/>
                     <newline/>
-                    <filter string="Available" domain="[('state','=', 'unassigned')]" help="Available Rooms" />
-                    <group expand="0" string="Group By">
-                        <filter name="state" string="state" domain="[]" context="{'group_by':'state'}" />
-                    </group>
+                    <filter string="Available" domain="[('status','=', 'available')]" help="Available Rooms" />
+                    <filter string="Pack" domain="[('status','=', 'occupied')]" help="occupied Rooms" />
                 </search>
             </field>
         </record>

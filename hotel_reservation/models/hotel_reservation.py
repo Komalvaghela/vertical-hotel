@@ -315,4 +315,142 @@ class hotel_room(models.Model):
             room.write(status)
         return True
 
+class room_reservation_summary(models.Model):
+
+     _name = 'room.reservation.summary'
+     _description = 'Room reservation summary'
+
+     date_from = fields.Datetime('Date From')
+     date_to = fields.Datetime('Date To')
+     summary_header = fields.Text('Summary Header')
+     room_summary = fields.Text('Room Summary')
+
+     @api.multi
+     def room_reservation(self):
+         '''
+         @param self : object pointer
+         '''
+         mod_obj = self.env['ir.model.data']
+         if self._context is None:
+             self._context = {}
+         model_data_ids = mod_obj.search([('model', '=', 'ir.ui.view'), ('name', '=', 'view_hotel_reservation_form')])
+         summ_obj = mod_obj.browse(model_data_ids.ids)
+         resource_id = summ_obj.read(fields=['res_id'])[0]['res_id']
+         return {
+             'name': _('Reconcile Write-Off'),
+             'context': self._context,
+             'view_type': 'form',
+             'view_mode': 'form',
+             'res_model': 'hotel.reservation',
+             'views': [(resource_id, 'form')],
+             'type': 'ir.actions.act_window',
+             'target': 'new',
+         }
+
+
+     @api.onchange('date_from', 'date_to')
+     def get_room_summary(self):
+         '''
+         @param self : object pointer
+         '''
+         res = {}
+         all_detail = []
+         room_obj = self.env['hotel.room']
+         reservation_line_obj = self.env['hotel.room.reservation.line']
+         date_range_list = []
+         main_header = []
+         summary_header_list = ['Rooms']
+         if self.date_from and self.date_to:
+             if self.date_from > self.date_to:
+                 raise except_orm(_('User Error!'), _('Please Check Time period Date From can\'t be greater than Date To !'))
+             d_frm_obj = datetime.datetime.strptime(self.date_from, DEFAULT_SERVER_DATETIME_FORMAT)
+             d_to_obj = datetime.datetime.strptime(self.date_to, DEFAULT_SERVER_DATETIME_FORMAT)
+             temp_date = d_frm_obj
+             while(temp_date <= d_to_obj):
+                 val = ''
+                 val = str(temp_date.strftime("%a")) + ' ' + str(temp_date.strftime("%b")) + ' ' + str(temp_date.strftime("%d"))
+                 summary_header_list.append(val)
+                 date_range_list.append(temp_date.strftime(DEFAULT_SERVER_DATETIME_FORMAT))
+                 temp_date = temp_date + datetime.timedelta(days=1)
+             all_detail.append(summary_header_list)
+             room_ids = room_obj.search([])
+             all_room_detail = []
+             for room in room_ids:
+                 room_detail = {}
+                 room_list_stats = []
+                 room_detail.update({'name':room.name or ''})
+                 if not room.room_reservation_line_ids.ids:
+                     for chk_date in date_range_list:
+                         room_list_stats.append({'state':'Free', 'date':chk_date})
+                 else:
+                     for chk_date in date_range_list:
+                         for room_res_line in room.room_reservation_line_ids:
+                             reservation_line_ids = [i.ids for i in room.room_reservation_line_ids]
+                             reservation_line_ids = reservation_line_obj.search([('id', 'in', reservation_line_ids), ('check_in', '<=', chk_date), ('check_out', '>=', chk_date)])
+                             if reservation_line_ids:
+                                 room_list_stats.append({'state':'Reserved', 'date':chk_date, 'room_id':room.id})
+                                 break
+                             else:
+                                 room_list_stats.append({'state':'Free', 'date':chk_date, 'room_id':room.id})
+                                 break
+                 room_detail.update({'value':room_list_stats})
+                 all_room_detail.append(room_detail)
+             main_header.append({'header':summary_header_list})
+             self.summary_header = str(main_header)
+             self.room_summary = str(all_room_detail)
+         return res
+ 
+class quick_room_reservation(models.TransientModel):
+     _name = 'quick.room.reservation'
+     _description = 'Quick Room Reservation'
+
+     partner_id = fields.Many2one('res.partner', string="Customer", required=True)
+     check_in = fields.Datetime('Check In', required=True)
+     check_out = fields.Datetime('Check Out', required=True)
+     room_id = fields.Many2one('hotel.room', 'Room', required=True)
+     warehouse_id = fields.Many2one('stock.warehouse', 'Hotel', required=True)
+     pricelist_id = fields.Many2one('product.pricelist', 'pricelist', required=True)
+
+     @api.model
+     def default_get(self, fields):
+         """ 
+         To get default values for the object.
+         @param self: The object pointer.
+         @param fields: List of fields for which we want default values 
+         @return: A dictionary which of fields with values. 
+         """ 
+         if self._context is None:
+             self._context = {}
+         res = super(quick_room_reservation, self).default_get(fields)
+         if self._context:
+             keys = self._context.keys()
+             if 'date' in keys:
+                 res.update({'check_in': self._context['date']})
+             if 'room_id' in keys:
+                 roomid = self._context['room_id']
+                 res.update({'room_id': int(roomid)})
+         return res
+
+     @api.multi
+     def room_reserve(self):
+         """
+         This method create a new record for hotel.reservation
+         -----------------------------------------------------
+         @param self: The object pointer
+         @return: new record set for hotel reservation.
+         """
+         hotel_res_obj = self.env['hotel.reservation']
+         for room_resv in self:
+             hotel_res_obj.create({
+                          'partner_id':room_resv.partner_id.id,
+                          'checkin':room_resv.check_in,
+                          'checkout':room_resv.check_out,
+                          'warehouse_id':room_resv.warehouse_id.id,
+                          'pricelist_id':room_resv.pricelist_id.id,
+                          'reservation_line':[(0, 0, {
+                          'reserve': [(6, 0, [room_resv.room_id.id])],
+                          'name':room_resv.room_id and room_resv.room_id.name or ''})]
+                         })
+         return True
+
 ## vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

@@ -588,23 +588,6 @@
             </field>
         </record>
 
-	    <!-- Search view of hotel menucard-->
-		<record model="ir.ui.view" id="view_hotel_menucard_search">
-            <field name="name">hotel.menucard.search</field>
-            <field name="model">hotel.menucard</field>
-            <field name="arch" type="xml">
-                <search string="Hotel Menucard" >
-                    <field name="name" />
-                    <field name="categ_id" select="1"/>
-                    <field name="list_price" string="Item Rate"/>
-                    <newline/>
-                    <group expand="0" string="Group By">
-                        <filter name="categ_id" string="Category" icon="terp-stock_symbol-selection" domain="[]" context="{'group_by':'categ_id'}" />
-                    </group>
-                </search>
-            </field>
-        </record> 
-
         <!-- Search view of hotel menucard-->
 		<record id="view_hotel_menucard_search_new" model="ir.ui.view">
             <field name="name">hotel.menucard.search</field>

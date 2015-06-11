@@ -1,6 +1,11 @@
 ============================================================================================================================
  Version Change Log (hotel_reservation)
 ============================================================================================================================
+0.09 on 2015-06-11 by Malay Khamar
+    *Added room.reservation.summary model.
+    *Added quick.room.reservation TransientModel.
+    *Added view for both Models.
+
 0.08 on 2015-06-03 by Malay Khamar
     * Standardized the code as per v8.
 
