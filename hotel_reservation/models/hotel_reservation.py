@@ -72,7 +72,7 @@ class hotel_reservation(models.Model):
                 raise except_orm(_('Warning'),_('Checkin date should be greater than the current date.'))
 
 
-    @api.onchange('checkout')
+    @api.onchange('checkout','checkin')
     def on_change_checkout(self):
       '''
       When you change checkout or checkin it will check whether 
@@ -87,8 +87,9 @@ class hotel_reservation(models.Model):
       res = {}
       if not (checkout_date and checkin_date):
             return {'value':{}}
-      if self.checkout < self.checkin:
-                raise except_orm(_('Warning'),_('Checkout date should be greater than Checkin date.'))
+      if self.checkout and self.checkin:
+          if self.checkout < self.checkin:
+                    raise except_orm(_('Warning'),_('Checkout date should be greater than Checkin date.'))
       delta = datetime.timedelta(days=1)
       addDays = datetime.datetime(*time.strptime(checkout_date, '%Y-%m-%d %H:%M:%S')[:5]) + delta
       self.dummy = addDays.strftime('%Y-%m-%d %H:%M:%S')
@@ -247,7 +248,7 @@ class hotel_reservation_line(models.Model):
     reserve = fields.Many2many('hotel.room','hotel_reservation_line_room_rel','room_id','hotel_reservation_line_id', domain="[('isroom','=',True),('categ_id','=',categ_id)]")
     categ_id =  fields.Many2one('product.category','Room Type' ,domain="[('isroomtype','=',True)]", change_default=True)
 
-    @api.onchange('categ_id','checkin', 'checkout')
+    @api.onchange('categ_id')
     def on_change_categ(self):
         '''
         When you change categ_id it check checkin and checkout are filled or not 
@@ -334,8 +335,7 @@ class room_reservation_summary(models.Model):
          if self._context is None:
              self._context = {}
          model_data_ids = mod_obj.search([('model', '=', 'ir.ui.view'), ('name', '=', 'view_hotel_reservation_form')])
-         summ_obj = mod_obj.browse(model_data_ids.ids)
-         resource_id = summ_obj.read(fields=['res_id'])[0]['res_id']
+         resource_id = model_data_ids.read(fields=['res_id'])[0]['res_id']
          return {
              'name': _('Reconcile Write-Off'),
              'context': self._context,
@@ -379,7 +379,7 @@ class room_reservation_summary(models.Model):
                  room_detail = {}
                  room_list_stats = []
                  room_detail.update({'name':room.name or ''})
-                 if not room.room_reservation_line_ids.ids:
+                 if not room.room_reservation_line_ids:
                      for chk_date in date_range_list:
                          room_list_stats.append({'state':'Free', 'date':chk_date})
                  else:
@@ -410,6 +410,43 @@ class quick_room_reservation(models.TransientModel):
      room_id = fields.Many2one('hotel.room', 'Room', required=True)
      warehouse_id = fields.Many2one('stock.warehouse', 'Hotel', required=True)
      pricelist_id = fields.Many2one('product.pricelist', 'pricelist', required=True)
+     partner_invoice_id = fields.Many2one('res.partner','Invoice Address' ,required=True)
+     partner_order_id = fields.Many2one('res.partner','Ordering Contact', required=True)
+     partner_shipping_id = fields.Many2one('res.partner','Delivery Address' ,required=True)
+
+     @api.onchange('check_out','check_in')
+     def on_change_check_out(self):
+          '''
+          When you change checkout or checkin it will check whether 
+          Checkout date should be greater than Checkin date 
+          and update dummy field
+          -------------------------------------------------------------
+          @param self : object pointer
+          @return : raise warning depending on the validation
+          '''
+          if self.check_out and self.check_in:
+              if self.check_out < self.check_in:
+                  raise except_orm(_('Warning'),_('Checkout date should be greater than Checkin date.'))
+
+
+     @api.onchange('partner_id')
+     def onchange_partner_id_res(self):
+        '''
+        When you change partner_id it will update the partner_invoice_id,
+        partner_shipping_id and pricelist_id of the hotel reservation as well
+        ----------------------------------------------------------------------
+        @param self : object pointer
+        '''
+        if not self.partner_id:
+            self.partner_invoice_id = False
+            self.partner_shipping_id=False 
+            self.partner_order_id=False
+        else:
+            addr = self.partner_id.address_get(['delivery', 'invoice', 'contact'])
+            self.partner_invoice_id = addr['invoice']
+            self.partner_order_id = addr['contact'] 
+            self.partner_shipping_id = addr['delivery']
+            self.pricelist_id=self.partner_id.property_product_pricelist.id
 
      @api.model
      def default_get(self, fields):
@@ -443,6 +480,9 @@ class quick_room_reservation(models.TransientModel):
          for room_resv in self:
              hotel_res_obj.create({
                           'partner_id':room_resv.partner_id.id,
+                          'partner_invoice_id':room_resv.partner_invoice_id.id,
+                          'partner_order_id':room_resv.partner_order_id.id,
+                          'partner_shipping_id':room_resv.partner_shipping_id.id,
                           'checkin':room_resv.check_in,
                           'checkout':room_resv.check_out,
                           'warehouse_id':room_resv.warehouse_id.id,

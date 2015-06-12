@@ -22,8 +22,8 @@
     <!-- hotel_room_amenities_type  -->
 
         <record id="hotel_room_amenities_type_0" model="hotel.room.amenities.type">
-            <field name="parent_id"/>
             <field name="name">All Aminities</field>
+            <field name="parent_id"/>
         </record>
 
         <record id="hotel_room_amenities_type_1" model="hotel.room.amenities.type">
@@ -46,8 +46,8 @@
     <!-- hotel_room_type    -->
 
         <record id="hotel_room_type_0" model="hotel.room.type">
-            <field name="parent_id"/>
             <field name="name">All Rooms</field>
+            <field name="parent_id"/>
         </record>
 
         <record id="hotel_room_type_1" model="hotel.room.type">
@@ -67,8 +67,8 @@
         <!-- hotel_service_type -->
 
         <record id="hotel_service_type_0" model="hotel.service.type">
-            <field name="parent_id"/>
             <field name="name">All Services</field>
+            <field name="parent_id"/>
         </record>
         <record id="hotel_service_type_1" model="hotel.service.type">
             <field name="parent_id" ref="hotel_service_type_0"/>
@@ -81,12 +81,13 @@
 
     <!-- hotel_room -->
 
+<!--
         <record id="hotel_room_61" model="hotel.room">
             <field name="name">No Room Available</field>
             <field name="categ_id" ref="hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
         </record>
-
+-->
         <record id="hotel_room_0" model="hotel.room">
             <field name="name">Single-101</field>
             <field name="categ_id"  ref="hotel_room_type_1"/> 
@@ -123,12 +124,13 @@
             <field name="list_price">200.00</field>
         </record>
 
+<!--
         <record id="hotel_room_6" model="hotel.room">
             <field name="name">No Room Record</field>
             <field name="categ_id" ref="hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
         </record>
-
+-->
             <!-- hotel_services --> 
 
         <record id="hotel_service_6" model="hotel.services">
