@@ -118,7 +118,7 @@
            <field name="name">Chole-Bhature</field>
            <field name="categ_id" ref="hotel_menucard_type_3"/> 
            <field name="list_price">60.00</field>
-           <field name="image" type="base64" file="hotel_restaurant/static/img/chole_bhature.jpg"/>
+           <field name="image" type="base64" file="hotel_restaurant/static/img/chole.png"/>
         </record>
 
         <record id="hotel_fooditem_12" model="hotel.menucard">
@@ -176,7 +176,7 @@
             <field name="name">Appam </field>
             <field name="categ_id" ref="hotel_menucard_type_2"/> 
             <field name="list_price">60.00</field>
-            <field name="image" type="base64" file="hotel_restaurant/static/img/appam.jpg"/>
+            <field name="image" type="base64" file="hotel_restaurant/static/img/appam1.jpg"/>
         </record>
 
         <record id="hotel_fooditem_20" model="hotel.menucard">
