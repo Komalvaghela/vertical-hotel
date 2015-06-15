@@ -48,9 +48,6 @@
         "views/room_summ_view.xml",
         "views/hotel_reservation_data.xml",
     ],
-    "demo": [
-       #  'views/hotel_reservation_data.xml',
-    ],
     'js': ["static/src/js/hotel_room_summary.js", ],
     'qweb': ['static/src/xml/hotel_room_summary.xml'],
     'css': ["static/src/css/room_summary.css"],
