@@ -26,6 +26,20 @@
 			</field>
 		</record>
 
+        <!-- Search view of report hotel restaurant status  -->
+        <record model="ir.ui.view" id="report_hotel_restaurant_status_search">
+            <field name="name">report.hotel.restaurant.status.search</field>
+            <field name="model">report.hotel.restaurant.status</field>
+            <field name="arch" type="xml">
+                <search string="Hotel Restaurant Status" >
+                    <filter string="Draft" domain="[('state','=', 'draft')]" help="Rooms in draft state" />
+                    <filter string="Confirm" domain="[('state','=', 'confirm')]" help="Rooms in confirm state" />
+                    <filter string="done" domain="[('state','=', 'done')]" help="Rooms in done state" />
+                </search>
+            </field>
+        </record>
+
+
         <!-- Graph view of report hotel restaurant status-->
 		<record model="ir.ui.view" id="view_hotel_restaurant_status_graph">
 			<field name="name">report.hotel.restaurant.status.graph</field>
@@ -43,7 +57,7 @@
 			<field name="name">report.hotel.restaurant.status.graph</field>
 			<field name="model">report.hotel.restaurant.status</field>
 			<field name="arch" type="xml">
-				<graph string="States By restaurant" type="bar" orientation="verticle">
+				<graph string="States By Restaurant" type="bar" orientation="verticle">
 					<field name="state" />
 					<field name="nbr" operator="+" />
 				</graph>
@@ -70,7 +84,7 @@
 
 		<menuitem name="States By Restaurant"
 			action="action_report_hotel_restaurant_status_tree_graph_bar" id="menu_hotel_restaurant_status_tree_graph_bar"
-			sequence="33" parent="report_hotel_reservation.menu_hotel_reservation_this_month" />
+			sequence="33" parent="board_frontdesk.menu_hotel_reporting" />
 
 	</data>
 </openerp>

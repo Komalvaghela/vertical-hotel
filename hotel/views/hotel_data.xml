@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data noupdate="1">
-
+    
     <!-- Floor  -->
+    
         <record id="hotel_floor_ground0" model="hotel.floor">
             <field eval="&quot;Ground&quot;" name="name"/>
         </record>
@@ -18,133 +19,159 @@
             <field eval="&quot;Third&quot;" name="name"/>
             <field eval="3" name="sequence"/>
         </record>
-
+        
     <!-- hotel_room_amenities_type  -->
-
+        
         <record id="hotel_room_amenities_type_0" model="hotel.room.amenities.type">
             <field name="name">All Aminities</field>
-            <field name="parent_id"/>
+            <field name="isamenitytype">1</field>
         </record>
-
+        
         <record id="hotel_room_amenities_type_1" model="hotel.room.amenities.type">
             <field name="parent_id" ref="hotel_room_amenities_type_0"/>
+            <field name="isamenitytype">1</field>
             <field name="name">Beds</field>
         </record>
         <record id="hotel_room_amenities_type_2" model="hotel.room.amenities.type">
             <field name="parent_id" ref="hotel_room_amenities_type_0"/>
+            <field name="isamenitytype">1</field>
             <field name="name">Tables</field>
         </record>
         <record id="hotel_room_amenities_type_3" model="hotel.room.amenities.type">
             <field name="parent_id" ref="hotel_room_amenities_type_1"/>
+            <field name="isamenitytype">1</field>
             <field name="name">Single Bed</field>
         </record>
         <record id="hotel_room_amenities_type_4" model="hotel.room.amenities.type">
             <field name="parent_id" ref="hotel_room_amenities_type_1"/>
+            <field name="isamenitytype">1</field>
             <field name="name">Double Bed</field>
         </record>
-
+        
     <!-- hotel_room_type    -->
-
-        <record id="hotel_room_type_0" model="hotel.room.type">
-            <field name="name">All Rooms</field>
-            <field name="parent_id"/>
+         
+        <record id="rooms" model="hotel.room.type">
+            <field name="name">Rooms</field>
+            <field name="isroomtype">1</field>
         </record>
-
+        
         <record id="hotel_room_type_1" model="hotel.room.type">
-            <field name="parent_id" ref="hotel_room_type_0"/>
+            <field name="parent_id" ref="rooms"/>
             <field name="name">Single</field>
+            <field name="isroomtype">1</field>
         </record>
-
+        
         <record id="hotel_room_type_2" model="hotel.room.type">
-            <field name="parent_id" ref="hotel_room_type_0"/>
+            <field name="parent_id" ref="rooms"/>
             <field name="name">Double</field>
+            <field name="isroomtype">1</field>
         </record>
         <record id="hotel_room_type_3" model="hotel.room.type">
-             <field name="parent_id" ref="hotel_room_type_0"/>
+             <field name="parent_id" ref="rooms"/>
              <field name="name">No Room</field>
+             <field name="isroomtype">1</field>
         </record>
+        
 
         <!-- hotel_service_type -->
-
+        
         <record id="hotel_service_type_0" model="hotel.service.type">
+            <field name="isservicetype">1</field>
             <field name="name">All Services</field>
-            <field name="parent_id"/>
         </record>
         <record id="hotel_service_type_1" model="hotel.service.type">
             <field name="parent_id" ref="hotel_service_type_0"/>
+            <field name="isservicetype">1</field>
             <field name="name">Fixed</field>
         </record>
         <record id="hotel_service_type_2" model="hotel.service.type">
             <field name="parent_id" ref="hotel_service_type_0"/>
+            <field name="isservicetype">1</field>
             <field name="name">Variable</field>
         </record>
-
+            
     <!-- hotel_room -->
-
-        <record id="hotel_room_61" model="hotel.room">
+    
+        <record id="hotel_room_6" model="hotel.room">
             <field name="name">No Room Available</field>
-            <field name="categ_id" ref="hotel_room_type_3"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id" ref="hotel.hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
         </record>
+  
         <record id="hotel_room_0" model="hotel.room">
             <field name="name">Single-101</field>
-            <field name="categ_id"  ref="hotel_room_type_1"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
         </record>
-
+        
         <record id="hotel_room_1" model="hotel.room">
             <field name="name">Single-102</field>
-            <field name="categ_id"  ref="hotel_room_type_1"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
         </record>
-
+        
         <record id="hotel_room_2" model="hotel.room">
             <field name="name">Single-103</field>
-            <field name="categ_id"  ref="hotel_room_type_1"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
         </record>
-
+  
         <record id="hotel_room_3" model="hotel.room">
             <field name="name">Double-201</field>
-            <field name="categ_id" ref="hotel_room_type_2"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
         </record>
-
+        
         <record id="hotel_room_4" model="hotel.room">
             <field name="name">Double-202</field>
-            <field name="categ_id" ref="hotel_room_type_2"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
         </record>
-
+        
         <record id="hotel_room_5" model="hotel.room">
             <field name="name">Double-203</field>
-            <field name="categ_id" ref="hotel_room_type_2"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
         </record>
-
-        <record id="hotel_room_6" model="hotel.room">
+        
+        <record id="hotel_room_61" model="hotel.room">
             <field name="name">No Room Record</field>
-            <field name="categ_id" ref="hotel_room_type_3"/> 
+            <field name="isroomtype">1</field>
+            <field name="categ_id" ref="hotel.hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
         </record>
+
             <!-- hotel_services --> 
 
+    
         <record id="hotel_service_6" model="hotel.services">
             <field name="name">Internet</field>
+            <field name="isservicetype">1</field>
             <field name="categ_id" ref="hotel_service_type_1"/> 
             <field name="list_price">200.00</field>
         </record>
-
+        
         <record id="hotel_service_0" model="hotel.services">
             <field name="name">Taxi</field>
+            <field name="isservicetype">1</field>
             <field name="categ_id" ref="hotel_service_type_2"/> 
             <field name="list_price">500.00</field>
         </record>
-
+        
         <record id="hotel_service_1" model="hotel.services">
             <field name="name">Laundry</field>
+            <field name="isservicetype">1</field>
             <field name="categ_id" ref="hotel_service_type_1"/> 
             <field name="list_price">150.00</field>
         </record>
+        
+    
     </data>
 </openerp>

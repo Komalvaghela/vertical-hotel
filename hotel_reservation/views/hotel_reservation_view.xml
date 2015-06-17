@@ -30,9 +30,9 @@
                             <group colspan="4" col="4">
                                 <field name="partner_id" select="1" domain="[('customer','=',True)]"/>
                                 <field name="pricelist_id" col="2"/>
-                                <field name="partner_order_id" domain="[('parent_id','=',partner_id)]"/>
+                                <field name="partner_order_id" domain="[('parent_id','=',partner_id)]"/><newline/>
                                 <field name="partner_invoice_id" domain="[('parent_id','=',partner_id)]"/>
-                                <field name="partner_shipping_id" domain="[('parent_id','=',partner_id)]"/>
+                                <field name="partner_shipping_id" domain="[('parent_id','=',partner_id)]" invisible="True"/>
                             </group>
                             <group colspan="4" col="4">
                                 <field name="checkin"/>

@@ -80,6 +80,7 @@
                    <group>
                     <field name="name" select="1"/>
                     <field name="parent_id" domain="[('isroomtype','=',True)]" select="1"/>
+                    <field name = "isroomtype"/>
                    </group>
                   </sheet>
                 </form>
@@ -125,6 +126,7 @@
                    <group>
                     <field name="name" string="Amenity Type"/>
                     <field name="parent_id" domain="[('isamenitytype','=',True)]"/>
+                    <field name = "isamenitytype"/>
                    </group>
                   </sheet>
                 </form>
@@ -290,7 +292,7 @@
 			        <h1>
 			            <field name="name" select="1"/>
 			        </h1>
-			        <label for="status" string="Status" />
+			        <label for="status" string="Status"/>
 			        <h2>
 			            <field name="status" />
 			        </h2>
@@ -353,7 +355,7 @@
                     <field name="state" string="Status"/>
                     <newline/>
                     <filter string="Available" domain="[('status','=', 'available')]" help="Available Rooms" />
-                    <filter string="Pack" domain="[('status','=', 'occupied')]" help="occupied Rooms" />
+                    <filter string="Reserved" domain="[('status','=', 'occupied')]" help="Reserved Rooms" />
                 </search>
             </field>
         </record>
@@ -684,6 +686,7 @@
                    <group>
                     <field name="name" select="1" string="Service Name"/>
                     <field name="parent_id" domain="[('isservicetype','=',True)]" select="1"/>
+                    <field name = "isservicetype"/>
                    </group>
                   </sheet>
                 </form>
