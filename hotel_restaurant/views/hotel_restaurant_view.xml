@@ -452,14 +452,17 @@
             <field name="model">hotel.restaurant.kitchen.order.tickets</field>
             <field name="arch" type="xml">
                 <search string="Restaurant kitchen Order">
+                    <group string='Filters'>
+                        <filter icon="terp-check" domain="[('kot_date','&gt;=',datetime.datetime.today().replace(hour=0, minute=0, second=0)),('kot_date','&lt;=',datetime.datetime.today().replace(hour=23, minute=59, second=59))]" string="Today's Orders"/>
+                        <filter icon="terp-check" domain="[('kot_date','&gt;=',datetime.datetime.today().replace(hour=0, minute=0, second=0))]" string="Upcoming Order's"/>
+                    </group>
                     <group expand="0" string="Group By">
-                        <filter name="w_name" string="waiter name" icon="terp-personal" domain="[]" context="{'group_by':'w_name'}"/>
-                        <filter name="kot_date" string="date"  domain="[]" context="{'group_by':'kot_date'}"/>
+                        <filter name="w_name" string="Waiter Name" icon="terp-personal" domain="[]" context="{'group_by':'w_name'}"/>
+                        <filter name="kot_date" string="Date"  domain="[]" context="{'group_by':'kot_date'}"/>
                     </group>
                 </search>
             </field>
         </record>
-
 
         <!-- Action of hotel restaurant kitchen order tickets-->
         <record model="ir.actions.act_window" id="open_view_hotel_restaurant_kitchen_order_tickets_form_tree">

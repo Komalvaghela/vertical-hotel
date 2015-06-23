@@ -25,7 +25,7 @@
     "category":"Board/Hotel FrontDesk",
     "depends":[
         "board",
-        "report_hotel_reservation",
+        "report_hotel_restaurant"
         ],
     "demo_xml":[],
     "update_xml":[

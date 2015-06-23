@@ -84,7 +84,7 @@ class hotel_room(models.Model):
     max_child = fields.Integer('Max Child')
     room_amenities = fields.Many2many('hotel.room.amenities','temp_tab','room_amenities','rcateg_id',string='Room Amenities',help='List of room amenities. ')
     status = fields.Selection([('available', 'Available'), ('occupied', 'Occupied')], 'Status',default='available')
-
+    capacity = fields.Integer('Capacity')
     @api.multi
     def set_room_status_occupied(self):
         return self.write({'status': 'occupied'})
@@ -147,22 +147,19 @@ class hotel_folio(models.Model):
         if self.checkin_date >= self.checkout_date:
                 raise except_orm(_('Warning'),_('Check in Date Should be less than the Check Out Date!'))
 
-
     @api.constrains('room_lines')
-    def check_room_lines(self):
+    def check_folio_room_line(self):
         '''
         This method is used to validate the room_lines.
         ------------------------------------------------
         @param self : object pointer
-        @return : True/False depending on the validation
+        @return : raise warning depending on the validation
         '''
-        rooms = []
+        folio_rooms = []
         for room in self[0].room_lines:
-            if room.product_id in rooms:
-                return False
-            rooms.append(room.product_id)
-        return True
-
+            if room.product_id.id in folio_rooms:
+                raise except_orm(_('Warning'),_('You Cannot Take Same Room Twice'))
+            folio_rooms.append(room.product_id.id)
 
     @api.onchange('checkout_date','checkin_date')
     def onchange_dates(self):

@@ -97,6 +97,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id" ref="hotel.hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
+            <field name="capacity">0</field>
         </record>
   
         <record id="hotel_room_0" model="hotel.room">
@@ -104,6 +105,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
+            <field name="capacity">2</field>
         </record>
         
         <record id="hotel_room_1" model="hotel.room">
@@ -111,6 +113,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
+            <field name="capacity">2</field>
         </record>
         
         <record id="hotel_room_2" model="hotel.room">
@@ -118,6 +121,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id"  ref="hotel.hotel_room_type_1"/> 
             <field name="list_price">100.00</field>
+            <field name="capacity">2</field>
         </record>
   
         <record id="hotel_room_3" model="hotel.room">
@@ -125,6 +129,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
+            <field name="capacity">5</field>
         </record>
         
         <record id="hotel_room_4" model="hotel.room">
@@ -132,6 +137,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
+            <field name="capacity">5</field>
         </record>
         
         <record id="hotel_room_5" model="hotel.room">
@@ -139,6 +145,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id" ref="hotel.hotel_room_type_2"/> 
             <field name="list_price">200.00</field>
+            <field name="capacity">5</field>
         </record>
         
         <record id="hotel_room_61" model="hotel.room">
@@ -146,6 +153,7 @@
             <field name="isroomtype">1</field>
             <field name="categ_id" ref="hotel.hotel_room_type_3"/> 
             <field name="list_price">0.00</field>
+            <field name="capacity">0</field>
         </record>
 
             <!-- hotel_services --> 

@@ -369,6 +369,6 @@ class hotel_restaurant_order_list(models.Model):
     name = fields.Many2one('hotel.menucard','Item Name',required=True)
     item_qty = fields.Char('Qty', size=64, required=True)
     item_rate = fields.Float('Rate', size=64)
-    price_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal1')
+    price_subtotal = fields.Float(compute='_sub_total', method=True, string='Subtotal')
 
 ## vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

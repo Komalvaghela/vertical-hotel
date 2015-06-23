@@ -54,7 +54,7 @@
                                         <field name="reserve" colspan="4" string="Room Number" nolabel="1" />
                                     </form>
                                     <tree string="Reservation Line">
-                                        <field name="reserve" colspan="4" string="Rooms"/>
+                                        <field name="reserve" string="Rooms"/>
                                     </tree>
                                 </field>
                             </page>
@@ -125,7 +125,7 @@
             <field name="model">hotel.reservation</field>
             <field name="priority" eval="2"/>
             <field name="arch" type="xml">
-                <calendar string="Current Reservation" date_start="checkin" date_stop= "dummy" color="state" >
+                <calendar string="Current Reservation" date_start="checkin" date_stop= "dummy" color="partner_id" >
                     <field name="partner_id"/>
                 </calendar>
             </field>

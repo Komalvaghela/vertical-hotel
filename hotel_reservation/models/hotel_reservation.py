@@ -21,6 +21,7 @@
 ##############################################################################
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.exceptions import except_orm, Warning
+from dateutil.relativedelta import relativedelta
 from openerp import models,fields,api,_
 import datetime
 import time
@@ -325,6 +326,29 @@ class room_reservation_summary(models.Model):
      date_to = fields.Datetime('Date To')
      summary_header = fields.Text('Summary Header')
      room_summary = fields.Text('Room Summary')
+
+
+     @api.model
+     def default_get(self, fields):
+        """ 
+        To get default values for the object.
+        @param self: The object pointer.
+        @param fields: List of fields for which we want default values 
+        @return: A dictionary which of fields with values. 
+        """
+        if self._context is None:
+             self._context = {}
+        res = super(room_reservation_summary, self).default_get(fields)
+        if self.date_from == False and self.date_to == False:
+            date_today = datetime.datetime.today()
+            first_day = datetime.datetime(date_today.year, date_today.month, 1, 0, 0, 0)
+            first_temp_day = first_day + relativedelta(months = 1)
+            last_temp_day = first_temp_day - relativedelta(days=1)
+            last_day = datetime.datetime(last_temp_day.year, last_temp_day.month, last_temp_day.day, 23, 59, 59)
+            date_froms = first_day.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+            date_ends = last_day.strftime(DEFAULT_SERVER_DATETIME_FORMAT)
+            res.update({'date_from': date_froms , 'date_to':date_ends})
+        return res
 
      @api.multi
      def room_reservation(self):

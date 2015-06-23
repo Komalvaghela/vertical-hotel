@@ -303,6 +303,7 @@
                             <field name="floor_id" string = "Floor" />
                             <field name="categ_id" select="1" domain="[('isroomtype','=',True)]"/>
                             <field name="product_manager" select="2" string="Room Manager"/>
+                            <field name="capacity"/>
                             <field name="uom_id" invisible="1"/>
                           </group>
                             <newline/>
@@ -370,6 +371,7 @@
 					<field name="categ_id" select="1"/>
 					<field name="list_price" string="Room rate"/>
 					<field name="status"/>
+					<field name="capacity"/>
 				</tree>
 			</field>
 		</record>
