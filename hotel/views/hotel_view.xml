@@ -80,7 +80,7 @@
                    <group>
                     <field name="name" select="1"/>
                     <field name="parent_id" domain="[('isroomtype','=',True)]" select="1"/>
-                    <field name = "isroomtype"/>
+                    <field name = "isroomtype" invisible="1"/>
                    </group>
                   </sheet>
                 </form>
@@ -126,7 +126,7 @@
                    <group>
                     <field name="name" string="Amenity Type"/>
                     <field name="parent_id" domain="[('isamenitytype','=',True)]"/>
-                    <field name = "isamenitytype"/>
+                    <field name = "isamenitytype" invisible="1"/>
                    </group>
                   </sheet>
                 </form>
@@ -252,8 +252,7 @@
                 <tree string="Hotel Room Amenities">
                     <field name="name" />
                     <field name="categ_id" select="1"/>
-                    <field name="list_price" string="ty rate"/>
-                    
+                    <field name="list_price" string="Ty rate" invisible="1"/>
                 </tree>
             </field>
         </record>
@@ -655,11 +654,24 @@
             <field name="arch" type="xml">
                 <search string="Tables Detail">
                     <group expand="0" string="Group By">
+                        <filter string="Order Month" domain="[]" context="{'group_by':'date_order'}"/>
                         <filter name="partner_id" string="Customer" icon="terp-stock_symbol-selection" context="{'group_by':'partner_id'}" />
                     </group>
                 </search>
             </field>
         </record>
+
+    <!--graph view-->
+    <record id="view_hotel_folio_graph" model="ir.ui.view">
+        <field name="name">view.hotel.folio.graph</field>
+        <field name="model">hotel.folio</field>
+        <field name="arch" type="xml">
+            <graph type="bar">
+                <field name="date_order" type="row"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>       
 
 
         <!-- Action for hotel folio  -->
@@ -667,7 +679,7 @@
             <field name="name">Hotel Folio</field>
             <field name="res_model">hotel.folio</field>
             <field name="view_type">form</field>
-            <field name="view_mode">tree,form,calendar</field>
+            <field name="view_mode">tree,form,calendar,graph</field>
         </record>
 
         <menuitem  id="menu_all_folio" name="Folio" parent="hotel.hotel_management_menu" sequence="4"/>
@@ -688,7 +700,7 @@
                    <group>
                     <field name="name" select="1" string="Service Name"/>
                     <field name="parent_id" domain="[('isservicetype','=',True)]" select="1"/>
-                    <field name = "isservicetype"/>
+                    <field name = "isservicetype" invisible="1"/>
                    </group>
                   </sheet>
                 </form>

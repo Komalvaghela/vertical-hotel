@@ -28,7 +28,7 @@
         "report_hotel_restaurant"
         ],
     "demo_xml":[],
-    "update_xml":[
+    "data":[
         "views/board_frontdesk_view.xml"
     ],
     "description": """

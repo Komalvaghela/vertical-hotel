@@ -42,7 +42,7 @@ class hotel_activity(models.Model):
 
     _name = 'hotel.activity'
     _description = 'Housekeeping Activity'
-    _inherits = {'product.product': 'h_id'}
+#    _inherits = {'product.product': 'h_id'}
 
     h_id = fields.Many2one('product.product','Product',required=True, delegate=True, ondelete='cascade')
 

@@ -62,7 +62,7 @@
                             <tree string="Activity Lines" editable="buttom">
                                 <field name="activity_name" />
                                 <field name="housekeeper" />
-                                <field name="room_id" readonly="1"/>
+                                <field name="room_id"/>
                                 <field name="today_date" />
                                 <field name="clean_start_time" />
                                 <field name="clean_end_time" />
@@ -144,6 +144,7 @@
                         <group>
                             <field name="name" select="1" string="Activity Name"/>
                             <field name="parent_id" domain="[('isactivitytype','=',True)]" />
+                            <field name="isactivitytype" invisible="1"/>
                         </group>
                     </sheet>
                 </form>

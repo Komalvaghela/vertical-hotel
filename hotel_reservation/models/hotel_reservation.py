@@ -40,6 +40,7 @@ class hotel_reservation(models.Model):
     _rec_name = "reservation_no"
     _description = "Reservation"
     _order = 'reservation_no desc'
+    _inherit = ['mail.thread']
 
     reservation_no = fields.Char('Reservation No', size=64,readonly=True, default=lambda obj: obj.env['ir.sequence'].get('hotel.reservation'))
     date_order = fields.Datetime('Date Ordered', required=True, readonly=True, states={'draft':[('readonly', False)]},default=lambda *a: time.strftime('%Y-%m-%d %H:%M:%S'))
@@ -155,7 +156,57 @@ class hotel_reservation(models.Model):
                             'reservation_id': reservation.id,
                         }
                         reservation_line_obj.create(vals)
+        reservation.send_my_maill()
         return True
+
+    @api.multi
+    def send_my_maill(self):
+        """Generates a new mail message for the Reservation template and schedules it,
+           for delivery through the ``mail`` module's scheduler.
+           @param self: The object pointer
+        """
+        template_id = self.env['email.template'].search([('name','=','Reservation-Send by Email')])
+        for user in self:
+            if not user.partner_id.email:
+                raise except_orm(("Cannot send email: user has no email address."), user.partner_id.name)
+            myobj = self.env['email.template'].browse(template_id.id)
+            myobj.send_mail(user.id, force_send=True, raise_exception=True)
+        return True 
+
+    @api.multi
+    def action_for_hotel(self):
+        '''
+        This function opens a window to compose an email, with the edi sale template message loaded by default
+        '''
+        assert len(self._ids) == 1, 'This option should only be used for a single id at a time.'
+        ir_model_data = self.env['ir.model.data']
+        try:
+            template_id = ir_model_data.get_object_reference('hotel_reservation', 'email_template_hotel_reservation')[1]
+        except ValueError:
+            template_id = False
+        try:
+            compose_form_id = ir_model_data.get_object_reference('mail', 'email_compose_message_wizard_form')[1]
+        except ValueError:
+            compose_form_id = False 
+        ctx = dict()
+        ctx.update({
+            'default_model': 'hotel.reservation',
+            'default_res_id': self._ids[0],
+            'default_use_template': bool(template_id),
+            'default_template_id': template_id,
+            'default_composition_mode': 'comment',
+            'mark_so_as_sent': True
+        })
+        return {
+            'type': 'ir.actions.act_window',
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(compose_form_id, 'form')],
+            'view_id': compose_form_id,
+            'target': 'new',
+            'context': ctx,
+        }
 
 
     @api.multi
