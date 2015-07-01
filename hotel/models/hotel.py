@@ -23,6 +23,7 @@
 from openerp.exceptions import except_orm, Warning
 from openerp import models,fields,api,_
 from openerp import netsvc
+from openerp.tools import misc
 import datetime
 import time
 
@@ -135,6 +136,25 @@ class hotel_folio(models.Model):
     service_lines = fields.One2many('hotel.service.line','folio_id', readonly=True, states={'draft': [('readonly', False)], 'sent': [('readonly', False)]}, help="Hotel services detail provide to customer and it will include in main Invoice.")
     hotel_policy = fields.Selection([('prepaid', 'On Booking'), ('manual', 'On Check In'), ('picking', 'On Checkout')], 'Hotel Policy',default='manual', help="Hotel policy for payment that either the guest has to payment at booking time or check-in check-out time.")
     duration = fields.Float('Duration in Days', help="Number of days which will automatically count from the check-in and check-out date. ")
+    currrency_ids = fields.One2many('currency.exchange','folionumber', readonly=True)
+
+    @api.multi
+    def go_to_currency_exchange(self):
+        cr, uid, context = self.env.args
+        context = dict(context)
+        for rec in self:
+            context.update({'folioid':rec.id,'guest':self.partner_id.id,'room_no':self.room_lines.product_id.name,'hotel':self.warehouse_id.id})
+            self.env.args = cr, uid, misc.frozendict(context)
+            print'guestname---------------',context
+        return {
+            'name': _('Currency Exchange'),
+            'res_model': 'currency.exchange',
+            'type': 'ir.actions.act_window',
+            'view_id': False,
+            'view_mode': 'form,tree',
+            'view_type': 'form',
+            'context':{'default_folionumber':context.get('folioid'),'default_hotel_id':context.get('hotel'),'default_guest_name':context.get('guest'),'default_room_number':context.get('room_no')},
+        }
 
     @api.constrains('checkin_date','checkout_date')
     def check_dates(self):

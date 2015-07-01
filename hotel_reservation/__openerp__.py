@@ -33,6 +33,8 @@
     """,
     "website": ["http://www.serpentcs.com", "http://www.openerp.com"],
     "depends" : ["hotel", "stock", "report_extended",'mail','email_template',],
+    "demo": ["views/hotel_reservation_data.xml"],
+
     "data" : [
         "security/ir.model.access.csv",
         "wizard/hotel_reservation_wizard.xml",
@@ -46,9 +48,9 @@
         "views/max_room.xml",
         "views/room_res.xml",
         "views/room_summ_view.xml",
-        "views/hotel_reservation_data.xml",
         "views/email_temp_view.xml",
     ],
+
     'js': ["static/src/js/hotel_room_summary.js", ],
     'qweb': ['static/src/xml/hotel_room_summary.xml'],
     'css': ["static/src/css/room_summary.css"],

@@ -13,5 +13,7 @@
             name="hotel.report_hotel_folio" 
             menu="False"
         />
+
+
 	</data>
 </openerp>

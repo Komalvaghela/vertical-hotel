@@ -27,7 +27,6 @@
         "board",
         "report_hotel_restaurant"
         ],
-    "demo_xml":[],
     "data":[
         "views/board_frontdesk_view.xml"
     ],

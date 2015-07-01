@@ -143,6 +143,8 @@ class hotel_reservation(models.Model):
             roomcount = res and res[0] or 0.0
             if roomcount:
                 raise except_orm(_('Warning'), _('You tried to confirm reservation with room those already reserved in this reservation period'))
+            if len(reservation.reservation_line) == 0:
+                raise except_orm(_('Warning'), _('Please select room to confirm reservation'))
             else:
                 self.write({'state':'confirm'})
                 for line_id in reservation.reservation_line:
@@ -156,7 +158,7 @@ class hotel_reservation(models.Model):
                             'reservation_id': reservation.id,
                         }
                         reservation_line_obj.create(vals)
-        reservation.send_my_maill()
+                reservation.send_my_maill()
         return True
 
     @api.multi
