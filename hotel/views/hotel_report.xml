@@ -14,6 +14,15 @@
             menu="False"
         />
 
-
+        <!--Report for currency exchange -->
+        <report 
+            id="report_hotel_currency"
+            string="Encashment Certificate"
+            model="currency.exchange" 
+            report_type="qweb-pdf"
+            file="hotel.report_currency_exchange" 
+            name="hotel.report_currency_exchange"
+            menu="False" 
+        /> 
 	</data>
 </openerp>

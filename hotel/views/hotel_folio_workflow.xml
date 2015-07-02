@@ -260,10 +260,9 @@
             <field name="wkf_id" ref="wkf_currency"/>
             <field name="name">do_draft</field>
             <field name="kind">function</field>
-            <field name="action">act_cur_cancel123()</field>
+            <field name="action">act_cur_cancel_draft()</field>
         </record>
 
-			-->
         <!--  Transitions  -->
         <record id="trans_cur_draft" model="workflow.transition">
             <field name="act_from" ref="act_cur_draft"/>

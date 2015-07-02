@@ -379,7 +379,7 @@
         <record model="ir.ui.view" id="view_hotel_room_kanban">
             <field name="name">hotel.room.kanban</field>
                 <field name="model">hotel.room</field>
-            <field name="arch" type="xml">
+                <field name="arch" type="xml">
                 <kanban filter="status" >
                     <field name="name" />
                     <field name="status" />
@@ -620,15 +620,14 @@
                                 <tree>
                                     <field name="name"/>
                                     <field name="today_date"/>
+                                    <field name="type"/>
                                     <field name="in_amount"/>
                                     <field name="input_curr"/>
-                                    <field name="total"/>
+                                    <field name="total" sum="Total Amount"/>
                                     <field name="out_curr"/>
-                                    <field name="type"/>
                                 </tree>
                              </field>
                         </page>
-
                     </notebook>
                  </sheet>
                 </form>
@@ -643,7 +642,7 @@
                 <tree string="Hotel Folio" colors="blue:state == 'draft';gray:state == 'done'">
                     <field name="checkin_date" />
                     <field name="checkout_date" />
-                    <field name="name" select="1"/>
+                    <field name="name"/>
                     <field name="partner_id"  select="1"/>
                     <field name="date_order" select="1"/>
                     <field name="state"/>
@@ -659,18 +658,21 @@
             <field name="arch" type="xml">
                 <calendar string="Folios" date_start="checkin_date" color="user_id" date_stop="checkout_date">
                     <field name="name"/>
-                    <field name="partner_id"/>
+                    <field name="partner_id" />
                     <field name="duration"/>
                 </calendar>
             </field>
         </record>
 
-        <!-- Search view of hotel restaurant tables -->
+        <!-- Search view of hotel folio -->
         <record model="ir.ui.view" id="view_hotel_folio_search">
             <field name="name">hotel.folio.search</field>
             <field name="model">hotel.folio</field>
             <field name="arch" type="xml">
                 <search string="Tables Detail">
+                     <field name="partner_id" />
+                    <field name="name"/>
+                    <filter string="Current Booking" domain="[('checkout_date','&gt;=',datetime.datetime.now().replace(hour=0, minute=0, second=0)),('checkin_date','&lt;=',datetime.datetime.now().replace(hour=23, minute=59, second=59))]" help="Current Booking" />
                     <group expand="0" string="Group By">
                         <filter string="Order By Month" domain="[]" context="{'group_by':'date_order'}"/>
                         <filter name="partner_id" string="Customer" icon="terp-stock_symbol-selection" context="{'group_by':'partner_id'}" />
@@ -679,7 +681,7 @@
             </field>
         </record>
 
-    <!--graph view-->
+    <!--graph view of hotel folio-->
     <record id="view_hotel_folio_graph" model="ir.ui.view">
         <field name="name">view.hotel.folio.graph</field>
         <field name="model">hotel.folio</field>
@@ -689,7 +691,7 @@
                 <field name="amount_total" type="measure"/>
             </graph>
         </field>
-    </record>       
+    </record>
 
 
         <!-- Action for hotel folio  -->
@@ -707,7 +709,10 @@
                   sequence="5"
                   parent ="menu_all_folio"/> 
 
-		<!-- Services -->
+       <!--========================================================
+                            Hotel Service Type 
+        ========================================================-->
+
 		<!-- Form view of hotel service type  -->
 		<record model="ir.ui.view" id="view_hotel_service_type_form">
 			<field name="name">hotel.service_type.form</field>
@@ -750,6 +755,10 @@
                   action="open_hotel_service_type_form_tree"
                   sequence="9"
                   parent="hotel.menu_hotel_service"/>
+
+       <!--========================================================
+                             Hotel Service 
+        ========================================================-->
 
         <!-- Form view of hotel service -->
         <record model="ir.ui.view" id="view_hotel_services_form">
@@ -815,7 +824,7 @@
             </field>
         </record>
 
-        <!-- Tree view of hotel service -->
+        <!-- search view of hotel service -->
 		<record model="ir.ui.view" id="view_hotel_services_search">
             <field name="name">hotel.services.search</field>
             <field name="model">hotel.services</field>
@@ -903,13 +912,11 @@
                   sequence="10"
                   parent="hotel.menu_hotel_service"/>	
 
-
-
-
     <!--====================================================
                                 Currency
         ==================================================== -->
-    <!-- Form view of hotel floor -->
+
+    <!-- Form view of currency exchange -->
     <record model="ir.ui.view" id="view_currency_exchange_form">
             <field name="name">currency.exchange.form</field>
             <field name="model">currency.exchange</field>
@@ -919,6 +926,7 @@
                         <button name="cur_confirm" string="Done" states='draft' icon="gtk-ok"/>
                         <button name="cur_cancel" string="Cancel" states='draft' icon="gtk-cancel"/>
                         <button name="cur_cancel_draft" string="do_draft" states='cancel' icon="gtk-ok"/>
+                        <button name="%(report_hotel_currency)d" states='done' type="action" string="Print" class = "oe_highlight"/>
                         <field name="state" widget="statusbar" statusbar_visible="draft,done"/>
                 </header>
                  <sheet>
@@ -960,7 +968,7 @@
             </field>
         </record>
 
-        <!-- Tree view of hotel floor -->
+        <!-- Tree view of currency exchange -->
         <record model="ir.ui.view" id="view_currency_exchange_tree">
             <field name="name">currency.exchange.tree</field>
             <field name="model">currency.exchange</field>
@@ -968,13 +976,13 @@
                 <tree string=" Currency Exchange">
                        <field name="name"/>
                        <field name="today_date"/>
-                       <field name="input_curr" colspan="1"/>
-                       <field name="in_amount" select="1"/>
+                       <field name="guest_name"/>
+                       <field name="total" sum="Total"/>
                 </tree>
             </field>
         </record>
 
-        <!-- Action of hotel floor -->
+        <!-- Action of currency exchange -->
 	    <record model="ir.actions.act_window" id="open_currency_exchange_tree">
             <field name="name">Currency Exchange</field>
             <field name="res_model">currency.exchange</field>
